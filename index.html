@@ -17,7 +17,7 @@
   #skor { position: fixed; left: 12px; top: 10px; pointer-events: none; }
   #sag { position: fixed; right: 12px; top: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; z-index: 30; }
   #elmas { pointer-events: none; }
-  #tamEkran, #ev { width: 46px; height: 46px; font-size: 24px; line-height: 1; color: #fff; background: rgba(60,36,90,.55);
+  #tamEkran, #ev, #ayar { width: 46px; height: 46px; font-size: 24px; line-height: 1; color: #fff; background: rgba(60,36,90,.55);
     border: 2px solid rgba(255,255,255,.9); border-radius: 14px; padding: 0; display: none; }
   #durum { position: fixed; left: 50%; top: 58px; transform: translateX(-50%); max-width: 86vw; padding: 8px 18px;
     border-radius: 999px; background: rgba(60,36,90,.6); color: #fff; font-weight: 800; font-size: 18px;
@@ -42,6 +42,9 @@
     justify-content: center; gap: 14px; padding: 24px; text-align: center; background: rgba(74,42,107,.94);
     color: #fff; font-size: 22px; font-weight: 800; }
   #kilit .ikon { font-size: 64px; }
+  #ayarCubuk { position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 30; display: none; align-items: center; gap: 12px;
+    padding: 10px 18px; border-radius: 999px; background: rgba(60,36,90,.82); color: #fff; font-weight: 800; font-size: 16px; white-space: nowrap; }
+  #ayarCubuk input { width: min(46vw, 300px); height: 30px; accent-color: #ff4f9a; }
   #flas { position: fixed; inset: 0; background: #ff3b3b; opacity: 0; pointer-events: none; z-index: 5; }
   #hub { position: fixed; inset: 0; z-index: 12; display: none; flex-direction: column; box-sizing: border-box;
     padding: 10px 14px 12px; background: rgba(255,238,224,.97); overflow: auto; }
@@ -67,7 +70,8 @@
 <canvas id="oyun"></canvas>
 <video id="video" playsinline muted></video>
 <div class="rozet" id="skor">0</div>
-<div id="sag"><div class="rozet" id="elmas">💎 0</div><button id="tamEkran" aria-label="Tam ekran">⛶</button><button id="ev" aria-label="Oyunlar">🏠</button></div>
+<div id="sag"><div class="rozet" id="elmas">💎 0</div><button id="tamEkran" aria-label="Tam ekran">⛶</button><button id="ev" aria-label="Oyunlar">🏠</button><button id="ayar" aria-label="Hassasiyet">⚙️</button></div>
+<div id="ayarCubuk"><span id="ayarYazi"></span><input id="ayarKaydir" type="range" min="0.4" max="2" step="0.1" value="1"></div>
 <div id="durum"></div>
 <div id="flas"></div>
 <div id="hub"><div id="hubUst"><h1>Interactive Game <small id="surumYazi"></small></h1>
@@ -83,7 +87,7 @@ import oyunlariKur from "./oyunlar.js";
 // =====================================================================================================
 //  AYARLAR
 // =====================================================================================================
-const SURUM = "3.0";
+const SURUM = "3.1";
 const POZ_KUTUPHANE = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/vision_bundle.mjs";
 const POZ_WASM = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm";
 const POZ_MODEL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task";
@@ -150,12 +154,12 @@ function cal(ad, siddet = 1, perde = 1) {
 const tuval = $("oyun");
 const cizer = new THREE.WebGLRenderer({ canvas: tuval, antialias: true, powerPreference: "high-performance", stencil: false });
 cizer.toneMapping = THREE.ACESFilmicToneMapping;
-cizer.toneMappingExposure = 1.0;
+cizer.toneMappingExposure = 1.06;
 cizer.shadowMap.enabled = true;
 cizer.shadowMap.type = THREE.PCFSoftShadowMap;
 const sahne = new THREE.Scene();
-const SIS_RENK = 0xffdcc4;
-sahne.fog = new THREE.Fog(SIS_RENK, 42, 94);
+const SIS_RENK = 0xd9eeff;          // ufuk rengi: uzak zemin bu açık maviye karışır
+sahne.fog = new THREE.Fog(SIS_RENK, 50, 98);
 const kamera = new THREE.PerspectiveCamera(58, 1, 0.1, 400);
 
 // Tohumlu rastgele (dokular her açılışta aynı çıksın)
@@ -172,46 +176,39 @@ function dokuYap(w, h, ciz, tx = 1, ty = 1) {
   return t;
 }
 
-// Gökyüzü yerine oda havası: yumuşak geçiş + bulanık ışık topları (bokeh)
-const arkaDoku = dokuYap(1024, 512, (c, w, h) => {
+// Gökyüzü: parlak mavi geçiş. Bulutlar, tepeler ve güneş aşağıda ayrıca çizilir (hepsi kodla, dosya yok).
+const arkaDoku = dokuYap(16, 512, (c, w, h) => {
   const g = c.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, "#6fbdf5"); g.addColorStop(0.3, "#8fcdf7"); g.addColorStop(0.41, "#cfe6f5"); g.addColorStop(0.475, "#ffdcc4"); g.addColorStop(1, "#ffdcc4");
+  g.addColorStop(0, "#0a6cff"); g.addColorStop(0.3, "#2c90ff"); g.addColorStop(0.43, "#6fb8ff"); g.addColorStop(0.5, "#d9eeff"); g.addColorStop(1, "#d9eeff");
   c.fillStyle = g; c.fillRect(0, 0, w, h);
-  const renkler = ["255,255,255", "255,240,190", "255,200,220", "200,235,255"];
-  for (let i = 0; i < 90; i++) {
-    const x = tr() * w, y = h * (0.26 + tr() * 0.2), r = 6 + tr() * 22;
-    const rg = c.createRadialGradient(x, y, 0, x, y, r), renk = renkler[rast(4)], a = 0.08 + tr() * 0.16;
-    rg.addColorStop(0, `rgba(${renk},${a})`); rg.addColorStop(0.75, `rgba(${renk},${a * 0.8})`); rg.addColorStop(1, `rgba(${renk},0)`);
-    c.fillStyle = rg; c.beginPath(); c.arc(x, y, r, 0, 7); c.fill();
-  }
 });
 arkaDoku.wrapT = THREE.ClampToEdgeWrapping;
-const arka = new THREE.Mesh(new THREE.SphereGeometry(300, 24, 12), new THREE.MeshBasicMaterial({ map: arkaDoku, side: THREE.BackSide, fog: false, depthWrite: false }));
+const arka = new THREE.Mesh(new THREE.SphereGeometry(300, 24, 16), new THREE.MeshBasicMaterial({ map: arkaDoku, side: THREE.BackSide, fog: false, depthWrite: false }));
 arka.renderOrder = -1;
 sahne.add(arka);
 
-// Ortam yansıması (plastik parlaklığı buradan gelir); indirme yok, kodla üretilir
+// Ortam yansıması (plastik parlaklığı buradan gelir): mavi gök + parlak güneş
 {
   const os = new THREE.Scene();
   const kg = new THREE.SphereGeometry(50, 16, 8);
-  const renk = new Float32Array(kg.attributes.position.count * 3), ust = new THREE.Color(0xbfe2ff), alt = new THREE.Color(0xffc9a3), c = new THREE.Color();
+  const renk = new Float32Array(kg.attributes.position.count * 3), ust = new THREE.Color(0x9fd0ff), alt = new THREE.Color(0xf2dcc0), c = new THREE.Color();
   for (let i = 0; i < kg.attributes.position.count; i++) {
     c.copy(alt).lerp(ust, sinirla(kg.attributes.position.getY(i) / 50 * 0.5 + 0.5, 0, 1));
     renk[i * 3] = c.r; renk[i * 3 + 1] = c.g; renk[i * 3 + 2] = c.b;
   }
   kg.setAttribute("color", new THREE.BufferAttribute(renk, 3));
   os.add(new THREE.Mesh(kg, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide })));
-  const pencere = new THREE.Mesh(new THREE.PlaneGeometry(26, 20), new THREE.MeshBasicMaterial({ color: new THREE.Color(9, 8.4, 7.4), side: THREE.DoubleSide }));
-  pencere.position.set(22, 26, 14); pencere.lookAt(0, 0, 0); os.add(pencere);
-  const lamba = new THREE.Mesh(new THREE.PlaneGeometry(14, 10), new THREE.MeshBasicMaterial({ color: new THREE.Color(3, 3.4, 4), side: THREE.DoubleSide }));
-  lamba.position.set(-24, 14, -10); lamba.lookAt(0, 0, 0); os.add(lamba);
+  const gunesPanel = new THREE.Mesh(new THREE.PlaneGeometry(22, 22), new THREE.MeshBasicMaterial({ color: new THREE.Color(11, 10.2, 8.6), side: THREE.DoubleSide }));
+  gunesPanel.position.set(22, 26, 14); gunesPanel.lookAt(0, 0, 0); os.add(gunesPanel);
+  const dolgu = new THREE.Mesh(new THREE.PlaneGeometry(16, 12), new THREE.MeshBasicMaterial({ color: new THREE.Color(3, 3.5, 4.2), side: THREE.DoubleSide }));
+  dolgu.position.set(-24, 14, -10); dolgu.lookAt(0, 0, 0); os.add(dolgu);
   const pm = new THREE.PMREMGenerator(cizer);
   sahne.environment = pm.fromScene(os, 0.03).texture;
   pm.dispose(); kg.dispose();
 }
 
-sahne.add(new THREE.HemisphereLight(0xfff3e6, 0xb98f73, 0.42));
-const gunes = new THREE.DirectionalLight(0xfff1dc, 2.5);
+sahne.add(new THREE.HemisphereLight(0xd6ecff, 0xc9a77c, 0.6));
+const gunes = new THREE.DirectionalLight(0xfff3d6, 2.75);
 gunes.position.set(14, 26, -2); gunes.target.position.set(0, 0, -14);
 gunes.castShadow = true;
 gunes.shadow.mapSize.set(1024, 1024);
@@ -391,6 +388,38 @@ const G = {
 const SUS = [G.kule, G.kule2, G.halka, G.roket, kupKulesiGeo([1.6, 1.3], [R.mor, R.turkuaz]), topGeo(), ayicikGeo(), ordekGeo(), kitapYiginGeo(), boyaKalemleriGeo()];
 const BACAK_GEO = sandalyeBacakGeo();
 
+// Ufuk: uzak tepeler, bulutlar ve güneş. Kamerayla birlikte kayar (hep ufukta kalır), sis bunları örtmez.
+const ufuk = new THREE.Group(); sahne.add(ufuk);
+let bulutlar;
+{
+  const uzakZemin = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400), new THREE.MeshBasicMaterial({ color: SIS_RENK, fog: false }));
+  uzakZemin.rotation.x = -PI / 2; uzakZemin.position.y = -0.06; ufuk.add(uzakZemin);
+  const tl = [], yesil = [0x9ad79a, 0x86cc8f, 0xa9dfae, 0x8fd3a6, 0xb4e3c0];
+  for (let i = 0; i < 13; i++) {
+    const az = (-90 + i * 15 + tr() * 8) * PI / 180, d = 150 + tr() * 50, rx = 38 + tr() * 34, ry = 12 + tr() * 16;
+    tl.push(p(kure(14), yesil[i % 5], Math.sin(az) * d, -ry * 0.3, -Math.cos(az) * d, 0, 0, 0, rx, ry, rx * 0.7));
+  }
+  ufuk.add(new THREE.Mesh(birlestir(tl), new THREE.MeshLambertMaterial({ vertexColors: true, fog: false })));
+  const bl = [];
+  for (let i = 0; i < 24; i++) {
+    const az = (i * 15 + tr() * 10) * PI / 180, d = 150 + tr() * 70, y = 26 + tr() * 34, b = 7 + tr() * 7, cx = Math.sin(az) * d, cz = -Math.cos(az) * d;
+    for (let k = 0; k < 5; k++) {
+      const o = (k - 2) * b * 0.75, rr = b * (1 - Math.abs(k - 2) * 0.22);
+      bl.push(p(kure(10), k % 2 ? 0xffffff : 0xf3f8ff, cx + Math.cos(az) * o, y + (k % 2 ? rr * 0.25 : 0), cz + Math.sin(az) * o, 0, 0, 0, rr, rr * 0.72, rr));
+    }
+  }
+  bulutlar = new THREE.Mesh(birlestir(bl), new THREE.MeshLambertMaterial({ vertexColors: true, fog: false, emissive: 0xe4eefb, emissiveIntensity: 0.82 }));      // gölge tarafı da aydınlık kalsın
+  ufuk.add(bulutlar);
+  const gd = dokuYap(128, 128, (c, w) => {
+    const g = c.createRadialGradient(64, 64, 0, 64, 64, 64);
+    g.addColorStop(0, "rgba(255,255,255,1)"); g.addColorStop(0.16, "rgba(255,250,215,1)"); g.addColorStop(0.24, "rgba(255,236,150,0.55)");
+    g.addColorStop(0.55, "rgba(255,225,130,0.14)"); g.addColorStop(1, "rgba(255,220,120,0)");
+    c.fillStyle = g; c.fillRect(0, 0, w, w);
+  });
+  const gs = new THREE.Sprite(new THREE.SpriteMaterial({ map: gd, fog: false, depthWrite: false, transparent: true, toneMapped: false }));
+  gs.position.set(118, 62, -212); gs.scale.setScalar(150); ufuk.add(gs);
+}
+
 // =====================================================================================================
 //  DÜNYA: ahşap zemin, oyuncak yolu, kenar süsleri (zemin dokusu kaydırılır; hareket eden geometri yok)
 // =====================================================================================================
@@ -438,9 +467,10 @@ let kenarAg;
 
 // Kenar süsleri: sabit sayıda yuva, geçen süs ileride başka bir oyuncak olarak geri gelir
 const susler = [], SUS_ADET = 26, SUS_ARALIK = 4.6, SUS_TUR = SUS_ADET * SUS_ARALIK;
+let susListe = SUS;
 function susYerlestir(s, z) {
-  const yon = s.yon, bacak = Math.random() < 0.1;
-  s.ag.geometry = bacak ? BACAK_GEO : SUS[rast(SUS.length)];
+  const yon = s.yon, bacak = susListe === SUS && Math.random() < 0.1;
+  s.ag.geometry = bacak ? BACAK_GEO : susListe[rast(susListe.length)];
   const olcek = bacak ? 1 : 0.8 + Math.random() * 0.7;
   s.ag.scale.setScalar(olcek);
   s.ag.rotation.y = bacak ? 0 : (Math.random() - 0.5) * 1.6 - yon * 0.5;
@@ -662,6 +692,7 @@ let sonSkorYazi = -1, sonElmasYazi = -1, sonDurumYazi = "", duraklat = false, sa
 let enYuksek = 0;
 try { enYuksek = parseInt(localStorage.getItem("kamKosuMax")) || 0; } catch (e) {}
 const girdi = { serit: 1, egil: false, zipla: false, elHavada: false };
+let hasDeger = 1;      // hassasiyet çarpanı: her oyun için ayrı saklanır
 let aktif = null, ipucuT = 0, susGorunur = true, sonSol = null, sonSag = null;
 
 function durumYaz(yazi) {
@@ -871,18 +902,19 @@ function pozIsle(v, tSn) {
   if (durum !== "oyun") return;
   if (!aktif.yerlesik) { aktif.poz(P, dtPoz); return; }
 
+  const sE = SERIT_ESIK / hasDeger, zE = ZIPLA_ESIK / hasDeger, eE = EGIL_ESIK / hasDeger;      // hassasiyet arttıkça eşik küçülür
   // Şerit: ön kamera aynalı olduğu için yön ters çevrilir
   const kayma = -(fx - temel.x) / temel.gen;
-  if (kayma > SERIT_ESIK) girdi.serit = 2;
-  else if (kayma < -SERIT_ESIK) girdi.serit = 0;
-  else if (Math.abs(kayma) < SERIT_ESIK * 0.55) girdi.serit = 1;
+  if (kayma > sE) girdi.serit = 2;
+  else if (kayma < -sE) girdi.serit = 0;
+  else if (Math.abs(kayma) < sE * 0.55) girdi.serit = 1;
 
   // Zıplama: omuzlar yükseldi ya da hızla yükseliyor (hız sayesinde daha erken yakalanır). Tek sıçrama = tek zıplama.
   const fark = (temel.y - fy) / temel.govde, hizY = -fY.turev / temel.govde;
-  const hizli = fark > ZIPLA_ESIK * 0.5 && hizY > 1.3 && simdi > egilBirakT + 500;
-  if (ziplaHazir && simdi > ziplaBekle && (fark > ZIPLA_ESIK || hizli)) {
+  const hizli = fark > zE * 0.5 && hizY > 1.3 && simdi > egilBirakT + 500;
+  if (ziplaHazir && simdi > ziplaBekle && (fark > zE || hizli)) {
     girdi.zipla = true; ziplaHazir = false; ziplaBekle = simdi + 800; egilYasakT = simdi + 750;
-  } else if (!ziplaHazir && fark < ZIPLA_ESIK * 0.4) ziplaHazir = true;
+  } else if (!ziplaHazir && fark < zE * 0.4) ziplaHazir = true;
 
   // Kolları iki yana açmak da zıplama sayılır
   const solAcik = v[17] > 0.4 && Math.abs(v[15] - v[3]) > temel.gen * 0.85 && Math.abs(v[16] - v[4]) < temel.govde * 0.6;
@@ -892,8 +924,8 @@ function pozIsle(v, tSn) {
 
   // Eğilme (zıplamadan sonraki iniş esnemesi eğilme sayılmaz)
   if (simdi < egilYasakT) girdi.egil = false;
-  else if (!girdi.egil && fark < -EGIL_ESIK) girdi.egil = true;
-  else if (girdi.egil && fark > -EGIL_ESIK * 0.6) { girdi.egil = false; egilBirakT = simdi; }
+  else if (!girdi.egil && fark < -eE) girdi.egil = true;
+  else if (girdi.egil && fark > -eE * 0.6) { girdi.egil = false; egilBirakT = simdi; }
 
   // Duruş yavaşça kaydıysa ölçümü sessizce güncelle
   if (Math.abs(fark - oncekiFark) < 0.012 && fark > -0.2 && fark < 0.3 && !girdi.egil) temel.y += (fy - temel.y) * 0.05;
@@ -968,12 +1000,12 @@ for (const olay of ["fullscreenchange", "webkitfullscreenchange"]) document.addE
 function menuGoster() {
   modGec(KOSU); durum = "menu"; durumYaz(""); basladi = false; engel = false; elKilit.style.display = "none";
   panel.style.display = "none"; hub.style.display = "flex";
-  elSkor.style.display = elElmas.style.display = "none"; $("ev").style.display = "none";
+  elSkor.style.display = elElmas.style.display = "none"; $("ev").style.display = $("ayar").style.display = $("ayarCubuk").style.display = "none";
   for (const o of OYUNLAR) { let en = 0; try { en = parseInt(localStorage.getItem(rekorAnahtar(o))) || 0; } catch (e) {} o.kartRekor.textContent = en ? "🏆 " + en : ""; }
   hub.querySelectorAll(".kart").forEach(k => k.classList.toggle("secili", k.dataset.k === secili));
 }
 async function baslaTiklandi() {
-  hub.style.display = "none"; panel.style.display = "block"; elSkor.style.display = elElmas.style.display = ""; $("ev").style.display = "block";
+  hub.style.display = "none"; panel.style.display = "block"; elSkor.style.display = elElmas.style.display = ""; $("ev").style.display = $("ayar").style.display = "block";
   if (dokunmatik) tamEkranAc();                 // dokunma anında çağrılmalı
   basladi = true; engel = dokunmatik;           // telefonda yatay + tam ekran olana kadar ölçüm başlamaz
   sesleriYukle();
@@ -1186,13 +1218,18 @@ const durusSifir = d => { for (const a in d) d[a] = 0; };
 function solYaz(y) { if (y !== sonSol) { sonSol = y; elSkor.textContent = y; } }
 function sagYaz(y) { if (y !== sonSag) { sonSag = y; elElmas.textContent = y; } }
 function flas() { const f = $("flas"); f.style.transition = "none"; f.style.opacity = "0.45"; requestAnimationFrame(() => { f.style.transition = "opacity .45s"; f.style.opacity = "0"; }); }
-function susGoster(b) { susGorunur = b; for (const s of susler) s.ag.visible = b; }
+function susGoster(b, liste) {      // liste verilirse kenar süsleri o oyunun kendi takımına döner (ör. yarışta ağaçlar)
+  susGorunur = b; const l = liste || SUS;
+  if (l !== susListe) { susListe = l; for (const s of susler) susYerlestir(s, s.ag.position.z); }
+  for (const s of susler) s.ag.visible = b;
+}
+function zeminHarita(doku, puruz) { const m = zemin.material; m.map = doku || zeminDoku; m.roughness = doku ? (puruz || 0.9) : 0.5; m.envMapIntensity = doku ? 0.2 : 0.4; }
 function kosuGoster(b) { yol.visible = kenarAg.visible = b; susGoster(b); }
 function karakterTak(k, ebeveyn, x, y, z, olcek, yon) { ebeveyn.add(k.kok); k.kok.position.set(x, y, z); k.kok.scale.setScalar(olcek); k.kok.rotation.set(0, yon || 0, 0); k.kok.visible = true; }
 function karakterSifirla() {
   for (const t in KARAKTER) {
     const k = KARAKTER[t]; sahne.add(k.kok); k.kok.position.set(0, 0, 0); k.kok.scale.setScalar(1); k.kok.rotation.set(0, 0, 0);
-    k.solKalca.rotation.set(0, 0, 0); k.sagKalca.rotation.set(0, 0, 0); k.kok.visible = t === secili;
+    k.solKalca.rotation.set(0, 0, 0); k.sagKalca.rotation.set(0, 0, 0); k.solOmuz.scale.setScalar(1); k.sagOmuz.scale.setScalar(1); k.kok.visible = t === secili;
     if (k.eldiven) k.eldiven.forEach(e => { e.visible = false; });
   }
 }
@@ -1230,12 +1267,14 @@ const O = { THREE, sahne, kamera, R, CANLI, PI, p, birlestir, kure, sil, koni, k
   rast, sinirla, yaklas, cal, parAt, durumYaz, solYaz, sagYaz, hPoz, hBak, fov: v => { hFov = v; }, kameraKontrol, flas,
   D, yeniDurus, durusSifir, durusUygula, karakter: () => K, diger: () => KARAKTER[secili === "kiz" ? "erkek" : "kiz"], karakterTak,
   elmasEkle, elmasListe: () => elmaslar, tus, isaretci, zaman: () => zaman, bitir: bitisGoster, sarsinti: v => { sarsinti = v; },
-  ses: () => ({ ctx: sesCtx, ana: sesAna }), susGoster, ZEMIN_BOY, zeminZ: zemin.position.z };
+  ses: () => ({ ctx: sesCtx, ana: sesAna }), susGoster, zeminHarita, has: () => hasDeger, ZEMIN_EN, ZEMIN_BOY, zeminZ: zemin.position.z };
 const OYUNLAR = [KOSU, ...oyunlariKur(O)];
 
 function modGec(o) {      // bir oyundan diğerine geç: öncekini gizle, yenisini kur ve göster
   if (aktif && aktif !== o) { if (aktif.yerlesik) { sifirla(); kosuGoster(false); } else aktif.kapat(); }
   karakterSifirla(); aktif = o; yildizlar.visible = false; sonSol = sonSag = null; duraklat = false;
+  hasDeger = 1; try { hasDeger = parseFloat(localStorage.getItem("ig_has_" + o.id)) || 1; } catch (e) {}
+  hasYaz();
   if (o.yerlesik) { kosuGoster(true); sifirla(); }
   else { kosuGoster(false); if (!o.kuruldu) { o.kur(); o.kuruldu = true; } o.ac(); }
 }
@@ -1244,14 +1283,17 @@ function onizlemeleriCiz() {      // her oyunun kart resmi: oyunun kendi sahnesi
   for (const o of OYUNLAR) {
     modGec(o); o.onizle();
     kamPoz.copy(hPoz); kamBak.copy(hBak); kamera.fov = hFov; kamera.updateProjectionMatrix();
-    kamera.position.copy(kamPoz); kamera.lookAt(kamBak); arka.position.copy(kamPoz);
+    kamera.position.copy(kamPoz); kamera.lookAt(kamBak); arka.position.copy(kamPoz); ufuk.position.set(kamPoz.x, 0, kamPoz.z);
     durusUygula(); elmasCiz(); parGuncelle(0, 0);
     cizer.render(sahne, kamera);
     o.kartTuval.getContext("2d").drawImage(tuval, 0, 0, 480, 300);
   }
   modGec(KOSU); kaliteUygula();
 }
+function hasYaz() { $("ayarKaydir").value = hasDeger; $("ayarYazi").textContent = "Hassasiyet " + hasDeger.toFixed(1); }
 function hubKur() {
+  $("ayar").addEventListener("click", () => { const c = $("ayarCubuk"); c.style.display = c.style.display === "flex" ? "none" : "flex"; });
+  $("ayarKaydir").addEventListener("input", e => { hasDeger = parseFloat(e.target.value) || 1; hasYaz(); try { localStorage.setItem("ig_has_" + aktif.id, String(hasDeger)); } catch (h) {} });
   $("surumYazi").textContent = "v" + SURUM;
   for (const o of OYUNLAR) {
     const b = document.createElement("button"), c = document.createElement("canvas"), ad = document.createElement("div");
@@ -1303,6 +1345,7 @@ function dongu(damga) {
   kamera.lookAt(kamBak);
   if (Math.abs(kamera.fov - hFov) > 0.05) { kamera.fov = yaklas(kamera.fov, hFov, kk); kamera.updateProjectionMatrix(); }
   arka.position.copy(kamera.position);
+  ufuk.position.set(kamera.position.x, 0, kamera.position.z); bulutlar.rotation.y += dt * 0.004;      // bulutlar yavaşça kayar
 
   cizer.render(sahne, kamera);
 
