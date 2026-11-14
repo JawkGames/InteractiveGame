@@ -7,10 +7,10 @@ const NOKTA = [0, 11, 12, 13, 14, 15, 16, 23, 24]; // burun, omuzlar, dirsekler,
 function paketle(sonuc) {
   const n = sonuc && sonuc.landmarks && sonuc.landmarks[0];
   if (!n) return null;
-  const v = new Float32Array(27);
+  const v = new Float32Array(36);          // 9 nokta × (x, y, görünürlük) + sonda 9 derinlik (z)
   for (let i = 0; i < 9; i++) {
     const q = n[NOKTA[i]];
-    v[i * 3] = q.x; v[i * 3 + 1] = q.y; v[i * 3 + 2] = q.visibility === undefined ? 1 : q.visibility;
+    v[i * 3] = q.x; v[i * 3 + 1] = q.y; v[i * 3 + 2] = q.visibility === undefined ? 1 : q.visibility; v[27 + i] = q.z || 0;
   }
   return v;
 }
