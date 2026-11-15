@@ -1441,6 +1441,20 @@ function dongu(damga) {
 }
 
 window.oyunBilgi = () => ({ oyun: aktif && aktif.id, durum, kalite, pozDurum, pozMod, gecikme, hiz, mesafe, elmasSayi, cizim: cizer.info.render.calls, ucgen: cizer.info.render.triangles });
+// İkon ve mağaza görseli üretimi için (oyunda kullanılmaz): iki oyuncak yan yana, bize el sallar
+window.ikonCiz = (w, h, kamZ, kamY, bakY) => {
+  modGec(KOSU); durum = "menu"; hub.style.display = "none"; panel.style.display = "none";
+  for (const [tip, x, yon] of [["kiz", -0.5, 1], ["erkek", 0.5, -1]]) {
+    const k = KARAKTER[tip], d = yeniDurus(); sahne.add(k.kok); k.kok.visible = true; k.kok.position.set(x, 0, 0); k.kok.rotation.set(0, PI + yon * 0.25, 0);
+    d.basZ = yon * 0.12; d.kalcaY = 0;
+    if (tip === "kiz") { d.lKolZ = -0.25; d.rKolZ = 2.6; d.rDirZ = -0.35; } else { d.rKolZ = 0.25; d.lKolZ = -2.6; d.lDirZ = 0.35; }
+    durusYaz(k, d);
+  }
+  cizer.setPixelRatio(1); cizer.setSize(w, h, false); kamera.aspect = w / h; kamera.fov = 30; kamera.updateProjectionMatrix();
+  kamera.position.set(0, kamY, kamZ); kamera.lookAt(0, bakY, 0); arka.position.copy(kamera.position); ufuk.position.set(0, 0, kamZ);
+  cizer.render(sahne, kamera);
+  return tuval.toDataURL("image/png");
+};
 window.oyunTest = id => { modGec(OYUNLAR.find(o => o.id === id)); hub.style.display = "none"; elSkor.style.display = elElmas.style.display = ""; oyunuBaslat(false); };
 karakterSec(secili); secimZip = 0;
 hubKur();
