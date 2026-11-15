@@ -16,6 +16,15 @@ if (adim === "www") {
   fs.mkdirSync(www);
   for (const f of ["index.html", "oyunlar.js", "poz-isci.js"]) fs.copyFileSync(path.join(kok, f), path.join(www, f));
   fs.cpSync(path.join(kok, "assets"), path.join(www, "assets"), { recursive: true });
+  // Telefon eklentileri (Capacitor, AdMob, Google Play satın alma): sadece uygulamaya eklenir, web sürümünü etkilemez
+  const lib = path.join(www, "lib"); fs.mkdirSync(lib);
+  const nm = path.join(kok, "node_modules");
+  fs.copyFileSync(path.join(nm, "@capacitor/core/dist/capacitor.js"), path.join(lib, "capacitor.js"));
+  fs.copyFileSync(path.join(nm, "@capacitor-community/admob/dist/plugin.js"), path.join(lib, "admob.js"));
+  fs.copyFileSync(path.join(nm, "@capgo/native-purchases/dist/plugin.js"), path.join(lib, "satin.js"));
+  const ix = path.join(www, "index.html");
+  fs.writeFileSync(ix, fs.readFileSync(ix, "utf8").replace("<script type=\"module\">",
+    '<script src="lib/capacitor.js"></script>\n<script src="lib/admob.js"></script>\n<script src="lib/satin.js"></script>\n<script type="module">'));
   console.log("www hazır");
 }
 
@@ -36,6 +45,11 @@ if (adim === "android") {
   const man = path.join(app, "src/main/AndroidManifest.xml");
   let m = fs.readFileSync(man, "utf8");
   if (!m.includes("permission.CAMERA")) m = m.replace("<application", '<uses-permission android:name="android.permission.CAMERA" />\n    <uses-feature android:name="android.hardware.camera.front" android:required="false" />\n    <uses-feature android:name="android.hardware.camera" android:required="false" />\n    <application');
+  // AdMob uygulama kimliği, reklam kimliği izni, Google Play satın alma izni
+  const ADMOB = "ca-app-pub-7983529419004158~6435142212";
+  if (!m.includes("gms.ads.APPLICATION_ID")) m = m.replace(/<application([^>]*)>/, `<application$1>\n        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="${ADMOB}" />`);
+  if (!m.includes("permission.AD_ID")) m = m.replace("<application", '<uses-permission android:name="com.google.android.gms.permission.AD_ID" />\n    <application');
+  if (!m.includes("vending.BILLING")) m = m.replace("<application", '<uses-permission android:name="com.android.vending.BILLING" />\n    <application');
   if (!m.includes("screenOrientation")) m = m.replace("<activity", '<activity\n            android:screenOrientation="sensorLandscape"');
   fs.writeFileSync(man, m);
 

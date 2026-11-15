@@ -10,7 +10,8 @@
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
   #oyun { display: block; width: 100vw; height: 100vh; touch-action: none; }
-  #video { position: fixed; left: 10px; bottom: 10px; width: 92px; border-radius: 12px; transform: scaleX(-1);
+  :root { --alt: 0px; }      /* alttaki banner reklamın yüksekliği (telefonda dolar) */
+  #video { position: fixed; left: 10px; bottom: calc(10px + var(--alt)); width: 92px; border-radius: 12px; transform: scaleX(-1);
     opacity: .9; border: 2px solid #fff; display: none; box-shadow: 0 3px 0 rgba(0,0,0,.15); }
   .rozet { padding: 6px 14px; border-radius: 999px; background: rgba(60,36,90,.55); color: #fff;
     font-weight: 900; font-size: 22px; letter-spacing: .3px; line-height: 1.2; }
@@ -42,7 +43,7 @@
     justify-content: center; gap: 14px; padding: 24px; text-align: center; background: rgba(74,42,107,.94);
     color: #fff; font-size: 22px; font-weight: 800; }
   #kilit .ikon { font-size: 64px; }
-  #ayarCubuk { position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 30; display: none; align-items: center; gap: 12px;
+  #ayarCubuk { position: fixed; left: 50%; bottom: calc(12px + var(--alt)); transform: translateX(-50%); z-index: 30; display: none; align-items: center; gap: 12px;
     padding: 10px 18px; border-radius: 999px; background: rgba(60,36,90,.82); color: #fff; font-weight: 800; font-size: 16px; white-space: nowrap; }
   #ayarCubuk input { width: min(46vw, 300px); height: 30px; accent-color: #ff4f9a; }
   #ayarPanel { position: fixed; inset: 0; z-index: 40; display: none; align-items: center; justify-content: center; background: rgba(74,42,107,.45); }
@@ -52,14 +53,25 @@
   #ayarPanel p { margin: 10px 0 0; font-weight: 800; font-size: 15px; }
   #ayarPanel .secim { margin: 6px 0 0; }
   #flas { position: fixed; inset: 0; background: #ff3b3b; opacity: 0; pointer-events: none; z-index: 5; }
-  #hub { position: fixed; inset: 0; z-index: 12; display: none; flex-direction: column; box-sizing: border-box;
+  #hub { position: fixed; inset: 0 0 var(--alt) 0; z-index: 12; display: none; flex-direction: column; box-sizing: border-box;
     padding: 10px 14px 12px; background: rgba(255,238,224,.97); overflow: auto; }
   #hubUst { display: flex; align-items: center; gap: 8px; margin: 0 58px 8px 0; }
   #hubUst h1 { margin: 0; flex: 1; font-size: 24px; color: #ff4f9a; white-space: nowrap; }
   #hubUst h1 small { font-size: 11px; color: #4a2a6b; opacity: .45; font-weight: 600; }
   #hubUst .kart { flex: none; padding: 8px 14px; font-size: 15px; }
   #kartlar { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 1fr; gap: 10px; }
-  .oyunKart { display: flex; flex-direction: column; min-height: 96px; padding: 0; border: 0; border-radius: 18px; overflow: hidden;
+  .oyunKart .kilitRozet { position: absolute; left: 8px; top: 8px; padding: 4px 10px; border-radius: 999px; background: rgba(60,36,90,.78);
+    color: #fff; font-weight: 900; font-size: 14px; pointer-events: none; }
+  .oyunKart.kilitli canvas { filter: saturate(.55) brightness(.92); }
+  #kilitPanel { position: fixed; inset: 0; z-index: 41; display: none; align-items: center; justify-content: center; background: rgba(74,42,107,.45); }
+  #kilitPanel .kutu { width: min(86vw, 380px); max-height: 92vh; overflow: auto; box-sizing: border-box; padding: 16px 20px; border-radius: 24px;
+    background: #fff; color: #4a2a6b; text-align: center; box-shadow: 0 10px 0 rgba(74,42,107,.18); }
+  #kilitPanel h2 { margin: 0 0 4px; color: #ff4f9a; font-size: 24px; }
+  #kilitPanel .ana, #kilitPanel .ikinci { display: block; width: 100%; margin: 10px 0 0; }
+  #kilitPanel .kucuk { font-size: 12px; opacity: .65; margin: 4px 0 0; }
+  #kilitPanel .baglanti { margin-top: 10px; background: none; border: 0; color: #4a2a6b; opacity: .6; font-weight: 800; text-decoration: underline; font-size: 13px; }
+  #kilitMesaj { min-height: 18px; margin: 8px 0 0; font-weight: 800; font-size: 14px; color: #ff4f9a; }
+  .oyunKart { position: relative; display: flex; flex-direction: column; min-height: 96px; padding: 0; border: 0; border-radius: 18px; overflow: hidden;
     background: #fff; box-shadow: 0 5px 0 rgba(74,42,107,.16); font-family: inherit; }
   .oyunKart canvas { display: block; width: 100%; flex: 1; min-height: 0; object-fit: cover; }
   .oyunKart .ad { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; font-weight: 900;
@@ -80,6 +92,9 @@
 <div id="ayarCubuk"><span id="ayarYazi"></span><input id="ayarKaydir" type="range" min="0.4" max="2" step="0.1" value="1"></div>
 <div id="durum"></div>
 <div id="flas"></div>
+<div id="kilitPanel"><div class="kutu"><h2 id="kpBaslik"></h2><p id="kpYazi"></p>
+  <button class="ana" id="kpReklam"></button><button class="ikinci" id="kpSatin"></button><p class="kucuk" id="kpNot"></p>
+  <p id="kilitMesaj"></p><button class="baglanti" id="kpGeri"></button><br><button class="baglanti" id="kpKapat"></button></div></div>
 <div id="ayarPanel"><div class="kutu"><h2 id="ayBaslik"></h2>
   <p id="ayZorluk"></p><div class="secim"><button class="kart" data-z="kolay"></button><button class="kart" data-z="normal"></button><button class="kart" data-z="zor"></button></div>
   <p id="ayDil"></p><div class="secim"><button class="kart" data-d="tr">Türkçe</button><button class="kart" data-d="en">English</button></div>
@@ -98,7 +113,7 @@ import oyunlariKur from "./oyunlar.js";
 // =====================================================================================================
 //  AYARLAR
 // =====================================================================================================
-const SURUM = "3.2";
+const SURUM = "3.3";
 const POZ_KUTUPHANE = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/vision_bundle.mjs";
 const POZ_WASM = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm";
 const POZ_MODEL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task";
@@ -142,7 +157,12 @@ const EN = {
   "Nakavt! Sıradaki rakip geliyor": "Knockout! Next opponent coming", "Seviye": "Level", "vuruş gerek": "hits needed", "🛡️ KALKAN": "🛡️ GUARD",
   "⭐ Harika!": "⭐ Great!", "👍 İyi": "👍 Good", "Kaçtı!": "Missed!",
   "Eller yukarı": "Hands up", "Kollar yana": "Arms out", "V yap": "Make a V", "Sol yukarı, sağ yana": "Left up, right out", "Sağ yukarı, sol yana": "Right up, left out",
-  "Pazı göster": "Show muscles", "Eller belde": "Hands on hips", "Disko sol": "Disco left", "Disko sağ": "Disco right", "Sol el yukarı": "Left hand up", "Sağ el yukarı": "Right hand up"
+  "Pazı göster": "Show muscles", "Eller belde": "Hands on hips", "Disko sol": "Disco left", "Disko sağ": "Disco right", "Sol el yukarı": "Left hand up",
+  "Bu oyun kilitli": "This game is locked", "🎬 Reklam izle, 24 saat aç": "🎬 Watch an ad, unlock for 24 h", "⭐ Tüm oyunları aç": "⭐ Unlock all games",
+  "Kalıcı açılır, reklamlar da kalkar": "Unlocked forever, ads removed too", "Satın alımı geri yükle": "Restore purchase", "Kapat": "Close",
+  "Reklam şu an yüklenemedi, biraz sonra dene": "The ad couldn't load, try again shortly", "Reklam yarıda kapandı": "The ad was closed early",
+  "Satın alma sadece Play Store sürümünde çalışır": "Purchases only work in the Play Store version", "Teşekkürler! Tüm oyunlar açıldı": "Thank you! All games unlocked",
+  "Satın alma bulunamadı": "No purchase found", "Satın alma tamamlanamadı": "The purchase could not be completed", "Bekleniyor…": "Please wait…", "Sağ el yukarı": "Right hand up"
 };
 let dil = "tr";
 try { dil = localStorage.getItem("igDil") || ((navigator.language || "tr").toLowerCase().startsWith("tr") ? "tr" : "en"); } catch (e) {}
@@ -1050,7 +1070,7 @@ function menuGoster() {
   modGec(KOSU); durum = "menu"; durumYaz(""); basladi = false; engel = false; elKilit.style.display = "none";
   panel.style.display = "none"; hub.style.display = "flex";
   elSkor.style.display = elElmas.style.display = "none"; $("ev").style.display = $("ayar").style.display = $("ayarCubuk").style.display = "none";
-  for (const o of OYUNLAR) { let en = 0; try { en = parseInt(localStorage.getItem(rekorAnahtar(o))) || 0; } catch (e) {} o.kartRekor.textContent = en ? "🏆 " + en : ""; o.kartAd.textContent = t(o.ad); }
+  for (const o of OYUNLAR) { let en = 0; try { en = parseInt(localStorage.getItem(rekorAnahtar(o))) || 0; } catch (e) {} o.kartRekor.textContent = en ? "🏆 " + en : ""; o.kartAd.textContent = t(o.ad); kartKilitYaz(o); }
   dilUygula();
   hub.querySelectorAll(".kart[data-k]").forEach(k => k.classList.toggle("secili", k.dataset.k === secili));
 }
@@ -1360,8 +1380,9 @@ function hubKur() {
   for (const o of OYUNLAR) {
     const b = document.createElement("button"), c = document.createElement("canvas"), ad = document.createElement("div");
     b.className = "oyunKart"; c.width = 480; c.height = 300; ad.className = "ad"; ad.innerHTML = "<span></span><small></small>";
-    o.kartTuval = c; o.kartAd = ad.firstChild; o.kartRekor = ad.lastChild; b.append(c, ad);
-    b.addEventListener("click", () => { modGec(o); baslaTiklandi(); });
+    const rz = document.createElement("div"); rz.className = "kilitRozet";
+    o.kartTuval = c; o.kartAd = ad.firstChild; o.kartRekor = ad.lastChild; o.kart = b; o.kartKilit = rz; b.append(c, ad, rz);
+    b.addEventListener("click", () => { if (!acikMi(o)) { kilitGoster(o); return; } modGec(o); baslaTiklandi(); });
     $("kartlar").appendChild(b);
   }
   hub.querySelectorAll(".kart[data-k]").forEach(k => k.addEventListener("click", () => { karakterSec(k.dataset.k); onizlemeleriCiz(); menuGoster(); }));
@@ -1424,6 +1445,135 @@ window.oyunTest = id => { modGec(OYUNLAR.find(o => o.id === id)); hub.style.disp
 karakterSec(secili); secimZip = 0;
 hubKur();
 onizlemeleriCiz();
+// =====================================================================================================
+//  KİLİT, REKLAM, SATIN ALMA
+//  Koşu hep açık. Diğerleri: ödüllü reklam = o oyun 24 saat açık; satın alma (tum_oyunlar) = hepsi kalıcı + reklamsız.
+//  Eklentiler sadece telefondaki uygulamada yüklüdür (scripts/hazirla.js ekler); web'de reklam taklit edilir, satın alma kapalıdır.
+// =====================================================================================================
+const REKLAM = {
+  uygulama: "ca-app-pub-7983529419004158~6435142212",
+  banner: "ca-app-pub-7983529419004158/3808978875",
+  odullu: null                      // ödüllü reklam kimliği gelince buraya yazılır; boşken Google'ın test reklamı kullanılır
+};
+const URUN = "tum_oyunlar", SURE_24 = 24 * 3600 * 1000;
+const capN = window.Capacitor, yerel = !!(capN && capN.isNativePlatform && capN.isNativePlatform());
+const AdMob = yerel && window.capacitorStripe ? window.capacitorStripe.AdMob : null;
+const Satis = yerel && window.capacitorNativePurchases ? window.capacitorNativePurchases.NativePurchases : null;
+let tumAcik = false, reklamHazir = false, bannerAcik = false, fiyat = "", islemde = false;
+try { tumAcik = localStorage.getItem("ig_tum") === "1"; } catch (e) {}
+const acikSure = o => { try { return parseInt(localStorage.getItem("ig_acik_" + o.id)) || 0; } catch (e) { return 0; } };
+const acikMi = o => o.yerlesik || tumAcik || acikSure(o) > Date.now();
+function kartKilitYaz(o) {
+  if (!o.kart) return;
+  const kalan = acikSure(o) - Date.now(), kilitli = !acikMi(o);
+  o.kart.classList.toggle("kilitli", kilitli);
+  o.kartKilit.style.display = o.yerlesik || tumAcik ? "none" : "block";
+  o.kartKilit.textContent = kilitli ? "🔒" : "⏳ " + Math.max(1, Math.ceil(kalan / 3600000)) + (dil === "en" ? " h" : " sa");
+}
+function kilitMesaj(y) { $("kilitMesaj").textContent = y ? t(y) : ""; }
+let kilitOyun = null;
+function kilitGoster(o) {
+  kilitOyun = o; kilitMesaj("");
+  $("kpBaslik").textContent = t(o.ad); $("kpYazi").textContent = t("Bu oyun kilitli");
+  $("kpReklam").textContent = t("🎬 Reklam izle, 24 saat aç");
+  $("kpSatin").textContent = t("⭐ Tüm oyunları aç") + (fiyat ? " — " + fiyat : "");
+  $("kpNot").textContent = t("Kalıcı açılır, reklamlar da kalkar");
+  $("kpGeri").textContent = t("Satın alımı geri yükle"); $("kpKapat").textContent = t("Kapat");
+  $("kilitPanel").style.display = "flex";
+}
+function kilitKapat() { $("kilitPanel").style.display = "none"; menuGoster(); }
+function tumunuAc() {
+  tumAcik = true; try { localStorage.setItem("ig_tum", "1"); } catch (e) {}
+  bannerKaldir();
+}
+
+// --- Reklam ---
+function altBosluk(px) { document.documentElement.style.setProperty("--alt", Math.round(px || 0) + "px"); }
+async function bannerGoster() {
+  if (!AdMob || !reklamHazir || tumAcik || bannerAcik) return;
+  try {
+    await AdMob.showBanner({ adId: REKLAM.banner, adSize: "ADAPTIVE_BANNER", position: "BOTTOM_CENTER", margin: 0 });
+    bannerAcik = true;
+  } catch (e) {}
+}
+function bannerKaldir() {
+  altBosluk(0);
+  if (AdMob && bannerAcik) { AdMob.removeBanner().catch(() => {}); bannerAcik = false; }
+}
+async function reklamBaslat() {
+  if (!AdMob) return;
+  try {
+    await AdMob.initialize({});
+    try {        // AB kullanıcıları için izin formu (gerekirse)
+      const bilgi = await AdMob.requestConsentInfo();
+      if (bilgi.isConsentFormAvailable && bilgi.status === "REQUIRED") await AdMob.showConsentForm();
+    } catch (e) {}
+    reklamHazir = true;
+    try { AdMob.addListener("bannerAdSizeChanged", b => altBosluk(b && b.height)); } catch (e) {}
+    bannerGoster();
+  } catch (e) { console.warn("AdMob başlatılamadı", e); }
+}
+// Ödüllü reklam: ödül kazanıldıysa true. Web'de deneme için hemen true döner.
+async function odulluIzle() {
+  if (!yerel) return true;
+  if (!AdMob || !reklamHazir) return false;
+  let odul = false, bitir;
+  const bitti = new Promise(r => { bitir = r; }), tut = [];
+  const dinle = async (ad, f) => { try { tut.push(await AdMob.addListener(ad, f)); } catch (e) {} };
+  await dinle("onRewardedVideoAdReward", () => { odul = true; });
+  await dinle("onRewardedVideoAdDismissed", () => bitir());
+  await dinle("onRewardedVideoAdFailedToShow", () => bitir());
+  const zaman = setTimeout(() => bitir(), 300000);
+  try {
+    await AdMob.prepareRewardVideoAd({ adId: REKLAM.odullu || "ca-app-pub-3940256099942544/5224354917", isTesting: !REKLAM.odullu });
+    AdMob.showRewardVideoAd().then(r => { if (r) odul = true; }, () => bitir());
+    await bitti;
+  } catch (e) {}
+  clearTimeout(zaman); tut.forEach(h => { try { h.remove(); } catch (e) {} });
+  return odul;
+}
+
+// --- Satın alma (Google Play Billing) ---
+const gecerli = p => p && p.productIdentifier === URUN && (p.purchaseState === undefined || String(p.purchaseState) === "1");
+async function satisBaslat() {
+  if (!Satis) return;
+  try {
+    const r = await Satis.getProducts({ productIdentifiers: [URUN], productType: "inapp" });
+    const u = r && r.products && r.products[0]; if (u && u.priceString) fiyat = u.priceString;
+  } catch (e) {}
+  geriYukle(true);
+}
+async function geriYukle(sessiz) {
+  if (!Satis) { if (!sessiz) kilitMesaj("Satın alma sadece Play Store sürümünde çalışır"); return; }
+  try {
+    try { await Satis.restorePurchases(); } catch (e) {}
+    const r = await Satis.getPurchases({ productType: "inapp" });
+    if (r && r.purchases && r.purchases.some(gecerli)) { tumunuAc(); if (!sessiz) { kilitMesaj("Teşekkürler! Tüm oyunlar açıldı"); setTimeout(kilitKapat, 1200); } }
+    else if (!sessiz) kilitMesaj("Satın alma bulunamadı");
+  } catch (e) { if (!sessiz) kilitMesaj("Satın alma bulunamadı"); }
+}
+$("kpReklam").addEventListener("click", async () => {
+  if (islemde || !kilitOyun) return; islemde = true; kilitMesaj("Bekleniyor…");
+  const o = kilitOyun, ok = await odulluIzle(); islemde = false;
+  if (ok) { try { localStorage.setItem("ig_acik_" + o.id, String(Date.now() + SURE_24)); } catch (e) {} $("kilitPanel").style.display = "none"; modGec(o); baslaTiklandi(); }
+  else kilitMesaj(reklamHazir ? "Reklam yarıda kapandı" : "Reklam şu an yüklenemedi, biraz sonra dene");
+});
+$("kpSatin").addEventListener("click", async () => {
+  if (islemde) return;
+  if (!Satis) { kilitMesaj("Satın alma sadece Play Store sürümünde çalışır"); return; }
+  islemde = true; kilitMesaj("Bekleniyor…");
+  try {
+    const tx = await Satis.purchaseProduct({ productIdentifier: URUN, productType: "inapp", isConsumable: false });
+    if (tx && (tx.purchaseState === undefined || String(tx.purchaseState) === "1")) { tumunuAc(); kilitMesaj("Teşekkürler! Tüm oyunlar açıldı"); setTimeout(kilitKapat, 1200); }
+    else kilitMesaj("Satın alma tamamlanamadı");
+  } catch (e) { kilitMesaj("Satın alma tamamlanamadı"); }
+  islemde = false;
+});
+$("kpGeri").addEventListener("click", () => geriYukle(false));
+$("kpKapat").addEventListener("click", kilitKapat);
+setInterval(() => { if (durum === "menu") for (const o of OYUNLAR) kartKilitYaz(o); }, 60000);      // kalan süre güncellensin
+reklamBaslat(); satisBaslat();
+
 menuGoster();
 kamera.position.copy(kamPoz);
 requestAnimationFrame(dongu);
