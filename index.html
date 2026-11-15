@@ -45,6 +45,12 @@
   #ayarCubuk { position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 30; display: none; align-items: center; gap: 12px;
     padding: 10px 18px; border-radius: 999px; background: rgba(60,36,90,.82); color: #fff; font-weight: 800; font-size: 16px; white-space: nowrap; }
   #ayarCubuk input { width: min(46vw, 300px); height: 30px; accent-color: #ff4f9a; }
+  #ayarPanel { position: fixed; inset: 0; z-index: 40; display: none; align-items: center; justify-content: center; background: rgba(74,42,107,.45); }
+  #ayarPanel .kutu { width: min(86vw, 380px); max-height: 92vh; overflow: auto; box-sizing: border-box; padding: 16px 20px; border-radius: 24px;
+    background: #fff; color: #4a2a6b; text-align: center; box-shadow: 0 10px 0 rgba(74,42,107,.18); }
+  #ayarPanel h2 { margin: 0 0 6px; color: #ff4f9a; font-size: 24px; }
+  #ayarPanel p { margin: 10px 0 0; font-weight: 800; font-size: 15px; }
+  #ayarPanel .secim { margin: 6px 0 0; }
   #flas { position: fixed; inset: 0; background: #ff3b3b; opacity: 0; pointer-events: none; z-index: 5; }
   #hub { position: fixed; inset: 0; z-index: 12; display: none; flex-direction: column; box-sizing: border-box;
     padding: 10px 14px 12px; background: rgba(255,238,224,.97); overflow: auto; }
@@ -74,7 +80,12 @@
 <div id="ayarCubuk"><span id="ayarYazi"></span><input id="ayarKaydir" type="range" min="0.4" max="2" step="0.1" value="1"></div>
 <div id="durum"></div>
 <div id="flas"></div>
+<div id="ayarPanel"><div class="kutu"><h2 id="ayBaslik"></h2>
+  <p id="ayZorluk"></p><div class="secim"><button class="kart" data-z="kolay"></button><button class="kart" data-z="normal"></button><button class="kart" data-z="zor"></button></div>
+  <p id="ayDil"></p><div class="secim"><button class="kart" data-d="tr">Türkçe</button><button class="kart" data-d="en">English</button></div>
+  <button class="ana" id="ayKapat"></button></div></div>
 <div id="hub"><div id="hubUst"><h1>Interactive Game <small id="surumYazi"></small></h1>
+  <button class="kart" id="ayarAc">⚙️</button>
   <button class="kart" data-k="kiz">Ponçik</button><button class="kart" data-k="erkek">Zıpır</button></div><div id="kartlar"></div></div>
 <div id="kilit"><div class="ikon" id="kilitIkon"></div><div id="kilitYazi"></div>
   <button class="ana" id="kilitDugme">Tam ekran yap</button></div>
@@ -87,7 +98,7 @@ import oyunlariKur from "./oyunlar.js";
 // =====================================================================================================
 //  AYARLAR
 // =====================================================================================================
-const SURUM = "3.1";
+const SURUM = "3.2";
 const POZ_KUTUPHANE = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/vision_bundle.mjs";
 const POZ_WASM = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm";
 const POZ_MODEL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task";
@@ -109,6 +120,43 @@ const OLCUM_KARE = 16;
 const KALCA_Y = 0.84;
 
 const $ = id => document.getElementById(id);
+
+// --- Dil: Türkçe metin anahtardır; İngilizcede sözlükten karşılığı gelir ---
+const EN = {
+  "Oyuncak Koşusu": "Toy Run", "Oyuncak Yarış": "Toy Racer", "Gazlı Motor": "Toy Moto", "Boks Ringi": "Boxing Ring", "Dans Pisti": "Dance Floor", "Kır Geç": "Smash It",
+  "Sağa-sola adım at, zıpla, eğil": "Step left-right, jump, duck",
+  "Yumruklarını direksiyon gibi tut ve çevir": "Hold your fists like a steering wheel and turn",
+  "Gidonu tut, vücudunu sağa-sola yatır": "Hold the handlebar, lean your body left-right",
+  "Kroşe at: yumruğunu yandan içeri savur. Yukarıdan indir = kafa. Yüzünü kapat = kalkan": "Throw hooks: swing your fist in from the side. Bring it down from above = head. Cover your face = guard",
+  "Sağdaki oyuncağın duruşunu taklit et — soldaki sensin": "Copy the pose of the toy on the right — you are on the left",
+  "Beliren nesneye uzan ve yumrukla kır. Bombaya dokunma!": "Reach for each object and punch it. Don't touch the bombs!",
+  "Seni göremiyorum, kadraja gir": "I can't see you, step into view", "Biraz geri çekil": "Step back a little", "Biraz yaklaş": "Come a little closer",
+  "Ortaya gel": "Move to the center", "Zıplamaya yer kalsın: biraz geri çekil": "Leave room to jump: step back a little", "Ellerini indir, dik dur": "Lower your hands, stand straight",
+  "İki elini de göster": "Show both hands", "Dik dur, ölçüyorum… %": "Stand straight, measuring… ", "Ortada dik dur, ölçüyorum…": "Stand straight in the middle, measuring…",
+  "Oyun tam ekranda oynanır": "The game is played in fullscreen", "Telefonu yan çevir": "Turn your phone sideways", "Tam ekran yap": "Go fullscreen",
+  "Hazırlanıyor": "Getting ready", "Kamera açılıyor…": "Opening camera…", "Hareket algılama yükleniyor…": "Loading motion tracking…",
+  "Kamera kullanılamıyor": "Camera unavailable", "Kaydırarak ya da ok tuşlarıyla oynayabilirsin.": "You can play by swiping or with the arrow keys.", "Devam": "Continue",
+  "Yeni rekor!": "New record!", "Oyun bitti": "Game over", "Skor": "Score", "En yüksek": "Best", "🙌 Ellerini havaya kaldır, yeniden başlasın": "🙌 Raise your hands to play again",
+  "Tekrar": "Again", "Oyunlar": "Games", "Hassasiyet": "Sensitivity", "Ayarlar": "Settings", "Zorluk": "Difficulty", "Dil": "Language", "Kolay": "Easy", "Zor": "Hard", "Tamam": "OK",
+  "Çarptın!": "You crashed!", "Kaza!": "Crash!", "Nakavt oldun!": "You got knocked out!", "Ritim kaçtı!": "Lost the beat!", "Bum!": "Boom!",
+  "Nakavt! Sıradaki rakip geliyor": "Knockout! Next opponent coming", "Seviye": "Level", "vuruş gerek": "hits needed", "🛡️ KALKAN": "🛡️ GUARD",
+  "⭐ Harika!": "⭐ Great!", "👍 İyi": "👍 Good", "Kaçtı!": "Missed!",
+  "Eller yukarı": "Hands up", "Kollar yana": "Arms out", "V yap": "Make a V", "Sol yukarı, sağ yana": "Left up, right out", "Sağ yukarı, sol yana": "Right up, left out",
+  "Pazı göster": "Show muscles", "Eller belde": "Hands on hips", "Disko sol": "Disco left", "Disko sağ": "Disco right", "Sol el yukarı": "Left hand up", "Sağ el yukarı": "Right hand up"
+};
+let dil = "tr";
+try { dil = localStorage.getItem("igDil") || ((navigator.language || "tr").toLowerCase().startsWith("tr") ? "tr" : "en"); } catch (e) {}
+const t = s => dil === "en" && EN[s] !== undefined ? EN[s] : s;
+
+// --- Zorluk: tüm oyunlar okur. hiz = hız çarpanı, rampa = zorlaşma hızı, yogun = engel sıklığı, hasar = alınan hasar ---
+const ZORLUKLAR = {
+  kolay: { ad: "kolay", ikon: "👶", hiz: 0.8, rampa: 0.5, yogun: 0.55, hasar: 0.5, kolay: true },
+  normal: { ad: "normal", ikon: "🙂", hiz: 1, rampa: 1, yogun: 1, hasar: 1 },
+  zor: { ad: "zor", ikon: "🔥", hiz: 1.08, rampa: 2, yogun: 1.12, hasar: 1.3, zor: true }
+};
+let zorlukAd = "normal";
+try { zorlukAd = ZORLUKLAR[localStorage.getItem("igZorluk")] ? localStorage.getItem("igZorluk") : "normal"; } catch (e) {}
+const Z = () => ZORLUKLAR[zorlukAd];
 const rast = n => Math.floor(Math.random() * n);
 const sinirla = (v, a, b) => Math.min(b, Math.max(a, v));
 const yaklas = (a, b, k) => a + (b - a) * k;
@@ -696,6 +744,7 @@ let hasDeger = 1;      // hassasiyet çarpanı: her oyun için ayrı saklanır
 let aktif = null, ipucuT = 0, susGorunur = true, sonSol = null, sonSag = null;
 
 function durumYaz(yazi) {
+  yazi = t(yazi);
   if (yazi === sonDurumYazi) return;
   sonDurumYazi = yazi; elDurum.textContent = yazi; elDurum.style.display = yazi ? "block" : "none";
 }
@@ -888,7 +937,7 @@ function pozIsle(v, tSn) {
     else if (aktif.elGerek && !bilekGor) msj = "İki elini de göster";
     if (msj) { olcumSifirla(msj); return; }
     olcum.n++; olcum.x += omuzX; olcum.y += omuzY; olcum.gen += gen; olcum.govde += govdeBoy;
-    durumYaz("Dik dur, ölçüyorum… %" + Math.round(olcum.n / OLCUM_KARE * 100));
+    durumYaz(t("Dik dur, ölçüyorum… %") + Math.round(olcum.n / OLCUM_KARE * 100));
     if (olcum.n >= OLCUM_KARE) {
       temel.x = olcum.x / OLCUM_KARE; temel.y = olcum.y / OLCUM_KARE;
       temel.gen = Math.max(olcum.gen / OLCUM_KARE, 0.04); temel.govde = Math.max(olcum.govde / OLCUM_KARE, 0.06);
@@ -982,8 +1031,8 @@ function tamEkranKapat() { try { (document.exitFullscreen || document.webkitExit
 function engelKontrol() {
   if (!basladi || !dokunmatik) return;
   const tamYok = tamEkranDestek && !tamEkranMi(), dikey = innerWidth < innerHeight, yeni = tamYok || dikey;
-  if (tamYok) { $("kilitIkon").textContent = "⛶"; $("kilitYazi").textContent = "Oyun tam ekranda oynanır"; $("kilitDugme").style.display = ""; }
-  else if (dikey) { $("kilitIkon").textContent = "📱↻"; $("kilitYazi").textContent = "Telefonu yan çevir"; $("kilitDugme").style.display = "none"; }
+  if (tamYok) { $("kilitIkon").textContent = "⛶"; $("kilitYazi").textContent = t("Oyun tam ekranda oynanır"); $("kilitDugme").style.display = ""; }
+  else if (dikey) { $("kilitIkon").textContent = "📱↻"; $("kilitYazi").textContent = t("Telefonu yan çevir"); $("kilitDugme").style.display = "none"; }
   elKilit.style.display = yeni ? "flex" : "none";
   // Engel kalktı: kamera açısı değişti, yeniden ölç; oyun kaldığı yerden sürer
   if (engel && !yeni && (durum === "oyun" || durum === "olcum")) olcumeGec(durum === "oyun" || olcumDevam);
@@ -1001,8 +1050,9 @@ function menuGoster() {
   modGec(KOSU); durum = "menu"; durumYaz(""); basladi = false; engel = false; elKilit.style.display = "none";
   panel.style.display = "none"; hub.style.display = "flex";
   elSkor.style.display = elElmas.style.display = "none"; $("ev").style.display = $("ayar").style.display = $("ayarCubuk").style.display = "none";
-  for (const o of OYUNLAR) { let en = 0; try { en = parseInt(localStorage.getItem(rekorAnahtar(o))) || 0; } catch (e) {} o.kartRekor.textContent = en ? "🏆 " + en : ""; }
-  hub.querySelectorAll(".kart").forEach(k => k.classList.toggle("secili", k.dataset.k === secili));
+  for (const o of OYUNLAR) { let en = 0; try { en = parseInt(localStorage.getItem(rekorAnahtar(o))) || 0; } catch (e) {} o.kartRekor.textContent = en ? "🏆 " + en : ""; o.kartAd.textContent = t(o.ad); }
+  dilUygula();
+  hub.querySelectorAll(".kart[data-k]").forEach(k => k.classList.toggle("secili", k.dataset.k === secili));
 }
 async function baslaTiklandi() {
   hub.style.display = "none"; panel.style.display = "block"; elSkor.style.display = elElmas.style.display = ""; $("ev").style.display = $("ayar").style.display = "block";
@@ -1010,15 +1060,15 @@ async function baslaTiklandi() {
   basladi = true; engel = dokunmatik;           // telefonda yatay + tam ekran olana kadar ölçüm başlamaz
   sesleriYukle();
   durum = "hazirlik";
-  panel.innerHTML = "<h1>Hazırlanıyor</h1><p id='hazirYazi'>Kamera açılıyor…</p>";
+  panel.innerHTML = "<h1>" + t("Hazırlanıyor") + "</h1><p id='hazirYazi'>" + t("Kamera açılıyor…") + "</p>";
   try {
     await kamerayiAc();
-    const y = $("hazirYazi"); if (y) y.textContent = "Hareket algılama yükleniyor…";
+    const y = $("hazirYazi"); if (y) y.textContent = t("Hareket algılama yükleniyor…");
     await pozKur();
   } catch (hata) {
     engelKontrol();
-    panel.innerHTML = "<h1>Kamera kullanılamıyor</h1><p>" + (hata && hata.message || hata) + "</p>" +
-      "<p>Kaydırarak ya da ok tuşlarıyla oynayabilirsin.</p><button class='ana' id='devam'>Devam</button>";
+    panel.innerHTML = "<h1>" + t("Kamera kullanılamıyor") + "</h1><p>" + (hata && hata.message || hata) + "</p>" +
+      "<p>" + t("Kaydırarak ya da ok tuşlarıyla oynayabilirsin.") + "</p><button class='ana' id='devam'>" + t("Devam") + "</button>";
     $("devam").addEventListener("click", () => olcumeGec());
     return;
   }
@@ -1073,11 +1123,11 @@ function oyunGuncelle(dt) {
 
   const dtO = dt * zamanOlcek;
   sure += dtO;
-  const zorluk = Math.min(1, sure / ZORLUK_SURE);
-  hiz = HIZ_BAS + (HIZ_MAX - HIZ_BAS) * zorluk;
+  const zr = Z(), zorluk = Math.min(1, sure * zr.rampa / ZORLUK_SURE);
+  hiz = (HIZ_BAS + (HIZ_MAX - HIZ_BAS) * zorluk) * zr.hiz;
   const adim = hiz * dtO;
   mesafe += adim;
-  if (mesafe >= sonrakiSatir) { satirUret(DOGMA_Z); sonrakiSatir = mesafe + hiz * (ARALIK_BAS + (ARALIK_SON - ARALIK_BAS) * zorluk); }
+  if (mesafe >= sonrakiSatir) { satirUret(DOGMA_Z); sonrakiSatir = mesafe + hiz * (ARALIK_BAS + (ARALIK_SON - ARALIK_BAS) * zorluk) / zr.yogun; }
 
   // Şerit
   serit = girdi.serit;
@@ -1173,7 +1223,7 @@ function oyunGuncelle(dt) {
   if (skor !== sonSkorYazi) { sonSkorYazi = skor; elSkor.textContent = skor; }
   if (elmasSayi !== sonElmasYazi) { sonElmasYazi = elmasSayi; elElmas.textContent = "💎 " + elmasSayi; }
 
-  hPoz.set(ox * 0.45, dar ? 5.2 : 3.5, dar ? 9.6 : 5.9); hBak.set(ox * 0.35, 1.25, -6); hFov = 58 + zorluk * 8;
+  hPoz.set(ox * 0.45, dar ? 5.2 : 3.5, dar ? 9.6 : 5.9); hBak.set(ox * 0.35, 1.25, -6); hFov = 58 + zorluk * 8 * zr.hiz;
   return adim;
 }
 
@@ -1241,17 +1291,17 @@ function elmasCiz() {
   }
   elmasAg.count = elmaslar.length; elmasAg.instanceMatrix.needsUpdate = true;
 }
-const rekorAnahtar = o => o.yerlesik ? "kamKosuMax" : "ig_max_" + o.id;
+const rekorAnahtar = o => (o.yerlesik ? "kamKosuMax" : "ig_max_" + o.id) + (zorlukAd === "normal" ? "" : "_" + zorlukAd);
 function bitisGoster(skor, ek) {
   durum = "bitti"; bittiSure = 0; durumYaz("");
   const anahtar = rekorAnahtar(aktif); let en = 0;
   try { en = parseInt(localStorage.getItem(anahtar)) || 0; } catch (e) {}
   const rekor = skor > en;
   if (rekor) { en = skor; try { localStorage.setItem(anahtar, String(skor)); } catch (e) {} }
-  panel.innerHTML = "<h1>" + (rekor ? "Yeni rekor!" : (ek && ek.baslik) || "Oyun bitti") + "</h1><p>Skor</p><p class='buyuk'>" + skor + "</p>" +
-    "<p>" + (ek && ek.satir ? ek.satir + " &nbsp;•&nbsp; " : "") + "En yüksek: <b>" + en + "</b></p>" +
-    (kameraKontrol() ? "<p>🙌 Ellerini havaya kaldır, yeniden başlasın</p>" : "") +
-    "<button class='ana' id='tekrar'>Tekrar</button><button class='ikinci' id='oyunlarD'>Oyunlar</button>";
+  panel.innerHTML = "<h1>" + t(rekor ? "Yeni rekor!" : (ek && ek.baslik) || "Oyun bitti") + "</h1><p>" + t("Skor") + " " + Z().ikon + "</p><p class='buyuk'>" + skor + "</p>" +
+    "<p>" + (ek && ek.satir ? ek.satir + " &nbsp;•&nbsp; " : "") + t("En yüksek") + ": <b>" + en + "</b></p>" +
+    (kameraKontrol() ? "<p>" + t("🙌 Ellerini havaya kaldır, yeniden başlasın") + "</p>" : "") +
+    "<button class='ana' id='tekrar'>" + t("Tekrar") + "</button><button class='ikinci' id='oyunlarD'>" + t("Oyunlar") + "</button>";
   panel.style.display = "block";
   $("tekrar").addEventListener("click", () => olcumeGec());
   $("oyunlarD").addEventListener("click", menuGoster);
@@ -1263,7 +1313,7 @@ const KOSU = { id: "kosu", ad: "Oyuncak Koşusu", yerlesik: true, ipucu: "Sağa-
     durusSifir(D); D.lUst = 0.9; D.rUst = -0.8; D.lAlt = -0.3; D.rAlt = -1.3; D.lKolX = -0.8; D.rKolX = 0.8; D.lDirX = D.rDirX = 1.3; D.govdeX = -0.2;
     K.kok.position.set(0, 0.06, 0); hPoz.set(0.7, 3.3, 5.6); hBak.set(0.3, 1.25, -6); hFov = 58;
   } };
-const O = { THREE, sahne, kamera, R, CANLI, PI, p, birlestir, kure, sil, koni, kapsul, simit, yKutu, kupEkle, dokuYap, mPlastik, mKumas, mMetal,
+const O = { t, Z, THREE, sahne, kamera, R, CANLI, PI, p, birlestir, kure, sil, koni, kapsul, simit, yKutu, kupEkle, dokuYap, mPlastik, mKumas, mMetal,
   rast, sinirla, yaklas, cal, parAt, durumYaz, solYaz, sagYaz, hPoz, hBak, fov: v => { hFov = v; }, kameraKontrol, flas,
   D, yeniDurus, durusSifir, durusUygula, karakter: () => K, diger: () => KARAKTER[secili === "kiz" ? "erkek" : "kiz"], karakterTak,
   elmasEkle, elmasListe: () => elmaslar, tus, isaretci, zaman: () => zaman, bitir: bitisGoster, sarsinti: v => { sarsinti = v; },
@@ -1290,19 +1340,31 @@ function onizlemeleriCiz() {      // her oyunun kart resmi: oyunun kendi sahnesi
   }
   modGec(KOSU); kaliteUygula();
 }
-function hasYaz() { $("ayarKaydir").value = hasDeger; $("ayarYazi").textContent = "Hassasiyet " + hasDeger.toFixed(1); }
+function hasYaz() { $("ayarKaydir").value = hasDeger; $("ayarYazi").textContent = t("Hassasiyet") + " " + hasDeger.toFixed(1); }
+function dilUygula() {
+  document.documentElement.lang = dil;
+  $("kilitDugme").textContent = t("Tam ekran yap"); $("ayBaslik").textContent = t("Ayarlar"); $("ayZorluk").textContent = t("Zorluk");
+  $("ayDil").textContent = dil === "en" ? "Language / Dil" : "Dil / Language"; $("ayKapat").textContent = t("Tamam"); $("ayarAc").textContent = "⚙️ " + Z().ikon;
+  for (const b of document.querySelectorAll("#ayarPanel [data-z]")) { const z = ZORLUKLAR[b.dataset.z]; b.textContent = z.ikon + " " + (z.ad === "normal" ? "Normal" : t(z.ad === "kolay" ? "Kolay" : "Zor")); b.classList.toggle("secili", z.ad === zorlukAd); }
+  for (const b of document.querySelectorAll("#ayarPanel [data-d]")) b.classList.toggle("secili", b.dataset.d === dil);
+  hasYaz();
+}
 function hubKur() {
+  $("ayarAc").addEventListener("click", () => { $("ayarPanel").style.display = "flex"; });
+  $("ayKapat").addEventListener("click", () => { $("ayarPanel").style.display = "none"; menuGoster(); });
+  for (const b of document.querySelectorAll("#ayarPanel [data-z]")) b.addEventListener("click", () => { zorlukAd = b.dataset.z; try { localStorage.setItem("igZorluk", zorlukAd); } catch (e) {} dilUygula(); });
+  for (const b of document.querySelectorAll("#ayarPanel [data-d]")) b.addEventListener("click", () => { dil = b.dataset.d; try { localStorage.setItem("igDil", dil); } catch (e) {} dilUygula(); });
   $("ayar").addEventListener("click", () => { const c = $("ayarCubuk"); c.style.display = c.style.display === "flex" ? "none" : "flex"; });
   $("ayarKaydir").addEventListener("input", e => { hasDeger = parseFloat(e.target.value) || 1; hasYaz(); try { localStorage.setItem("ig_has_" + aktif.id, String(hasDeger)); } catch (h) {} });
   $("surumYazi").textContent = "v" + SURUM;
   for (const o of OYUNLAR) {
     const b = document.createElement("button"), c = document.createElement("canvas"), ad = document.createElement("div");
-    b.className = "oyunKart"; c.width = 480; c.height = 300; ad.className = "ad"; ad.innerHTML = "<span>" + o.ad + "</span><small></small>";
-    o.kartTuval = c; o.kartRekor = ad.lastChild; b.append(c, ad);
+    b.className = "oyunKart"; c.width = 480; c.height = 300; ad.className = "ad"; ad.innerHTML = "<span></span><small></small>";
+    o.kartTuval = c; o.kartAd = ad.firstChild; o.kartRekor = ad.lastChild; b.append(c, ad);
     b.addEventListener("click", () => { modGec(o); baslaTiklandi(); });
     $("kartlar").appendChild(b);
   }
-  hub.querySelectorAll(".kart").forEach(k => k.addEventListener("click", () => { karakterSec(k.dataset.k); onizlemeleriCiz(); menuGoster(); }));
+  hub.querySelectorAll(".kart[data-k]").forEach(k => k.addEventListener("click", () => { karakterSec(k.dataset.k); onizlemeleriCiz(); menuGoster(); }));
   $("ev").addEventListener("click", menuGoster);
 }
 
@@ -1325,7 +1387,7 @@ function dongu(damga) {
     else { if (duraklat) { duraklat = false; durumYaz(""); } adim = aktif.guncelle(dt) || 0; }
   } else aktif.bekle(dt);
   if (durum === "bitti") { bittiSure += dt; if (bittiSure > 1.2 && girdi.elHavada) olcumeGec(); }
-  if (ipucuT && zaman > ipucuT) { ipucuT = 0; if (sonDurumYazi === aktif.ipucu) durumYaz(""); }
+  if (ipucuT && zaman > ipucuT) { ipucuT = 0; if (sonDurumYazi === t(aktif.ipucu)) durumYaz(""); }
   durusUygula();
 
   // Zemin ve süsler

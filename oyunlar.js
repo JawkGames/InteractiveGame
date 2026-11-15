@@ -2,7 +2,7 @@
 // Hepsi index.html'deki ortak motoru (O) kullanır: aynı çizici, aynı oyuncak karakterler, aynı hareket algılama.
 // Her oyun: kur (bir kez), ac (sıfırla+göster), kapat, guncelle(dt), bekle(dt), poz(P, dt), onizle (ana ekran resmi).
 export default function oyunlariKur(O) {
-  const { THREE, sahne, R, CANLI, PI, p, birlestir, kure, sil, koni, simit, yKutu, kupEkle, mPlastik, rast, sinirla, yaklas, D } = O;
+  const { Z, THREE, sahne, R, CANLI, PI, p, birlestir, kure, sil, koni, simit, yKutu, kupEkle, mPlastik, rast, sinirla, yaklas, D } = O;
   const ag = (parcalar, golge = true) => { const a = new THREE.Mesh(birlestir(parcalar), mPlastik); a.castShadow = golge; a.receiveShadow = true; return a; };
   const us = (dt, k) => 1 - Math.exp(-dt * k);
   const olu = (v, e) => Math.abs(v) < e ? 0 : (v - Math.sign(v) * e) / (1 - e);
@@ -51,6 +51,9 @@ export default function oyunlariKur(O) {
       p(kure(10), 0xfff6c8, 0, 1.16, -1.0, 0, 0, 0, 0.15, 0.15, 0.08), p(kure(8), 0xff2a3a, 0, 0.98, 1.02, 0, 0, 0, 0.1, 0.07, 0.05),
       p(sil(10), R.gri, 0.24, 0.5, 0.55, PI / 2, 0, 0, 0.07, 1.0, 0.07), p(yKutu(0.36, 0.06, 0.5, 0.02), renk, 0, 1.02, 1.05, 0.2, 0, 0)]);
   }
+  const oyuncakKamyonGeo = () => birlestir([p(yKutu(1.5, 1.1, 1.3, 0.12), R.turuncu, 0, 0.95, -0.8), p(yKutu(1.35, 0.5, 0.9, 0.08), 0x9fdcff, 0, 1.15, -1.1),
+    p(yKutu(1.6, 1.3, 2.0, 0.12), R.sari, 0, 1.05, 0.9), p(yKutu(1.62, 0.12, 2.02, 0.04), R.kirmizi, 0, 1.6, 0.9),
+    ...[-1, 1].flatMap(sx => [-0.85, 1.25].map(z => p(sil(16), R.siyah, sx * 0.72, 0.34, z, 0, 0, PI / 2, 0.34, 0.26, 0.34)))]);
   const trafikKoniGeo = () => birlestir([p(yKutu(0.8, 0.08, 0.8, 0.03), R.turuncu, 0, 0.04, 0), p(koni(14), R.turuncu, 0, 0.62, 0, 0, 0, 0, 0.3, 1.1, 0.3), p(sil(14), R.beyaz, 0, 0.55, 0, 0, 0, 0, 0.19, 0.16, 0.19)]);
 
   // Yarış ve motorun ortak dış mekânı: çizgili çim zemin + yol kenarı süsleri (ağaç, ev, lamba, lastik, tabela)
@@ -77,18 +80,20 @@ export default function oyunlariKur(O) {
   function yolOyunu(tur) {
     const araba = tur === "araba";
     const SERIT = araba ? [-3.6, -1.2, 1.2, 3.6] : [-2.6, 0, 2.6], YARI = araba ? 4.8 : 3.9, H0 = araba ? 15 : 19, H1 = araba ? 32 : 38;
+    const TRAFIK = 5;       // trafiğin kendi hızı: hepsi aynı, böylece arkadan gelen dalga öndekine yetişip üç şeridi kapatamaz
     let grup, aracG, yolDoku, geo, trafik = [], x, direksiyon, hedefDir, hiz, sure, mesafe, can, dokunulmaz, sonraki, elmasSay;
     const havuz = {};
     const al = ad => { const h = havuz[ad] || (havuz[ad] = []); let m = h.pop(); if (!m) { m = new THREE.Mesh(geo[ad], mPlastik); m.castShadow = m.receiveShadow = true; grup.add(m); } m.visible = true; return m; };
     const birak = t => { t.ag.visible = false; havuz[t.ad].push(t.ag); };
     function ekle(ad, sx, z, h) {
       const m = al(ad), kn = ad === "koni"; m.position.set(sx, 0, z);
-      trafik.push({ ag: m, ad, x: sx, z, hiz: h, bx: kn ? 0.75 : araba ? 1.55 : 1.1, bz: kn ? 0.8 : araba ? 2.6 : 2.3 });
+      trafik.push({ ag: m, ad, x: sx, z, hiz: h, bx: kn ? 1.15 : araba ? 1.55 : 1.1, bz: kn ? 2.2 : araba ? 2.6 : 2.3 });
     }
     function dalga(z) {
-      const bos = rast(SERIT.length), n = 1 + (Math.random() < 0.45 ? 1 : 0), dolu = new Set();
+      // Her dalgada en az bir şerit (bos) hep açık; kolayda tek araç gelir
+      const bos = rast(SERIT.length), n = Z().kolay ? 1 : 1 + (Math.random() < (Z().zor ? 0.55 : 0.45) ? 1 : 0), dolu = new Set();
       while (dolu.size < n) { const s = rast(SERIT.length); if (s !== bos) dolu.add(s); }
-      for (const s of dolu) { if (!araba && Math.random() < 0.45) ekle("koni", SERIT[s], z, 0); else ekle("oto" + rast(3), SERIT[s], z, 4 + Math.random() * 4); }
+      for (const s of dolu) ekle(!araba && Math.random() < 0.4 ? "koni" : "oto" + rast(4), SERIT[s], z, TRAFIK);
       for (let k = 0; k < 5; k++) O.elmasEkle(SERIT[bos], 0.9, z + 10 - k * 2.4);
     }
     const skor = () => Math.floor(mesafe / 2) + elmasSay * 10;
@@ -117,14 +122,14 @@ export default function oyunlariKur(O) {
         const yol = new THREE.Mesh(new THREE.PlaneGeometry(YARI * 2, O.ZEMIN_BOY), new THREE.MeshStandardMaterial({ map: yolDoku, roughness: 0.95, metalness: 0, envMapIntensity: 0.3 }));
         yol.rotation.x = -PI / 2; yol.position.set(0, 0.012, O.zeminZ); yol.receiveShadow = true; grup.add(yol);
         grup.add(ag([p(yKutu(0.24, 0.16, O.ZEMIN_BOY, 0.05), R.beyaz, -YARI - 0.1, 0.08, O.zeminZ), p(yKutu(0.24, 0.16, O.ZEMIN_BOY, 0.05), R.beyaz, YARI + 0.1, 0.08, O.zeminZ)], false));
-        geo = { oto0: arabaGeo(R.mavi, true), oto1: arabaGeo(R.yesil, true), oto2: arabaGeo(R.sari, true), koni: trafikKoniGeo() };
+        geo = { oto0: arabaGeo(R.mavi, true), oto1: arabaGeo(R.yesil, true), oto2: arabaGeo(R.sari, true), oto3: arabaGeo(R.mor, true), koni: oyuncakKamyonGeo() };      // motor: koni yerine yavaş oyuncak kamyon
         aracG = new THREE.Group(); grup.add(aracG);
         const govde = new THREE.Mesh(araba ? arabaGeo(R.kirmizi, false) : motorGeo(R.kirmizi), mPlastik); govde.castShadow = true; aracG.add(govde);
       },
       ac() {
         grup.visible = true; O.susGoster(true, yolOrtak.sus); O.zeminHarita(yolOrtak.cim, 0.95);
         for (const t of trafik) birak(t); trafik = []; O.elmasListe().length = 0;
-        x = 0; direksiyon = hedefDir = 0; hiz = H0; sure = 0; mesafe = 0; can = 3; dokunulmaz = 0; elmasSay = 0; sonraki = 0;
+        x = 0; direksiyon = hedefDir = 0; hiz = H0 * Z().hiz; sure = 0; mesafe = 0; can = 3; dokunulmaz = 0; elmasSay = 0; sonraki = 0;
         O.karakterTak(O.karakter(), aracG, 0, araba ? -0.05 : 0.4, araba ? 0.25 : 0.3, araba ? 0.8 : 0.85);
         dalga(-50); dalga(-78);
         O.solYaz("0"); O.sagYaz(kalp(3)); O.fov(60); yerlestir();
@@ -132,13 +137,13 @@ export default function oyunlariKur(O) {
       kapat() { grup.visible = false; O.susGoster(false); O.zeminHarita(null); for (const t of trafik) birak(t); trafik = []; O.elmasListe().length = 0; },
       bekle() { dokunulmaz = 0; yerlestir(); },
       guncelle(dt) {
-        sure += dt; const zor = Math.min(1, sure / 480); hiz = H0 + (H1 - H0) * zor;
+        const zr = Z(); sure += dt; const zor = Math.min(1, sure * zr.rampa / 480); hiz = (H0 + (H1 - H0) * zor) * zr.hiz;
         const adim = hiz * dt; mesafe += adim;
         if (!O.kameraKontrol()) { hedefDir = (O.tus.ArrowRight ? 1 : 0) - (O.tus.ArrowLeft ? 1 : 0); if (O.isaretci.basili) hedefDir = sinirla((O.isaretci.x - 0.5) * 3, -1, 1); }
         direksiyon += (hedefDir - direksiyon) * us(dt, araba ? 9 : 6);
         x = sinirla(x + direksiyon * (araba ? 7.5 : 8.5) * dt, -YARI + 0.9, YARI - 0.9);
         if (dokunulmaz > 0) dokunulmaz -= dt;
-        if (mesafe >= sonraki) { dalga(-94); sonraki = mesafe + hiz * (2.1 - zor * 0.9); }
+        if (mesafe >= sonraki) { dalga(-94); sonraki = mesafe + hiz * (2.1 - zor * 0.9) / zr.yogun; }
         for (let i = trafik.length - 1; i >= 0; i--) {
           const t = trafik[i]; t.z += (hiz - t.hiz) * dt; t.ag.position.z = t.z;
           let sil_ = t.z > 14;
@@ -148,7 +153,7 @@ export default function oyunlariKur(O) {
           }
           if (sil_) { birak(t); trafik[i] = trafik[trafik.length - 1]; trafik.pop(); }
         }
-        elmasSay += elmasTopla(e => { e.z += adim; return Math.abs(e.z) < 1.4 && Math.abs(e.x - x) < 1.2 ? 1 : e.z > 10 ? 2 : 0; });
+        elmasSay += elmasTopla(e => { e.z += adim - TRAFIK * dt; return Math.abs(e.z) < 1.4 && Math.abs(e.x - x) < 1.2 ? 1 : e.z > 10 ? 2 : 0; });
         yolDoku.offset.y = (yolDoku.offset.y + adim / 8) % 1; yolOrtak.cim.offset.y = (yolOrtak.cim.offset.y + adim / 16) % 1;
         yerlestir(); O.fov(60 + zor * 8); O.solYaz(String(skor()));
         return adim;
@@ -175,13 +180,13 @@ export default function oyunlariKur(O) {
     const yeniEl = x => ({ hazir: true, t: 0, bolge: "kafa", tur: "krose", x, y: 1.5, var: false, px: 0, py: 0, vx: 0, vy: 0, ustT: -9 });
     const el = [yeniEl(-0.6), yeniEl(0.6)];
     let ustSira = 0;
-    const ara = () => Math.max(1.3, 3.3 - r.seviye * 0.3) * (0.7 + Math.random() * 0.6);
+    const ara = () => Math.max(1.3, 3.3 - r.seviye * 0.3) * (0.7 + Math.random() * 0.6) / Z().yogun;
     const kafaY = () => 1.72 * olcek, karinY = () => 1.05 * olcek;
     function yeniRakip(seviye) {
       r = { seviye, can: 5 * seviye, maks: 5 * seviye, durum: "gir", t: 0, koruma: "ust", korumaT: 1.5, saldiriT: 0, sersem: 0, sersemBolge: "kafa", el: 0, vurdu: false };
       r.saldiriT = ara() + 0.5; olcek = Math.min(1.7, 1.2 + 0.08 * (seviye - 1));
       O.karakterTak(rakip, grup, 0, 0.14, -5, olcek, PI); eldivenTak(rakip);
-      if (seviye > 1) O.durumYaz("Seviye " + seviye + " — " + r.maks + " vuruş gerek");
+      if (seviye > 1) O.durumYaz(O.t("Seviye") + " " + seviye + " — " + r.maks + " " + O.t("vuruş gerek"));
     }
     function yumruk(i, bolge, tur) {
       if (!r || r.durum === "ko" || r.durum === "gir" || el[i].t > 0) return;
@@ -217,13 +222,13 @@ export default function oyunlariKur(O) {
         if ((r.saldiriT -= dt) <= 0) { r.durum = "hazirlan"; r.t = 0; r.el = rast(2); O.cal("zipla", 0.45, 0.7); }
       } else if (r.durum === "hazirlan") {       // kolunu geri çeker: şimdi kalkan zamanı
         kol(-0.7, 1.9); Dr.govdeY = (r.el ? -1 : 1) * 0.45; Dr.govdeX = 0.15;
-        if (r.t > 0.6) { r.durum = "vur"; r.t = 0; r.vurdu = false; }
+        if (r.t > (Z().kolay ? 0.95 : Z().zor ? 0.5 : 0.6)) { r.durum = "vur"; r.t = 0; r.vurdu = false; }      // kolayda kalkan için daha çok zaman
       } else if (r.durum === "vur") {
         const k = Math.min(1, r.t / 0.12); kol(1.5, 0.05); Dr.govdeX = -0.4 * k; ileri = 0.9 * k;
         if (!r.vurdu && r.t > 0.1) {
           r.vurdu = true;
           if (kalkan) { O.cal("blok", 0.8); O.parAt(0, 1.95, 2.6, 8, 0xffffff, 3, 0.1); skor += 5; }
-          else { can -= 8 + 2 * r.seviye; O.cal("vur"); O.flas(); O.sarsinti(0.35); }
+          else { can -= Math.round((8 + 2 * r.seviye) * Z().hasar); O.cal("vur"); O.flas(); O.sarsinti(0.35); }
         }
         if (r.t > 0.38) { r.durum = "bekle"; r.t = 0; r.saldiriT = ara(); }
       } else if (r.durum === "ko") {
@@ -264,7 +269,7 @@ export default function oyunlariKur(O) {
         sahne_(dt);
         if (kalkan !== oncekiKalkan) { oncekiKalkan = kalkan; O.durumYaz(kalkan ? "🛡️ KALKAN" : ""); }
         O.solYaz(String(skor)); O.sagYaz("❤️ " + Math.max(0, can) + "   🥊 " + Math.max(0, r.can) + "/" + r.maks);
-        if (can <= 0) { O.cal("kaybet"); O.bitir(skor, { baslik: "Nakavt oldun!", satir: "Seviye " + r.seviye }); }
+        if (can <= 0) { O.cal("kaybet"); O.bitir(skor, { baslik: "Nakavt oldun!", satir: O.t("Seviye") + " " + r.seviye }); }
         return 0;
       },
       poz(P, dt) {
@@ -337,7 +342,7 @@ export default function oyunlariKur(O) {
       D.kalcaY = -0.05 * zip; D.lAlt = D.rAlt = -0.35 * zip; D.lUst = D.rUst = 0.18 * zip;
       if (oyuncu.var) { D.rKolZ = -oyuncu.L[0]; D.rDirZ = -sar(oyuncu.L[1] - oyuncu.L[0]); D.lKolZ = -oyuncu.R[0]; D.lDirZ = -sar(oyuncu.R[1] - oyuncu.R[0]); }      // bize dönük: ayna
       else { D.lKolZ = -0.2; D.rKolZ = 0.2; }
-      cubuk.scale.x = Math.max(0.001, 1 - t / aralik);
+      cubuk.scale.x = Z().kolay ? 0.001 : Math.max(0.001, 1 - t / aralik);
       ok.position.y = 4.45 + Math.sin(zm * 4) * 0.12;
       O.hPoz.set(0, 2.75, 8.8); O.hBak.set(0, 1.95, 0);
     }
@@ -364,18 +369,25 @@ export default function oyunlariKur(O) {
       bekle(dt) { hedef = null; t = 0; sahne_(dt); },
       guncelle(dt) {
         if (!hedef) yeniPoz();
-        sure += dt; t += dt; aralik = Math.max(1.6, 2.7 - sure * 0.012);
+        const zr = Z(), tol = sinirla(O.has(), 0.5, 2);
+        sure += dt; t += dt; aralik = zr.kolay ? 2.7 : Math.max(zr.zor ? 1.4 : 1.6, 2.7 - sure * 0.012 * zr.rampa);
         const vurus = aralik / 4, no = Math.floor(sure / vurus);
         if (no !== vurusNo) { vurusNo = no; ses("davul"); ses("nota", NOTA[no % 16]); karoBoya(); } else if (Math.floor(sure / vurus * 2) % 2 === 1 && Math.floor((sure - dt) / vurus * 2) % 2 === 0) ses("zil");
+        if (zr.kolay) {          // kolay: süre yok, doğru duruşu yapana kadar bekler
+          if (t > 0.6 && (O.kameraKontrol() ? hata() < 0.85 * tol : tusla)) {
+            skor += 20; seri++; O.cal("elmas", 0.7, 1.3); O.solYaz(String(skor));
+            yeniPoz(); O.durumYaz(O.t("⭐ Harika!") + "  →  " + O.t(hedef.ad));
+          }
+          sahne_(dt); return 0;
+        }
         if (t > aralik * 0.5) enIyi = Math.min(enIyi, O.kameraKontrol() ? hata() : (tusla ? 0.7 : 9));
         if (t >= aralik) {        // ritim doldu: en iyi andaki benzerliğe bak
-          const tol = sinirla(O.has(), 0.5, 2);
           if (enIyi < 0.5 * tol) { skor += 30 + Math.min(seri, 10) * 2; seri++; O.durumYaz("⭐ Harika!"); O.cal("elmas", 0.7, 1.3); if (seri % 6 === 0 && can < 3) can++; }
           else if (enIyi < 0.85 * tol) { skor += 15; seri = 0; O.durumYaz("👍 İyi"); O.cal("elmas", 0.5); }
           else { can--; seri = 0; O.durumYaz("Kaçtı!"); O.cal("blok", 0.7); O.flas(); }
           O.sagYaz(kalp(can)); O.solYaz(String(skor));
           if (can <= 0) { O.cal("kaybet"); O.bitir(skor, { baslik: "Ritim kaçtı!", satir: "" }); return 0; }
-          const sonAd = hedef; yeniPoz(); sonucT = 0.6; O.durumYaz(sonAd === hedef ? hedef.ad : (enIyi < 0.5 * tol ? "⭐ Harika!  →  " : enIyi < 0.85 * tol ? "👍 İyi  →  " : "Kaçtı!  →  ") + hedef.ad);
+          const sonAd = hedef; yeniPoz(); sonucT = 0.6; O.durumYaz(O.t(enIyi < 0.5 * tol ? "⭐ Harika!" : enIyi < 0.85 * tol ? "👍 İyi" : "Kaçtı!") + "  →  " + O.t(hedef.ad));
         }
         sahne_(dt);
         return 0;
@@ -411,11 +423,11 @@ export default function oyunlariKur(O) {
       const bos = SAAT.filter(s => !dolu[s]); if (!bos.length) return null;
       let saat = bos[rast(bos.length)], q = yer(saat);
       for (let d = 0; d < 5 && !uzak(q); d++) { saat = bos[rast(bos.length)]; q = yer(saat); }      // elin zaten durduğu yerde belirmesin
-      const bmb = Math.random() < Math.min(0.3, 0.14 + sure * 0.002), tur = TUR[rast(TUR.length)];
+      const zr = Z(), zs = sure * zr.rampa, bmb = Math.random() < (zr.kolay ? 0.06 : Math.min(0.3, 0.14 + zs * 0.002)), tur = TUR[rast(TUR.length)];
       const m = havuz.pop() || (() => { const a = new THREE.Mesh(TUR[0].geo, mPlastik); a.castShadow = true; grup.add(a); return a; })();
-      m.geometry = bmb ? bomba : tur.geo; m.visible = true; m.position.set(q.x, q.y, 0.35); m.rotation.set(0, 0, 0); m.scale.setScalar(0.01);
+      m.geometry = bmb ? bomba : tur.geo; m.visible = true; m.position.set(q.x, q.y, 0.6); m.rotation.set(0, 0, 0); m.scale.setScalar(0.01);
       dolu[saat] = true;
-      const n = { ag: m, bmb, renk: bmb ? 0x555a66 : tur.renk, x: q.x, y: q.y, saat, t: 0, omur: Math.max(1.3, 2.7 - sure * 0.012), faz: Math.random() * 6 };
+      const n = { ag: m, bmb, renk: bmb ? 0x555a66 : tur.renk, x: q.x, y: q.y, saat, t: 0, omur: Math.max(1.3, 2.7 - zs * 0.012) * (zr.kolay ? 1.6 : 1), faz: Math.random() * 6 };
       nesneler.push(n); return n;
     }
     function temizle() { for (const n of nesneler) { n.ag.visible = false; havuz.push(n.ag); } nesneler = []; for (const s of SAAT) dolu[s] = false; }
@@ -427,7 +439,7 @@ export default function oyunlariKur(O) {
         kol[i].x = yon * OMUZ_X + KOL1 * Math.sin(a) + KOL2 * Math.sin(ab); kol[i].y = OMUZ_Y - KOL1 * Math.cos(a) - KOL2 * Math.cos(ab);
       }
       O.durusSifir(D);
-      D.lKolZ = kol[0].a; D.lDirZ = kol[0].b; D.rKolZ = kol[1].a; D.rDirZ = kol[1].b;
+      D.rKolZ = -kol[0].a; D.rDirZ = -kol[0].b; D.lKolZ = -kol[1].a; D.lDirZ = -kol[1].b;      // bize dönük: ekranın solundaki kol oyuncağın sağ kolu
       D.kalcaY = Math.sin(O.zaman() * 4) * 0.02; D.lUst = 0.12; D.rUst = -0.08;
       O.hPoz.set(0, 3.2, 9.6); O.hBak.set(0, 2.75, 0);
     }
@@ -446,7 +458,7 @@ export default function oyunlariKur(O) {
       },
       ac() {
         grup.visible = true; temizle();
-        const k = O.karakter(); O.karakterTak(k, grup, 0, 0.1, 0, OLCEK, 0);
+        const k = O.karakter(); O.karakterTak(k, grup, 0, 0.1, 0, OLCEK, PI);
         k.solOmuz.scale.setScalar(UZAT); k.sagOmuz.scale.setScalar(UZAT); eldivenTak(k, 1.5);       // uzun kollar, iri eldivenler
         can = 3; skor = 0; seri = 0; sure = 0; sayac = 1;
         hedefKol[0].a = -0.2; hedefKol[1].a = 0.2; hedefKol[0].b = hedefKol[1].b = 0;
@@ -461,7 +473,7 @@ export default function oyunlariKur(O) {
           hedefKol[i].a = Math.atan2(px - yon * OMUZ_X, -(py - OMUZ_Y)); hedefKol[i].b = 0; hedefKol[1 - i].a = -yon * 0.2; hedefKol[1 - i].b = 0;
         }
         sahne_(dt);
-        if ((sayac -= dt) <= 0) { sayac = Math.max(0.55, 1.45 - sure * 0.01); if (nesneler.length < 4) belir(); }
+        if ((sayac -= dt) <= 0) { sayac = Math.max(0.55, 1.45 - sure * Z().rampa * 0.01) / Z().yogun; if (nesneler.length < 4) belir(); }
         for (let i = nesneler.length - 1; i >= 0; i--) {
           const n = nesneler[i]; n.t += dt;
           const kalan = n.omur - n.t, b = Math.min(1, n.t / 0.18) * Math.min(1, Math.max(0, kalan) / 0.18);       // belirirken büyür, süresi dolunca küçülür
@@ -470,8 +482,8 @@ export default function oyunlariKur(O) {
           if (bitti && !n.bmb) seri = 0;
           if (!bitti && n.t > 0.3) for (let e = 0; e < 2 && !bitti; e++) if (Math.hypot(n.x - kol[e].x, n.y - kol[e].y) < vurus) {
             bitti = true;
-            if (n.bmb) { can--; seri = 0; O.cal("carp"); O.cal("vur", 0.8, 0.6); O.flas(); O.sarsinti(0.45); O.parAt(n.x, n.y, 0.4, 16, 0xff7b1c, 6, 0.15); O.parAt(n.x, n.y, 0.4, 8, 0x2a2233, 5, 0.13); O.sagYaz(kalp(can)); }
-            else { seri++; skor += 10 + Math.min(10, Math.floor(seri / 3)) * 2; O.cal("kir", 0.7, 0.85 + Math.random() * 0.4); O.parAt(n.x, n.y, 0.4, 12, n.renk, 5, 0.14); O.parAt(n.x, n.y, 0.4, 4, 0xffffff, 4, 0.09); }
+            if (n.bmb) { can--; seri = 0; O.cal("carp"); O.cal("vur", 0.8, 0.6); O.flas(); O.sarsinti(0.45); O.parAt(n.x, n.y, 0.65, 16, 0xff7b1c, 6, 0.15); O.parAt(n.x, n.y, 0.65, 8, 0x2a2233, 5, 0.13); O.sagYaz(kalp(can)); }
+            else { seri++; skor += 10 + Math.min(10, Math.floor(seri / 3)) * 2; O.cal("kir", 0.7, 0.85 + Math.random() * 0.4); O.parAt(n.x, n.y, 0.65, 12, n.renk, 5, 0.14); O.parAt(n.x, n.y, 0.65, 4, 0xffffff, 4, 0.09); }
           }
           if (bitti) { dolu[n.saat] = false; n.ag.visible = false; havuz.push(n.ag); nesneler[i] = nesneler[nesneler.length - 1]; nesneler.pop(); }
         }
