@@ -2,7 +2,8 @@ name: Android Derle
 
 on:
   push:
-    tags: ["mobil-*"]   # Android sadece "mobil-..." etiketi gönderilince derlenir
+    branches: [mobil]   # Android sadece "mobil" dalına gönderilince derlenir
+    tags: ["mobil-*"]
   workflow_dispatch:
 
 permissions:
