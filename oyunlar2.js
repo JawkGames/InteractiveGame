@@ -1064,6 +1064,7 @@ export default function oyunlar2Kur(O) {
   function ipAtlama() {
     let grup, ip, aci, periyot, py, vy, havada, can, skor, seri, sure, takildiT, gecisHazir;
     const zip = { hazir: true, bekle: 0 };
+    let kolHazirIp = true;
     function zipla() { if (!havada && takildiT <= 0) { havada = true; vy = 8; O.cal("zipla", 0.45, 1.2); } }
     function sahne_(dt) {
       ip.rotation.x = aci;
@@ -1119,7 +1120,13 @@ export default function oyunlar2Kur(O) {
       },
       tus(k) { if (k === " " || k === "ArrowUp") zipla(); },
       dokun() { zipla(); },
-      poz(P) { if (ziplamaAlgila(zip, P)) zipla(); },
+      poz(P) {
+        if (ziplamaAlgila(zip, P)) zipla();
+        // diğer oyunlardaki gibi: iki kolu yanlara / yukarı açmak da zıplatır
+        const acik = w => w.g > 0.4 && w.y < w.sy + 0.35 * P.tgovde && (Math.abs(w.x - w.sx) * P.oran > 0.7 * P.tgen * P.oran || w.y < w.sy - 0.5 * P.tgovde);
+        const ikisi = acik(P.sol) && acik(P.sag);
+        if (ikisi && kolHazirIp) { kolHazirIp = false; zipla(); } else if (!acik(P.sol) && !acik(P.sag)) kolHazirIp = true;
+      },
       onizle() { this.ac(); aci = 0.15; py = 0.45; havada = true; sahne_(0.001); }
     };
   }
@@ -1130,7 +1137,7 @@ export default function oyunlar2Kur(O) {
   function kano() {
     const GEN = 8;
     let grup, suDk, sandal, kurekler = {}, susler = [], nesneler = [], x, baslik, donus, hiz, ekHiz, sure, mesafe, can, dokunulmaz, elmas, sonraki;
-    const kurekT = { sol: 0, sag: 0 }, sonCekis = { sol: -9, sag: -9 };
+    const kurekT = { sol: 0, sag: 0 }, sonCekis = { sol: -9, sag: -9 }; let kenarT = 0, kenarda = false;
     const L = izci(), Rr = izci(); let hazirL = true, hazirR = true;
     const havuz = {}, GEO = {};
     const al = ad => { const h = havuz[ad] || (havuz[ad] = []); let m = h.pop(); if (!m) { m = new THREE.Mesh(GEO[ad], mPlastik); m.castShadow = true; grup.add(m); } m.visible = true; return m; };
@@ -1213,7 +1220,14 @@ export default function oyunlar2Kur(O) {
         hiz = (6 + 6 * zor) * zr.hiz + ekHiz;
         const adim = hiz * Math.cos(baslik) * dt; mesafe += adim;
         x += Math.sin(baslik) * hiz * dt;
-        if (Math.abs(x) > GEN - 1.6) { x = Math.sign(x) * (GEN - 1.6); baslik *= -0.5; O.cal("blok", 0.4); }
+        if (kenarT > 0) kenarT -= dt;
+        if (Math.abs(x) > GEN - 1.6) {      // kenara değince içeri döner; ses sadece ilk değişte ve aralıklı
+          const yon = Math.sign(x); x = yon * (GEN - 1.6);
+          if (Math.sign(baslik) === yon) baslik = -yon * Math.min(0.25, Math.abs(baslik) * 0.5);
+          if (Math.sign(donus) === yon) donus = 0;
+          if (!kenarda && kenarT <= 0) { O.cal("blok", 0.35); kenarT = 1.2; }
+          kenarda = true;
+        } else if (Math.abs(x) < GEN - 2.2) kenarda = false;
         if (dokunulmaz > 0) dokunulmaz -= dt;
         suDk.offset.y = (suDk.offset.y + adim / 8) % 1;
         for (const s of susler) { s.m.position.z += adim; if (s.m.position.z > 14) s.m.position.z -= 26 * 4.4; }
