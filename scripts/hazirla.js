@@ -22,9 +22,26 @@ if (adim === "www") {
   fs.copyFileSync(path.join(nm, "@capacitor/core/dist/capacitor.js"), path.join(lib, "capacitor.js"));
   fs.copyFileSync(path.join(nm, "@capacitor-community/admob/dist/plugin.js"), path.join(lib, "admob.js"));
   fs.copyFileSync(path.join(nm, "@capgo/native-purchases/dist/plugin.js"), path.join(lib, "satin.js"));
+  fs.copyFileSync(path.join(nm, "@capacitor/share/dist/plugin.js"), path.join(lib, "paylas.js"));
+  // İnternetsiz çalışsın: 3B motor, hareket algılama kütüphanesi ve modeli uygulamanın içine gömülür (CDN'e gerek kalmaz)
+  fs.copyFileSync(path.join(nm, "three/build/three.module.min.js"), path.join(lib, "three.module.min.js"));
+  const mp = path.join(lib, "mp"), mpw = path.join(mp, "wasm"); fs.mkdirSync(mpw, { recursive: true });
+  const tv = path.join(nm, "@mediapipe/tasks-vision");
+  fs.copyFileSync(path.join(tv, "vision_bundle.mjs"), path.join(mp, "vision_bundle.mjs"));
+  for (const f of fs.readdirSync(path.join(tv, "wasm"))) fs.copyFileSync(path.join(tv, "wasm", f), path.join(mpw, f));
+  const model = path.join(kok, "model/pose_landmarker_lite.task");
+  if (!fs.existsSync(model) || fs.statSync(model).size < 1e6) { console.error("HATA: model/pose_landmarker_lite.task yok (derleme adımı indirmeli)"); process.exit(1); }
+  fs.copyFileSync(model, path.join(mp, "pose_landmarker_lite.task"));
   const ix = path.join(www, "index.html");
-  fs.writeFileSync(ix, fs.readFileSync(ix, "utf8").replace("<script type=\"module\">",
-    '<script src="lib/capacitor.js"></script>\n<script src="lib/admob.js"></script>\n<script src="lib/satin.js"></script>\n<script type="module">'));
+  let h = fs.readFileSync(ix, "utf8");
+  const degis = (a, b) => { if (!h.includes(a)) { console.error("HATA: bulunamadı " + a); process.exit(1); } h = h.split(a).join(b); };
+  degis('"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js"', '"./lib/three.module.min.js"');
+  degis('"https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/vision_bundle.mjs"', 'new URL("lib/mp/vision_bundle.mjs", location.href).href');
+  degis('"https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm"', 'new URL("lib/mp/wasm", location.href).href');
+  degis('"https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task"', 'new URL("lib/mp/pose_landmarker_lite.task", location.href).href');
+  h = h.replace("<script type=\"module\">",
+    '<script src="lib/capacitor.js"></script>\n<script src="lib/admob.js"></script>\n<script src="lib/satin.js"></script>\n<script src="lib/paylas.js"></script>\n<script type="module">');
+  fs.writeFileSync(ix, h);
   console.log("www hazır");
 }
 

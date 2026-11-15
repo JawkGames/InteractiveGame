@@ -1260,5 +1260,103 @@ export default function oyunlar2Kur(O) {
     };
   }
 
-  return [kus(), vurus(), duvar(), kaleci(), davulcu(), kayak(), yuzme(), durKalk(), ipAtlama(), kano()];
+  // ===================================================================================================
+  //  11. İKİLİ YARIŞ — iki kişi yan yana kameraya geçer, yerinde koşar; bitişe ilk varan kazanır
+  // ===================================================================================================
+  function ikili() {
+    const BITIS = 60;
+    let grup, bitisG, k1, k2, z1, z2, e1, e2, sure, kutlaT, kazanan, yalnizT, basladiT;
+    const D2 = O.yeniDurus(), onc = [null, null];
+    function enerjiOlc(i, v, dt) {      // bileklerin ve dizlerin kareler arası hareketi (omuz genişliğine göre)
+      const gen = Math.max(0.03, Math.abs(v[3] - v[6])), d = [v[15], v[16], v[18], v[19], v[36], v[37], v[39], v[40]];
+      const o = onc[i]; onc[i] = d;
+      if (!o || dt <= 0) return;
+      let t = 0; for (let k = 0; k < d.length; k++) t += Math.abs(d[k] - o[k]);
+      const e = t / Math.max(dt, 0.02) / gen / 3;
+      if (i === 0) e1 += (e - e1) * 0.35; else e2 += (e - e2) * 0.35;
+    }
+    function kos(k, Dx, e, faz, z, kazandi, kaybetti) {
+      const kosu = Math.min(1, e / 3);
+      k.kok.position.set(k === k1 ? -1.3 : 1.3, kazandi ? Math.abs(Math.sin(kutlaT * 9)) * 0.6 : 0, -z);
+      O.durusSifir(Dx);
+      if (kazandi) { Dx.lKolZ = -2.7 + Math.sin(faz) * 0.3; Dx.rKolZ = 2.7 - Math.sin(faz) * 0.3; }
+      else if (kaybetti) { Dx.lKolZ = -0.2; Dx.rKolZ = 0.2; Dx.basX = 0.4; Dx.govdeX = 0.15; }
+      else { Dx.lUst = 0.9 * kosu * Math.sin(faz); Dx.rUst = -0.9 * kosu * Math.sin(faz); Dx.lAlt = -kosu * (0.3 + Math.max(0, Math.cos(faz))); Dx.rAlt = -kosu * (0.3 + Math.max(0, -Math.cos(faz)));
+        Dx.lKolX = -0.8 * kosu * Math.sin(faz); Dx.rKolX = 0.8 * kosu * Math.sin(faz); Dx.lDirX = Dx.rDirX = 1.2 * kosu; Dx.govdeX = -0.15 * kosu; }
+    }
+    function sahne_() {
+      const f = O.zaman() * 10;
+      kos(k1, D, e1, f, z1, kazanan === 1, kazanan === 2); kos(k2, D2, e2, f + 1.3, z2, kazanan === 2, kazanan === 1); O.durusUygula(k2, D2);
+      const orta = (z1 + z2) / 2;
+      O.hPoz.set(0, 3.4, -orta + 7.5); O.hBak.set(0, 1.3, -orta - 8);
+    }
+    return {
+      id: "ikili", ad: "İkili Yarış", ikiKisi: true, elSerbest: true, elGerek: false, ipucu: "İki kişi yan yana durun ve yerinde koşun!",
+      ogretici: [
+        { tr: "İki kişi yan yana kameraya geçin", a: Pz("duz"), b: Pz("duz"), efekt: "🧍🧍", sonuc: "Soldaki kişi soldaki oyuncak, sağdaki kişi sağdaki oyuncak" },
+        { tr: "Yerinde koşun: kim hızlı koşarsa o öne geçer", a: Pz("onde", { bacak: 0.6 }), b: Pz("onde", { bacak: -0.6 }), efekt: "🏃💨", sonuc: "" },
+        { tr: "Bitiş çizgisine ilk varan kazanır", a: Pz("duz"), b: Pz("yukari"), efekt: "🏁🏆", sonuc: "" }
+      ],
+      kur() {
+        grup = grupYap();
+        const l = [];
+        for (const x of [-1.3, 1.3]) l.push(p(yKutu(2.2, 0.02, 120, 0.01), x < 0 ? 0xff9ec8 : 0x8fd0ff, x, 0.012, -48));
+        for (let zz = 0; zz > -110; zz -= 4) l.push(p(yKutu(0.08, 0.025, 2, 0.01), R.beyaz, 0, 0.02, zz));
+        for (let zz = 6; zz > -100; zz -= 7) for (const yon of [-1, 1]) {
+          l.push(p(sil(8), 0xa9744f, yon * (5 + (Math.abs(zz) % 3)), 0.9, zz, 0, 0, 0, 0.22, 1.8, 0.22), p(kure(10), CANLI[Math.abs(zz + yon) % 8 === 0 ? 3 : 2], yon * (5 + (Math.abs(zz) % 3)), 2.3, zz, 0, 0, 0, 1.2, 1.1, 1.2));
+          l.push(p(yKutu(0.1, 0.6, 0.1, 0.03), R.beyaz, yon * 2.9, 0.3, zz), p(yKutu(0.06, 0.08, 7, 0.02), R.beyaz, yon * 2.9, 0.45, zz - 3.5));
+        }
+        // seyirci tribünü
+        for (const yon of [-1, 1]) for (let i = 0; i < 18; i++) l.push(p(kure(8), CANLI[(i * 3 + (yon > 0 ? 1 : 0)) % 8], yon * (8 + (i % 3) * 0.9), 0.6 + (i % 3) * 0.5, -10 - Math.floor(i / 3) * 1.5, 0, 0, 0, 0.35, 0.45, 0.35));
+        grup.add(ag(l));
+        bitisG = new THREE.Group(); grup.add(bitisG);
+        const b = [p(yKutu(5.4, 0.03, 0.6, 0.01), R.beyaz, 0, 0.03, 0)];
+        for (let i = 0; i < 15; i++) { const a = i / 14 * PI; b.push(p(kure(10), CANLI[i % 8], Math.cos(a) * 3, Math.sin(a) * 3, 0, 0, 0, 0, 0.38, 0.45, 0.38)); }
+        bitisG.add(ag(b)); bitisG.position.z = -BITIS;
+      },
+      ac() {
+        grup.visible = true; O.zeminHarita(cimDoku(), 0.95);
+        k1 = O.karakter(); k2 = O.diger(); O.karakterTak(k1, grup, -1.3, 0, 0, 1, 0); O.karakterTak(k2, grup, 1.3, 0, 0, 1, 0); k2.kok.visible = true;
+        z1 = z2 = 0; e1 = e2 = 0; sure = 0; kutlaT = 0; kazanan = 0; yalnizT = 0; basladiT = 3; onc[0] = onc[1] = null;
+        O.solYaz("0 m"); O.sagYaz("0 m"); O.fov(60); sahne_();
+      },
+      kapat() { grup.visible = false; O.zeminHarita(null); if (k2) k2.kok.removeFromParent(); },
+      bekle() { sahne_(); },
+      guncelle(dt) {
+        if (kazanan) { kutlaT += dt; if (Math.random() < 0.4) O.parAt((kazanan === 1 ? -1.3 : 1.3), 2, -(kazanan === 1 ? z1 : z2), 3, CANLI[rast(8)], 5, 0.12); sahne_(); return 0; }
+        if (basladiT > 0) {      // 3-2-1 başla
+          const once = Math.ceil(basladiT); basladiT -= dt; const simdi = Math.ceil(basladiT);
+          if (simdi !== once || once === 3 && basladiT > 2.98) { O.durumYaz(simdi > 0 ? String(simdi) : "🏁 " + T("BAŞLA!")); O.cal("adim1", 0.7, simdi > 0 ? 1 : 1.5); }
+          e1 = e2 = 0; sahne_(); return 0;
+        }
+        sure += dt;
+        if (!O.kameraKontrol()) { e1 *= Math.exp(-dt * 2.5); e2 *= Math.exp(-dt * 2.5); }
+        else {
+          const ks = O.kisiler(); yalnizT = ks.length < 2 ? yalnizT + dt : 0;
+          if (yalnizT > 2.5) { yalnizT = -4; O.durumYaz("👥 " + T("İkinci oyuncu da kameraya girsin")); }
+          if (ks.length < 2) { const k = ks[0]; if (!k || 1 - (k[3] + k[6]) / 2 >= 0.5) e1 *= Math.exp(-dt * 3); if (!k || 1 - (k[3] + k[6]) / 2 < 0.5) e2 *= Math.exp(-dt * 3); }
+        }
+        z1 += Math.min(1, e1 / 3) * 6 * dt; z2 += Math.min(1, e2 / 3) * 6 * dt;
+        O.solYaz(Math.floor(z1) + " m"); O.sagYaz(Math.floor(z2) + " m");
+        if (z1 >= BITIS || z2 >= BITIS) {
+          kazanan = z1 >= z2 ? 1 : 2; O.cal("elmas", 0.9, 1.3); O.parAt(0, 2, -BITIS, 40, 0xffe066, 8, 0.15);
+          const ad = kazanan === 1 ? T("Soldaki oyuncu") : T("Sağdaki oyuncu");
+          O.durumYaz("🏆 " + ad + " " + T("kazandı!"));
+          setTimeout(() => { if (grup.visible && kazanan) O.bitir(Math.max(100, Math.round(2400 - sure * 60)), { baslik: "🏆 " + ad + " " + T("kazandı!"), satir: sure.toFixed(1) + " sn" }); }, 2400);
+        }
+        sahne_();
+        return 0;
+      },
+      tus(k) { if (k === "a" || k === "A" || k === "ArrowLeft") e1 = Math.min(4, e1 + 0.9); if (k === "l" || k === "L" || k === "ArrowRight") e2 = Math.min(4, e2 + 0.9); },
+      dokun(x) { if (x < 0.5) e1 = Math.min(4, e1 + 0.9); else e2 = Math.min(4, e2 + 0.9); },
+      poz(P, dt) {
+        const ks = O.kisiler().slice().sort((a, b) => (1 - (a[3] + a[6]) / 2) - (1 - (b[3] + b[6]) / 2));      // ekranda soldan sağa
+        if (ks.length >= 2) { enerjiOlc(0, ks[0], dt); enerjiOlc(1, ks[ks.length - 1], dt); }
+        else if (ks.length === 1) enerjiOlc(1 - (ks[0][3] + ks[0][6]) / 2 < 0.5 ? 0 : 1, ks[0], dt);
+      },
+      onizle() { this.ac(); basladiT = 0; z1 = 22; z2 = 19; e1 = 3; e2 = 2.6; sahne_(); }
+    };
+  }
+
+  return [kus(), vurus(), duvar(), kaleci(), davulcu(), kayak(), yuzme(), durKalk(), ipAtlama(), kano(), ikili()];
 }

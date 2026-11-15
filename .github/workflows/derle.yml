@@ -33,6 +33,12 @@ jobs:
       - name: Paketleri kur
         run: npm ci
 
+      - name: Hareket modelini indir (uygulamaya gömülür, internetsiz çalışır)
+        run: |
+          mkdir -p model
+          curl -fL --retry 3 -o model/pose_landmarker_lite.task https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task
+          ls -la model
+
       - name: Android projesini oluştur
         run: |
           node scripts/hazirla.js www
