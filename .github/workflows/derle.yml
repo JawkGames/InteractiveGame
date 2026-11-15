@@ -49,8 +49,7 @@ jobs:
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon
 
-      - name: Yayın AAB derle (imzalı)
-        if: env.KEYSTORE_BASE64 != ''
+      - name: Yayın AAB derle (anahtar varsa imzalı, yoksa imzasız — sonra elle imzalanır)
         working-directory: android
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
