@@ -18,7 +18,7 @@
   #skor { position: fixed; left: 12px; top: 10px; pointer-events: none; }
   #sag { position: fixed; right: 12px; top: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; z-index: 30; }
   #elmas { pointer-events: none; }
-  #tamEkran, #ev, #ayar { width: 46px; height: 46px; font-size: 24px; line-height: 1; color: #fff; background: rgba(60,36,90,.55);
+  #tamEkran, #ev, #ayar, #ogBtn { width: 46px; height: 46px; font-size: 24px; line-height: 1; color: #fff; background: rgba(60,36,90,.55);
     border: 2px solid rgba(255,255,255,.9); border-radius: 14px; padding: 0; display: none; }
   #durum { position: fixed; left: 50%; top: 58px; transform: translateX(-50%); max-width: 86vw; padding: 8px 18px;
     border-radius: 999px; background: rgba(60,36,90,.6); color: #fff; font-weight: 800; font-size: 18px;
@@ -59,7 +59,26 @@
   #hubUst h1 { margin: 0; flex: 1; font-size: 24px; color: #ff4f9a; white-space: nowrap; }
   #hubUst h1 small { font-size: 11px; color: #4a2a6b; opacity: .45; font-weight: 600; }
   #hubUst .kart { flex: none; padding: 8px 14px; font-size: 15px; }
-  #kartlar { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 1fr; gap: 10px; }
+  #kartlar { flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: minmax(120px, 38vh); gap: 10px;
+    padding: 4px 8px 4px 4px; scrollbar-width: auto; scrollbar-color: #ff4f9a rgba(74,42,107,.14); }
+  #kartlar::-webkit-scrollbar { width: 16px; }
+  #kartlar::-webkit-scrollbar-track { background: rgba(74,42,107,.14); border-radius: 10px; }
+  #kartlar::-webkit-scrollbar-thumb { background: #ff4f9a; border-radius: 10px; border: 3px solid #ffeee0; min-height: 60px; }
+  .oyunKart.secim { outline: 5px solid #ff4f9a; outline-offset: -5px; box-shadow: 0 0 0 4px rgba(255,79,154,.25), 0 5px 0 rgba(74,42,107,.16); }
+  #jestIpucu { display: none; margin-top: 8px; padding: 6px 12px; border-radius: 999px; background: rgba(60,36,90,.7); color: #fff; font-weight: 800;
+    font-size: 14px; text-align: center; align-self: center; }
+  #ogretici { position: fixed; inset: 0; z-index: 45; display: none; align-items: center; justify-content: center; background: rgba(74,42,107,.55); }
+  #ogretici .kutu { width: min(92vw, 600px); max-height: 94vh; overflow: auto; box-sizing: border-box; padding: 12px 16px; border-radius: 24px; background: #fff;
+    color: #4a2a6b; text-align: center; box-shadow: 0 10px 0 rgba(74,42,107,.18); }
+  #ogretici h2 { margin: 0 0 4px; color: #ff4f9a; font-size: 22px; }
+  #ogTuval { width: 100%; max-height: 42vh; aspect-ratio: 560 / 250; background: linear-gradient(#cfe9ff, #fff3e6); border-radius: 18px; }
+  #ogYazi { margin: 8px 0 2px; font-weight: 900; font-size: 17px; }
+  #ogretici .kucuk { margin: 2px 0; font-size: 13px; opacity: .75; }
+  #ogNokta { margin: 6px 0; font-size: 12px; letter-spacing: 4px; color: #ff4f9a; }
+  #ogretici .dugmeler { display: flex; gap: 8px; justify-content: center; align-items: center; }
+  #ogretici .dugmeler .ana, #ogretici .dugmeler .ikinci { margin: 0; }
+  #kpReklam.onay { background: #46d16a; box-shadow: 0 5px 0 #2f9e4c; }
+  #video { z-index: 13; }
   .oyunKart .kilitRozet { position: absolute; left: 8px; top: 8px; padding: 4px 10px; border-radius: 999px; background: rgba(60,36,90,.78);
     color: #fff; font-weight: 900; font-size: 14px; pointer-events: none; }
   .oyunKart.kilitli canvas { filter: saturate(.55) brightness(.92); }
@@ -88,20 +107,24 @@
 <canvas id="oyun"></canvas>
 <video id="video" playsinline muted></video>
 <div class="rozet" id="skor">0</div>
-<div id="sag"><div class="rozet" id="elmas">💎 0</div><button id="tamEkran" aria-label="Tam ekran">⛶</button><button id="ev" aria-label="Oyunlar">🏠</button><button id="ayar" aria-label="Hassasiyet">⚙️</button></div>
+<div id="sag"><div class="rozet" id="elmas">💎 0</div><button id="tamEkran" aria-label="Tam ekran">⛶</button><button id="ev" aria-label="Oyunlar">🏠</button><button id="ayar" aria-label="Hassasiyet">⚙️</button><button id="ogBtn" aria-label="Öğretici">❓</button></div>
 <div id="ayarCubuk"><span id="ayarYazi"></span><input id="ayarKaydir" type="range" min="0.4" max="2" step="0.1" value="1"></div>
 <div id="durum"></div>
 <div id="flas"></div>
-<div id="kilitPanel"><div class="kutu"><h2 id="kpBaslik"></h2><p id="kpYazi"></p>
+<div id="kilitPanel"><div class="kutu"><h2 id="kpBaslik"></h2><p id="kpYazi"></p><p class="kucuk" id="kpJest"></p>
   <button class="ana" id="kpReklam"></button><button class="ikinci" id="kpSatin"></button><p class="kucuk" id="kpNot"></p>
   <p id="kilitMesaj"></p><button class="baglanti" id="kpGeri"></button><br><button class="baglanti" id="kpKapat"></button></div></div>
+<div id="ogretici"><div class="kutu"><h2 id="ogBaslik"></h2><canvas id="ogTuval" width="560" height="250"></canvas>
+  <p id="ogYazi"></p><p class="kucuk" id="ogSonuc"></p><div id="ogNokta"></div>
+  <div class="dugmeler"><button class="ikinci" id="ogGeri">◀</button><button class="ana" id="ogTamam"></button><button class="ikinci" id="ogIleri">▶</button></div>
+  <p class="kucuk" id="ogIpucu"></p></div></div>
 <div id="ayarPanel"><div class="kutu"><h2 id="ayBaslik"></h2>
   <p id="ayZorluk"></p><div class="secim"><button class="kart" data-z="kolay"></button><button class="kart" data-z="normal"></button><button class="kart" data-z="zor"></button></div>
   <p id="ayDil"></p><div class="secim"><button class="kart" data-d="tr">Türkçe</button><button class="kart" data-d="en">English</button></div>
   <button class="ana" id="ayKapat"></button></div></div>
 <div id="hub"><div id="hubUst"><h1>Interactive Game <small id="surumYazi"></small></h1>
-  <button class="kart" id="ayarAc">⚙️</button>
-  <button class="kart" data-k="kiz">Ponçik</button><button class="kart" data-k="erkek">Zıpır</button></div><div id="kartlar"></div></div>
+  <button class="kart" id="kameraAc">📷</button><button class="kart" id="ogMenu">❓</button><button class="kart" id="ayarAc">⚙️</button>
+  <button class="kart" data-k="kiz">Ponçik</button><button class="kart" data-k="erkek">Zıpır</button></div><div id="kartlar"></div><div id="jestIpucu"></div></div>
 <div id="kilit"><div class="ikon" id="kilitIkon"></div><div id="kilitYazi"></div>
   <button class="ana" id="kilitDugme">Tam ekran yap</button></div>
 <div id="panel"></div>
@@ -109,11 +132,12 @@
 <script type="module">
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js";
 import oyunlariKur from "./oyunlar.js";
+import oyunlar2Kur from "./oyunlar2.js";
 
 // =====================================================================================================
 //  AYARLAR
 // =====================================================================================================
-const SURUM = "3.4";
+const SURUM = "4.0";
 const POZ_KUTUPHANE = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/vision_bundle.mjs";
 const POZ_WASM = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm";
 const POZ_MODEL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task";
@@ -157,7 +181,9 @@ const EN = {
   "Nakavt! Sıradaki rakip geliyor": "Knockout! Next opponent coming", "Seviye": "Level", "vuruş gerek": "hits needed", "🛡️ KALKAN": "🛡️ GUARD",
   "⭐ Harika!": "⭐ Great!", "👍 İyi": "👍 Good", "Kaçtı!": "Missed!",
   "Eller yukarı": "Hands up", "Kollar yana": "Arms out", "V yap": "Make a V", "Sol yukarı, sağ yana": "Left up, right out", "Sağ yukarı, sol yana": "Right up, left out",
-  "Pazı göster": "Show muscles", "Eller belde": "Hands on hips", "Disko sol": "Disco left", "Disko sağ": "Disco right", "Sol el yukarı": "Left hand up",
+  "Pazı göster": "Show muscles", "Eller belde": "Hands on hips", "Disko sol": "Disco left", "Disko sağ": "Disco right",
+  "Sol el yukarı": "Left hand up",
+  "Kuş Uçuşu": "Bird Flight", "Uzak Vuruş": "Long Kick", "Şekil Duvarı": "Shape Wall", "Kaleci": "Goalkeeper", "Davulcu": "Drummer", "Kayak": "Ski", "Yüzme Yarışı": "Swim Race", "Dur-Kalk": "Freeze Run", "İp Atlama": "Jump Rope", "Hava Ressamı": "Air Painter", "Kano": "Canoe", "Kollarını çırp: yüksel. Kollar açık: süzül. Yana yatın: dön": "Flap your arms: rise. Arms out: glide. Lean: turn", "Kameraya yan dur. Bacağını geri al ve topa savur": "Stand sideways to the camera. Pull your leg back and swing it at the ball", "Duvardaki deliğin şeklini al, delikten geç!": "Match the hole in the wall and pass through!", "Ellerinle topu kurtar. Yana kayarak kaleyi koru": "Save the ball with your hands. Step sideways to guard the goal", "Notalar davula inince o davula yumrukla vur!": "Hit the drum when a note lands on it!", "Sağa sola yatarak kay. Çömel: hızlan. Zıpla: tümsekten uç": "Lean left and right to ski. Crouch: speed up. Jump: fly over bumps", "Kollarını sırayla başının üstünden çevirerek kulaç at!": "Swim by swinging your arms over your head, one after the other!", "Yeşilde yerinde koş, kırmızıda don kal!": "Run in place on green, freeze on red!", "İp ayağının altından geçerken zıpla!": "Jump when the rope passes under your feet!", "Elini kaldır ve havada şekli çiz": "Raise your hand and draw the shape in the air", "Sol elle kürek: sağa. Sağ elle kürek: sola. Sırayla çek: hızlan": "Paddle left: turn right. Paddle right: turn left. Alternate: speed up", "Kollarını kanat gibi aşağı çırp": "Flap your arms down like wings", "Kuş yükselir": "The bird rises", "Kollarını yana açık tut": "Keep your arms out to the sides", "Kuş süzülerek yavaşça alçalır": "The bird glides and slowly descends", "Kollar açıkken sağa ya da sola yatın": "With arms out, lean left or right", "Kuş o yöne döner": "The bird turns that way", "Elmas topla, halkalardan geç, fırtına bulutlarından kaç": "Collect diamonds, fly through rings, avoid storm clouds", "Kameraya yan dur, telefon uzakta olsun (bütün vücudun görünsün)": "Stand sideways, phone far away (your whole body must be visible)", "Bacağını geri al": "Pull your leg back", "Hızla öne savur: ne kadar hızlı, o kadar uzak": "Swing it forward fast: faster means farther", "Top uçar, seke seke gider": "The ball flies and bounces along", "5 atışın toplam mesafesi skorun": "Your score is the total distance of 5 kicks", "Duvarda bir poz şeklinde delik var": "The wall has a hole shaped like a pose", "Duvar sana doğru gelir": "The wall comes toward you", "Duvar gelmeden aynı pozu al": "Strike the same pose before the wall arrives", "Oyuncağın senin gibi durur": "Your toy copies you", "Poz tutarsa delikten geçersin, tutmazsa duvara çarparsın": "If the pose matches you pass through, if not you hit the wall", "Top kaleye gelir: elini topun geldiği yere uzat": "The ball flies at the goal: reach your hand to where it's going", "Oyuncağın topu tutar": "Your toy catches the ball", "Yana adım at": "Step to the side", "Kaleci yana kayar": "The keeper moves sideways", "Kaçırırsan gol olur, can gider": "If you miss it's a goal and you lose a life", "Alçak davullar: yumruğunu aşağıya, beline doğru indir": "Low drums: bring your fist down toward your waist", "Alttaki davul çalar": "The lower drum plays", "Ziller: yumruğun omzunun üstündeyken aşağı vur": "Cymbals: strike down while your fist is above your shoulder", "Üstteki zil çalar": "The upper cymbal plays", "Sol elin soldaki, sağ elin sağdaki davulları çalar. Nota davula değdiği an vur!": "Your left hand plays the left drums, your right hand the right ones. Hit when the note touches the drum!", "Sağa ya da sola yatın": "Lean left or right", "Kayakçı o yöne kayar": "The skier glides that way", "Dizlerini bük, çömel": "Bend your knees, crouch", "Hızlanırsın": "You speed up", "Zıpla": "Jump", "Kayaların üstünden uçarsın": "You fly over rocks", "Bayrakların arasından geç, ağaçlara çarpma": "Pass between the flags, don't hit the trees", "Sol kolunu başının üstünden öne çevir": "Swing your left arm over your head", "Bir kulaç": "One stroke", "Sonra sağ kolunu çevir; sırayla devam": "Then your right arm; keep alternating", "Ne kadar hızlı, o kadar hızlı yüzersin": "The faster you stroke, the faster you swim", "Rakiplerinden önce 50 metreye ulaş!": "Reach 50 meters before your rivals!", "Yeşil ışıkta yerinde koş": "On green, run in place", "Oyuncağın ileri koşar": "Your toy runs forward", "Kırmızı ışıkta heykel gibi don!": "On red, freeze like a statue!", "Kıpırdarsan yakalanır, geri dönersin": "If you move you get caught and sent back", "Bitiş çizgisine ulaşınca bir sonraki seviye": "Reach the finish line for the next level", "İp döner; aşağı gelirken zıpla": "The rope turns; jump as it comes down", "Oyuncağın ipin üstünden atlar": "Your toy jumps over the rope", "Küçük bir zıplama yeter": "A small hop is enough", "İp hızlandıkça daha seri zıpla": "Jump quicker as the rope speeds up", "Elini omzunun üstüne kaldır: kalem değer": "Raise your hand above your shoulder: the pen touches down", "Ekranda çizmeye başlarsın": "You start drawing on the screen", "Elini gezdirerek noktaları takip et": "Move your hand to trace the dots", "Noktalar sarıya döner": "The dots turn yellow", "Elini indir: kalem kalkar": "Lower your hand: the pen lifts", "Şekil dolunca sıradakine geçersin": "When the shape is filled you move to the next one", "Sol elinle aşağı doğru kürek çek": "Paddle down with your left hand", "Kano sağa döner": "The canoe turns right", "Sağ elinle kürek çek": "Paddle with your right hand", "Kano sola döner": "The canoe turns left", "Sırayla iki elle çek": "Paddle with both hands, one after the other", "Kano hızlanır": "The canoe speeds up", "Kayalardan, kütüklerden ve girdaplardan kaç": "Avoid rocks, logs and whirlpools", "Atış": "Kick", "En uzak": "Farthest", "Vuruşlar bitti!": "Kicks done!", "Bulutlara düştün!": "You fell into the clouds!", "Duvara çarptın!": "You hit the wall!", "Kurtarış!": "Save!", "Gol!": "Goal!", "Maç bitti!": "Match over!", "Düştün!": "You fell!", "🥇 Birinci oldun!": "🥇 You won!", "🥈 İkinci oldun": "🥈 Second place", "🥉 Üçüncü oldun": "🥉 Third place", "KOŞ!": "RUN!", "Hazırlan…": "Get ready…", "DUR!": "FREEZE!", "Yakalandın!": "Caught!", "İpe takıldın!": "Tripped on the rope!", "Daire": "Circle", "Üçgen": "Triangle", "Kare": "Square", "Yıldız": "Star", "Kalp": "Heart", "Ev": "House", "Zikzak": "Zigzag", "Gülen yüz": "Smile", "Sergi tamam!": "Gallery complete!", "Süre bitti!": "Time's up!", "Kano devrildi!": "The canoe capsized!", "Ayakların görünsün: telefonu uzağa koy": "Your feet must be visible: place the phone farther away", "Menü hareketleri": "Menu moves", "Sağ elini kaldır: sağdaki oyuna geç": "Raise your right hand: next game", "Sol elini kaldır: soldaki oyuna geç": "Raise your left hand: previous game", "Taç pozu (eller başının üstünde): seç / başlat": "Crown pose (hands on top of your head): select / start", "Seçilen oyun açılır": "The selected game opens", "Oyun bitince iki kolunu tam yukarı uzat: tekrar oyna": "When a game ends, stretch both arms fully up: play again", "Oyun bitince taç pozu: ana menü": "When a game ends, crown pose: main menu", "Kilitli oyunda taç pozu: onay çıkar, tekrar taç: reklam başlar": "On a locked game, crown pose: confirm, crown again: the ad starts", "✅ Reklamı başlat": "✅ Start the ad", "Reklamı başlatmak için taç pozunu tekrar yap": "Do the crown pose again to start the ad", "🙆 Taç pozu: seç  •  ✋ Sağ / sol el: gez": "🙆 Crown pose: select  •  ✋ Right / left hand: browse", "🙆 Taç pozu: onayla  •  ✋ El kaldır: kapat": "🙆 Crown pose: confirm  •  ✋ Raise a hand: close", "🙆 Taç pozu: kapat": "🙆 Crown pose: close", "🙆 Taç pozu: ana menü": "🙆 Crown pose: main menu", "🙌 Kollarını tam yukarı uzat: tekrar oyna": "🙌 Stretch both arms fully up: play again", "Sen": "You", "Oyunda": "In the game", "Sağa ya da sola adım at": "Step left or right", "Oyuncak şerit değiştirir": "The toy changes lanes", "Zıpla: kalemlerin üstünden atla": "Jump: hop over the pencils", "Eğil: köprülerin altından geç": "Duck: pass under the bridges", "Elmasları topla": "Collect the diamonds", "Yumruklarını direksiyon gibi tut": "Hold your fists like a steering wheel", "Çevir: sağ yumruk aşağı = sağa": "Turn: right fist down = right", "Araba yumuşakça döner": "The car turns smoothly", "Gidonu tutar gibi dur, vücudunu yatır": "Hold an imaginary handlebar and lean your body", "Motor o yöne yatar": "The bike leans that way", "Kroşe: yumruğunu yandan içeri savur": "Hook: swing your fist in from the side", "Eldiven rakibe vurur": "The glove hits the opponent", "Yumruğunu yukarı kaldır, aşağı indir": "Raise your fist and bring it down", "Rakibin kafasına iner": "It lands on the opponent's head", "Yüzünü iki yumrukla kapat": "Cover your face with both fists", "Kalkan: hasar almazsın": "Guard: you take no damage", "Sağdaki oyuncağın duruşunu taklit et": "Copy the pose of the toy on the right", "Kolunu nesneye uzat ve vur": "Reach out and punch the object", "Nesne kırılır": "The object breaks", "Bombaya dokunma!": "Don't touch the bombs!",
   "Bu oyun kilitli": "This game is locked", "🎬 Reklam izle, 24 saat aç": "🎬 Watch an ad, unlock for 24 h", "⭐ Tüm oyunları aç": "⭐ Unlock all games",
   "Kalıcı açılır, reklamlar da kalkar": "Unlocked forever, ads removed too", "Satın alımı geri yükle": "Restore purchase", "Kapat": "Close",
   "Reklam şu an yüklenemedi, biraz sonra dene": "The ad couldn't load, try again shortly", "Reklam yarıda kapandı": "The ad was closed early",
@@ -798,7 +824,7 @@ function oyunBitti(n) {
 let pozDurum = "yok", pozMod = null, pozSoz = null, isci = null, anaAlg = null, kameraVar = false;
 let isciHataSay = 0, isciMesgul = false, isciGonderT = 0, sonAnaT = 0, gecikme = 0.06, sonVideoZaman = -1, rafPompa = false;
 const kameraKontrol = () => kameraVar && pozDurum === "hazir";
-const NOKTA = [0, 11, 12, 13, 14, 15, 16, 23, 24];
+const NOKTA = [0, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28];
 
 function isciKur() {
   return new Promise((tamam, hata) => {
@@ -862,7 +888,8 @@ function kareIsle() {
     let veri = null;
     try {
       const n = anaAlg.detectForVideo(video, t).landmarks[0];
-      if (n) { veri = new Float32Array(36); for (let i = 0; i < 9; i++) { const q = n[NOKTA[i]]; veri[i * 3] = q.x; veri[i * 3 + 1] = q.y; veri[i * 3 + 2] = q.visibility === undefined ? 1 : q.visibility; veri[27 + i] = q.z || 0; } }
+      if (n) { veri = new Float32Array(52); for (let i = 0; i < 13; i++) { const q = n[NOKTA[i]], g = q.visibility === undefined ? 1 : q.visibility;
+        if (i < 9) { veri[i * 3] = q.x; veri[i * 3 + 1] = q.y; veri[i * 3 + 2] = g; veri[27 + i] = q.z || 0; } else { const j = i - 9; veri[36 + j * 3] = q.x; veri[37 + j * 3] = q.y; veri[38 + j * 3] = g; veri[48 + j] = q.z || 0; } } }
     } catch (e) {}
     gecikme += ((performance.now() - t) / 1000 - gecikme) * 0.1;
     pozIsle(veri, t / 1000);
@@ -906,7 +933,8 @@ function olcumSifirla(mesaj) { olcum.n = olcum.x = olcum.y = olcum.gen = olcum.g
 
 // Oyunların kullandığı ortak hareket verisi. x'ler aynalıdır: ekranın solu = oyuncunun solu.
 const P = { oran: 1, gen: 0.2, govde: 0.25, ox: 0.5, oy: 0.4, bx: 0.5, by: 0.3, tx: 0.5, ty: 0.4, tgen: 0.2, tgovde: 0.25,
-  sol: { x: 0, y: 0, z: 0, g: 0, ex: 0, ey: 0, sx: 0, sy: 0, sz: 0 }, sag: { x: 0, y: 0, z: 0, g: 0, ex: 0, ey: 0, sx: 0, sy: 0, sz: 0 } };
+  sol: { x: 0, y: 0, z: 0, g: 0, ex: 0, ey: 0, sx: 0, sy: 0, sz: 0 }, sag: { x: 0, y: 0, z: 0, g: 0, ex: 0, ey: 0, sx: 0, sy: 0, sz: 0 },
+  kalcaX: 0.5, kalcaY: 0.7, kalcaG: 0, dizSol: { x: 0, y: 0, z: 0, g: 0 }, dizSag: { x: 0, y: 0, z: 0, g: 0 }, ayakSol: { x: 0, y: 0, z: 0, g: 0 }, ayakSag: { x: 0, y: 0, z: 0, g: 0 } };
 function pDoldur(v, oran, gen, govdeBoy, omuzX, omuzY) {
   const zVar = v.length >= 36;
   P.oran = oran; P.gen = gen; P.govde = govdeBoy; P.ox = 1 - omuzX; P.oy = omuzY; P.bx = 1 - v[0]; P.by = v[1];
@@ -915,6 +943,9 @@ function pDoldur(v, oran, gen, govdeBoy, omuzX, omuzY) {
     h.x = 1 - v[b * 3]; h.y = v[b * 3 + 1]; h.z = zVar ? v[27 + b] : 0; h.g = v[b * 3 + 2];
   };
   yaz(P.sol, 1, 3, 5); yaz(P.sag, 2, 4, 6);
+  P.kalcaX = 1 - (v[21] + v[24]) / 2; P.kalcaY = (v[22] + v[25]) / 2; P.kalcaG = Math.min(v[23], v[26]);
+  const ek = v.length >= 52, alt = (h, j) => { if (!ek) { h.g = 0; return; } h.x = 1 - v[36 + j * 3]; h.y = v[37 + j * 3]; h.g = v[38 + j * 3]; h.z = v[48 + j]; };
+  alt(P.dizSol, 0); alt(P.dizSag, 1); alt(P.ayakSol, 2); alt(P.ayakSag, 3);
 }
 function pozIsle(v, tSn) {
   const simdi = performance.now(), dtPoz = Math.min(0.2, Math.max(0, tSn - sonPozT)); sonPozT = tSn;
@@ -946,6 +977,7 @@ function pozIsle(v, tSn) {
     ayna.sagAlt = v[20] > 0.35 ? sar(Math.atan2(-(v[18] - v[12]) * oran, v[19] - v[13]) - ayna.sag) : 0;
   }
   pDoldur(v, oran, gen, govdeBoy, omuzX, omuzY);
+  jestGuncelle(v, oran, gen, govdeBoy, bilekGor, dtPoz);
 
   if (durum === "olcum") {
     let msj = null;
@@ -955,6 +987,7 @@ function pozIsle(v, tSn) {
     else if (omuzY < 0.14) msj = "Zıplamaya yer kalsın: biraz geri çekil";
     else if (elUst && !aktif.elSerbest) msj = "Ellerini indir, dik dur";
     else if (aktif.elGerek && !bilekGor) msj = "İki elini de göster";
+    else if (aktif.ayakGerek && !(v.length >= 52 && v[44] > 0.4 && v[47] > 0.4)) msj = "Ayakların görünsün: telefonu uzağa koy";
     if (msj) { olcumSifirla(msj); return; }
     olcum.n++; olcum.x += omuzX; olcum.y += omuzY; olcum.gen += gen; olcum.govde += govdeBoy;
     durumYaz(t("Dik dur, ölçüyorum… %") + Math.round(olcum.n / OLCUM_KARE * 100));
@@ -1064,6 +1097,179 @@ for (const olay of ["resize", "orientationchange"]) addEventListener(olay, () =>
 for (const olay of ["fullscreenchange", "webkitfullscreenchange"]) document.addEventListener(olay, () => setTimeout(engelKontrol, 150));
 
 // =====================================================================================================
+//  JESTLER — taç pozu (eller başın üstünde, dirsekler yanda), kollar tam yukarı, tek el kaldırma
+// =====================================================================================================
+const jest = { tacT: 0, tamT: 0, sagT: 0, solT: 0, indiT: 0, serbest: true };
+function jestGuncelle(v, oran, gen, govde, bilekGor, dt) {
+  if (!bilekGor) { jest.tacT = jest.tamT = jest.sagT = jest.solT = 0; return; }
+  const genH = gen * oran, by = v[1], bx = v[0];
+  const kol = (s, e, w) => Math.hypot((v[s] - v[e]) * oran, v[s + 1] - v[e + 1]) + Math.hypot((v[e] - v[w]) * oran, v[e + 1] - v[w + 1]);
+  const uzak = (s, w) => Math.hypot((v[s] - v[w]) * oran, v[s + 1] - v[w + 1]);
+  const elUstte = w => v[w + 1] < v[4] - 0.3 * govde && v[w + 1] < v[7] - 0.3 * govde;
+  const elAltta = w => v[w + 1] > Math.min(v[4], v[7]) + 0.05 * govde;
+  // Taç: iki bilek de başın üstünde ve başa yakın, dirsekler geniş açık, kollar bükük
+  const tac = elUstte(15) && elUstte(18) && v[16] > by - 0.85 * govde && v[19] > by - 0.85 * govde &&
+    Math.abs(v[15] - bx) * oran < 1.0 * genH && Math.abs(v[18] - bx) * oran < 1.0 * genH &&
+    Math.abs(v[9] - v[12]) * oran > 1.45 * genH && uzak(3, 15) < 0.78 * kol(3, 9, 15) && uzak(6, 18) < 0.78 * kol(6, 12, 18);
+  // Kollar tam yukarı: bilekler başın çok üstünde, dirsekler omuzların üstünde, kollar düz
+  const tam = !tac && v[16] < by - 0.5 * govde && v[19] < by - 0.5 * govde && v[10] < v[4] - 0.15 * govde && v[13] < v[7] - 0.15 * govde &&
+    uzak(3, 15) > 0.8 * kol(3, 9, 15) && uzak(6, 18) > 0.8 * kol(6, 12, 18);
+  // Tek el: biri burnun üstünde, diğeri omzun altında (ekranın sağı = oyuncunun sağ eli)
+  const sag = !tac && v[19] < by && elAltta(15), sol = !tac && v[16] < by && elAltta(18);
+  if (elAltta(15) && elAltta(18)) { jest.indiT += dt; if (jest.indiT > 0.15) jest.serbest = true; } else jest.indiT = 0;
+  jest.tacT = tac ? jest.tacT + dt : 0; jest.tamT = tam ? jest.tamT + dt : 0; jest.sagT = sag ? jest.sagT + dt : 0; jest.solT = sol ? jest.solT + dt : 0;
+  if (!jest.serbest) return;
+  let tur = null;
+  if (jest.tacT > 0.45) tur = "tac"; else if (jest.tamT > 0.35) tur = "tam"; else if (jest.sagT > 0.22) tur = "sag"; else if (jest.solT > 0.22) tur = "sol";
+  if (!tur) return;
+  if (jestOlay(tur)) { jest.serbest = false; jest.tacT = jest.tamT = jest.sagT = jest.solT = 0; }
+}
+function jestOlay(tur) {      // true dönerse olay kullanıldı (eller inene kadar yeni olay yok)
+  if (ogAcik()) {
+    if (tur === "tac") { ogKapat(); return true; }
+    if (tur === "sag") { ogAdim(ogI + 1); return true; }
+    if (tur === "sol") { ogAdim(ogI - 1); return true; }
+    return false;
+  }
+  if (durum === "menu") {
+    if ($("ayarPanel").style.display === "flex") return false;
+    if ($("kilitPanel").style.display === "flex") {
+      if (tur === "tac") { kilitTac(); return true; }
+      if (tur === "sag" || tur === "sol") { kilitKapat(); return true; }
+      return false;
+    }
+    if (tur === "sag") { secimKaydir(1); return true; }
+    if (tur === "sol") { secimKaydir(-1); return true; }
+    if (tur === "tac") { secimBaslat(); return true; }
+    return false;
+  }
+  if (durum === "bitti" && bittiSure > 1.0) {
+    if (tur === "tam") { olcumeGec(); return true; }
+    if (tur === "tac") { menuGoster(); return true; }
+  }
+  return false;
+}
+let secIdx = 0, sonSecilen = null;
+function secimYaz(kaydir) {
+  OYUNLAR.forEach((o, i) => o.kart && o.kart.classList.toggle("secim", i === secIdx));
+  const k = OYUNLAR[secIdx] && OYUNLAR[secIdx].kart;
+  if (kaydir && k) k.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+function secimKaydir(d) { secIdx = (secIdx + d + OYUNLAR.length) % OYUNLAR.length; secimYaz(true); cal("adim1", 0.5, 1.3); }
+function secimBaslat() { const o = OYUNLAR[secIdx]; cal("elmas", 0.6, 1.2); if (!acikMi(o)) { kilitGoster(o); return; } modGec(o); baslaTiklandi(); }
+function jestIpucuYaz() { const e = $("jestIpucu"); e.style.display = kameraKontrol() ? "block" : "none"; e.textContent = t("🙆 Taç pozu: seç  •  ✋ Sağ / sol el: gez"); }
+
+// =====================================================================================================
+//  ÖĞRETİCİ — solda "sen", sağda oyuncak: hangi hareket ne yapar, kısa animasyonla
+// =====================================================================================================
+const TAC_PZ = { lu: -2.2, ll: 2.45, ru: 2.2, rl: -2.45 };
+const OG_PZ = { duz: { lu: -0.15, ll: -0.1, ru: 0.15, rl: 0.1 }, yukari: { lu: -2.95, ll: -2.95, ru: 2.95, rl: 2.95 }, yana: { lu: -1.57, ll: -1.57, ru: 1.57, rl: 1.57 },
+  direk: { lu: -0.45, ll: 1.5, ru: 0.45, rl: -1.5 }, gard: { lu: -0.35, ll: 2.75, ru: 0.35, rl: -2.75 } };
+const og = (k, ek) => Object.assign({}, OG_PZ[k] || k, ek || {});
+const MENU_OG = [
+  { tr: "Sağ elini kaldır: sağdaki oyuna geç", a: og("duz"), b: og("duz", { ru: 2.9, rl: 2.9 }), efekt: "➡️🎮", sonuc: "" },
+  { tr: "Sol elini kaldır: soldaki oyuna geç", a: og("duz"), b: og("duz", { lu: -2.9, ll: -2.9 }), efekt: "🎮⬅️", sonuc: "" },
+  { tr: "Taç pozu (eller başının üstünde): seç / başlat", a: og("duz"), b: TAC_PZ, efekt: "✅", sonuc: "Seçilen oyun açılır" },
+  { tr: "Kilitli oyunda taç pozu: onay çıkar, tekrar taç: reklam başlar", a: TAC_PZ, b: og("duz"), efekt: "🎬", sonuc: "" },
+  { tr: "Oyun bitince iki kolunu tam yukarı uzat: tekrar oyna", a: og("duz"), b: og("yukari"), efekt: "🔁", sonuc: "" },
+  { tr: "Oyun bitince taç pozu: ana menü", a: og("duz"), b: TAC_PZ, efekt: "🏠", sonuc: "" }
+];
+const OG_ESKI = {
+  kosu: [{ tr: "Sağa ya da sola adım at", a: og("duz", { x: -0.35 }), b: og("duz", { x: 0.35 }), efekt: "🏃↔️", sonuc: "Oyuncak şerit değiştirir" },
+    { tr: "Zıpla: kalemlerin üstünden atla", a: og("duz"), b: og("duz", { y: 0.35 }), efekt: "✏️⤴️", sonuc: "" },
+    { tr: "Eğil: köprülerin altından geç", a: og("duz"), b: og("duz", { cok: 0.9 }), efekt: "🌉⤵️", sonuc: "" },
+    { tr: "Elmasları topla", a: og("yukari"), b: og("duz"), efekt: "💎", sonuc: "" }],
+  araba: [{ tr: "Yumruklarını direksiyon gibi tut", a: og("direk"), b: og("direk"), efekt: "🚗", sonuc: "" },
+    { tr: "Çevir: sağ yumruk aşağı = sağa", a: og("direk", { lu: -0.75, ru: 0.2 }), b: og("direk", { lu: -0.2, ru: 0.75 }), efekt: "🚗↔️", sonuc: "Araba yumuşakça döner" }],
+  motor: [{ tr: "Gidonu tutar gibi dur, vücudunu yatır", a: og("direk", { egim: -0.3 }), b: og("direk", { egim: 0.3 }), efekt: "🏍️↔️", sonuc: "Motor o yöne yatar" }],
+  boks: [{ tr: "Kroşe: yumruğunu yandan içeri savur", a: og("gard"), b: og("gard", { lu: -1.5, ll: 1.4 }), efekt: "🥊💥", sonuc: "Eldiven rakibe vurur" },
+    { tr: "Yumruğunu yukarı kaldır, aşağı indir", a: og("gard", { ru: 2.9, rl: 2.9 }), b: og("gard", { ru: 0.8, rl: -0.6 }), efekt: "🥊⬇️", sonuc: "Rakibin kafasına iner" },
+    { tr: "Yüzünü iki yumrukla kapat", a: og("duz"), b: og("gard"), efekt: "🛡️", sonuc: "Kalkan: hasar almazsın" }],
+  dans: [{ tr: "Sağdaki oyuncağın duruşunu taklit et", a: og("duz"), b: og("yana", { lu: -2.4, ll: -2.4 }), efekt: "💃🕺", sonuc: "" }],
+  kirma: [{ tr: "Kolunu nesneye uzat ve vur", a: og("duz"), b: og("duz", { lu: -2.2, ll: -2.2 }), efekt: "🏺💥", sonuc: "Nesne kırılır" },
+    { tr: "Bombaya dokunma!", a: og("duz"), b: og("duz"), efekt: "💣❌", sonuc: "" }]
+};
+let ogAdimlar = null, ogI = 0, ogT = 0, ogCoz = null, ogRaf = 0, ogSon = 0;
+const ogAcik = () => !!ogAdimlar;
+const ogGoruldu = id => { try { return localStorage.getItem("ig_og_" + id) === "1"; } catch (e) { return true; } };
+const ogKaydet = id => { try { localStorage.setItem("ig_og_" + id, "1"); } catch (e) {} };
+function ogreticiGoster(baslik, adimlar) {
+  return new Promise(coz => {
+    if (ogCoz) ogCoz();
+    ogAdimlar = adimlar; ogCoz = coz; $("ogBaslik").textContent = "❓ " + baslik; ogAdim(0);
+    $("ogIpucu").textContent = kameraKontrol() ? t("🙆 Taç pozu: kapat") : "";
+    $("ogretici").style.display = "flex"; ogSon = performance.now(); if (!ogRaf) ogRaf = requestAnimationFrame(ogCiz);
+  });
+}
+function ogKapat() { $("ogretici").style.display = "none"; cancelAnimationFrame(ogRaf); ogRaf = 0; ogAdimlar = null; const c = ogCoz; ogCoz = null; if (c) c(); }
+function ogAdim(i) {
+  if (!ogAdimlar) return;
+  ogI = (i + ogAdimlar.length) % ogAdimlar.length; ogT = 0; const a = ogAdimlar[ogI];
+  $("ogYazi").textContent = t(a.tr); $("ogSonuc").textContent = a.sonuc ? "→ " + t(a.sonuc) : "";
+  $("ogNokta").textContent = ogAdimlar.map((_, k) => k === ogI ? "●" : "○").join("");
+  $("ogTamam").textContent = t("Tamam");
+}
+function figur(c, cx, yer, s, pz, oyuncak) {       // basit, tombul figür; açılar oyundaki gibi (0 aşağı, - ekranın solu)
+  const cok = pz.cok || 0, kalcaY = yer - s * (1.0 - cok * 0.35) - (pz.y || 0) * s, kx = cx + (pz.x || 0) * s;
+  const renk = oyuncak ? (secili === "kiz" ? { govde: "#2ec4b6", bacak: "#ff5fa2", ten: "#ffdcc2", sac: "#ff7a3d" } : { govde: "#ffc93c", bacak: "#2f6fde", ten: "#ffc9a0", sac: "#e63946" })
+    : { govde: "#8e9bb3", bacak: "#5b6680", ten: "#f2c9a8", sac: "#5a3b2a" };
+  c.lineCap = "round"; c.lineJoin = "round";
+  c.strokeStyle = renk.bacak; c.lineWidth = s * 0.2;
+  if (pz.yan) {
+    const b = pz.bacak || 0;
+    c.beginPath(); c.moveTo(kx, kalcaY); c.lineTo(kx, yer); c.stroke();
+    c.beginPath(); c.moveTo(kx, kalcaY); c.lineTo(kx + Math.sin(b) * s, kalcaY + Math.cos(b) * s); c.stroke();
+  } else {
+    const ac = 0.18 + cok * 0.25, dz = cok * 0.35;
+    for (const y of [-1, 1]) { c.beginPath(); c.moveTo(kx + y * s * 0.12, kalcaY); c.lineTo(kx + y * s * (ac + dz), kalcaY + s * (0.5 - cok * 0.15)); c.lineTo(kx + y * s * 0.18, kalcaY + s * (1.0 - cok * 0.35)); c.stroke(); }
+  }
+  c.save(); c.translate(kx, kalcaY); c.rotate(pz.egim || 0);
+  c.fillStyle = renk.govde; c.beginPath(); c.ellipse(0, -s * 0.42, s * 0.3, s * 0.46, 0, 0, 7); c.fill();
+  c.strokeStyle = renk.ten; c.lineWidth = s * 0.15;
+  const kolC = (ox, a1, a2) => {
+    const x1 = ox + Math.sin(a1) * s * 0.42, y1 = -s * 0.78 + Math.cos(a1) * s * 0.42;
+    c.beginPath(); c.moveTo(ox, -s * 0.78); c.lineTo(x1, y1); c.lineTo(x1 + Math.sin(a2) * s * 0.38, y1 + Math.cos(a2) * s * 0.38); c.stroke();
+    c.fillStyle = oyuncak ? "#ffffff" : renk.ten; c.beginPath(); c.arc(x1 + Math.sin(a2) * s * 0.4, y1 + Math.cos(a2) * s * 0.4, s * 0.1, 0, 7); c.fill();
+  };
+  if (pz.yan) kolC(0, 0.25, 0.4); else { kolC(-s * 0.26, pz.lu, pz.ll); kolC(s * 0.26, pz.ru, pz.rl); }
+  const hr = oyuncak ? s * 0.36 : s * 0.27, hy = -s * 0.92 - hr;
+  c.fillStyle = renk.ten; c.beginPath(); c.arc(0, hy, hr, 0, 7); c.fill();
+  c.fillStyle = renk.sac; c.beginPath(); c.arc(0, hy - hr * 0.15, hr * 1.02, PI * 1.05, PI * 1.95); c.fill();
+  c.fillStyle = "#2a2233"; for (const y of [-1, 1]) { c.beginPath(); c.arc(y * hr * 0.36, hy + hr * 0.08, hr * 0.12, 0, 7); c.fill(); }
+  c.strokeStyle = "#c0392b"; c.lineWidth = s * 0.035; c.beginPath(); c.arc(0, hy + hr * 0.3, hr * 0.3, 0.2, PI - 0.2); c.stroke();
+  c.restore();
+}
+function ogCiz(ts) {
+  ogRaf = requestAnimationFrame(ogCiz);
+  if (!ogAdimlar) return;
+  const dt = Math.min(0.05, (ts - ogSon) / 1000 || 0.016); ogSon = ts; ogT += dt;
+  if (ogT > 4.2 && ogAdimlar.length > 1) ogAdim(ogI + 1);
+  const c = $("ogTuval").getContext("2d"), a = ogAdimlar[ogI], f = (1 - Math.cos(ogT / 1.7 * PI * 2)) / 2, pz = {};
+  for (const k of new Set([...Object.keys(a.a), ...Object.keys(a.b)])) {
+    const v1 = a.a[k] !== undefined ? a.a[k] : 0, v2 = a.b[k] !== undefined ? a.b[k] : 0;
+    pz[k] = typeof v1 === "number" && typeof v2 === "number" ? v1 + (v2 - v1) * f : v1;
+  }
+  c.clearRect(0, 0, 560, 250);
+  c.fillStyle = "rgba(74,42,107,.08)"; c.fillRect(0, 214, 560, 36);
+  c.fillStyle = "#4a2a6b"; c.font = "bold 18px system-ui"; c.textAlign = "center"; c.fillText(t("Sen"), 150, 26); c.fillText(t("Oyunda"), 410, 26);
+  figur(c, 150, 214, 78, pz, false);
+  c.font = "bold 34px system-ui"; c.fillText("→", 280, 135);
+  figur(c, 410, 214, 70, pz, true);
+  c.font = "34px system-ui"; c.textAlign = "left"; c.fillText(a.efekt || "", 462, 110 + Math.sin(ogT * 4) * 4); c.textAlign = "center";
+}
+$("ogTamam").addEventListener("click", ogKapat);
+$("ogIleri").addEventListener("click", () => ogAdim(ogI + 1));
+$("ogGeri").addEventListener("click", () => ogAdim(ogI - 1));
+$("ogMenu").addEventListener("click", () => ogreticiGoster(t("Menü hareketleri"), MENU_OG));
+$("ogBtn").addEventListener("click", () => { if (aktif && aktif.ogretici) ogreticiGoster(t(aktif.ad), aktif.ogretici); });
+$("kameraAc").addEventListener("click", async () => {      // menüyü kamerayla gezmek için kamerayı aç
+  sesleriYukle();
+  try { await kamerayiAc(); await pozKur(); } catch (e) { return; }
+  jestIpucuYaz();
+  if (!ogGoruldu("menu")) { await ogreticiGoster(t("Menü hareketleri"), MENU_OG); ogKaydet("menu"); }
+});
+
+// =====================================================================================================
 //  MENÜ VE AKIŞ
 // =====================================================================================================
 function menuGoster() {
@@ -1073,8 +1279,10 @@ function menuGoster() {
   for (const o of OYUNLAR) { let en = 0; try { en = parseInt(localStorage.getItem(rekorAnahtar(o))) || 0; } catch (e) {} o.kartRekor.textContent = en ? "🏆 " + en : ""; o.kartAd.textContent = t(o.ad); kartKilitYaz(o); }
   dilUygula();
   hub.querySelectorAll(".kart[data-k]").forEach(k => k.classList.toggle("secili", k.dataset.k === secili));
+  secIdx = Math.max(0, OYUNLAR.indexOf(sonSecilen)); secimYaz(false); jestIpucuYaz(); $("ogBtn").style.display = "none";
 }
 async function baslaTiklandi() {
+  sonSecilen = aktif; $("ogBtn").style.display = "block";
   hub.style.display = "none"; panel.style.display = "block"; elSkor.style.display = elElmas.style.display = ""; $("ev").style.display = $("ayar").style.display = "block";
   if (dokunmatik) tamEkranAc();                 // dokunma anında çağrılmalı
   basladi = true; engel = dokunmatik;           // telefonda yatay + tam ekran olana kadar ölçüm başlamaz
@@ -1085,6 +1293,7 @@ async function baslaTiklandi() {
     await kamerayiAc();
     const y = $("hazirYazi"); if (y) y.textContent = t("Hareket algılama yükleniyor…");
     await pozKur();
+    if (aktif.ogretici && !ogGoruldu(aktif.id)) { panel.style.display = "none"; await ogreticiGoster(t(aktif.ad), aktif.ogretici); ogKaydet(aktif.id); panel.style.display = "block"; }
   } catch (hata) {
     engelKontrol();
     panel.innerHTML = "<h1>" + t("Kamera kullanılamıyor") + "</h1><p>" + (hata && hata.message || hata) + "</p>" +
@@ -1320,7 +1529,7 @@ function bitisGoster(skor, ek) {
   if (rekor) { en = skor; try { localStorage.setItem(anahtar, String(skor)); } catch (e) {} }
   panel.innerHTML = "<h1>" + t(rekor ? "Yeni rekor!" : (ek && ek.baslik) || "Oyun bitti") + "</h1><p>" + t("Skor") + " " + Z().ikon + "</p><p class='buyuk'>" + skor + "</p>" +
     "<p>" + (ek && ek.satir ? ek.satir + " &nbsp;•&nbsp; " : "") + t("En yüksek") + ": <b>" + en + "</b></p>" +
-    (kameraKontrol() ? "<p>" + t("🙌 Ellerini havaya kaldır, yeniden başlasın") + "</p>" : "") +
+    (kameraKontrol() ? "<p>" + t("🙌 Kollarını tam yukarı uzat: tekrar oyna") + "<br>" + t("🙆 Taç pozu: ana menü") + "</p>" : "") +
     "<button class='ana' id='tekrar'>" + t("Tekrar") + "</button><button class='ikinci' id='oyunlarD'>" + t("Oyunlar") + "</button>";
   panel.style.display = "block";
   $("tekrar").addEventListener("click", () => olcumeGec());
@@ -1337,26 +1546,28 @@ const O = { t, Z, THREE, sahne, kamera, R, CANLI, PI, p, birlestir, kure, sil, k
   rast, sinirla, yaklas, cal, parAt, durumYaz, solYaz, sagYaz, hPoz, hBak, fov: v => { hFov = v; }, kameraKontrol, flas,
   D, yeniDurus, durusSifir, durusUygula, karakter: () => K, diger: () => KARAKTER[secili === "kiz" ? "erkek" : "kiz"], karakterTak,
   elmasEkle, elmasListe: () => elmaslar, tus, isaretci, zaman: () => zaman, bitir: bitisGoster, sarsinti: v => { sarsinti = v; },
-  ses: () => ({ ctx: sesCtx, ana: sesAna }), susGoster, zeminHarita, has: () => hasDeger, ZEMIN_EN, ZEMIN_BOY, zeminZ: zemin.position.z };
-const OYUNLAR = [KOSU, ...oyunlariKur(O)];
+  ses: () => ({ ctx: sesCtx, ana: sesAna }), susGoster, zeminHarita, zeminGoster: b => { zemin.visible = b; }, has: () => hasDeger, ZEMIN_EN, ZEMIN_BOY, zeminZ: zemin.position.z };
+const OYUNLAR = [KOSU, ...oyunlariKur(O), ...oyunlar2Kur(O)];
+for (const o of OYUNLAR) if (!o.ogretici && OG_ESKI[o.id]) o.ogretici = OG_ESKI[o.id];
 
 function modGec(o) {      // bir oyundan diğerine geç: öncekini gizle, yenisini kur ve göster
   if (aktif && aktif !== o) { if (aktif.yerlesik) { sifirla(); kosuGoster(false); } else aktif.kapat(); }
   karakterSifirla(); aktif = o; yildizlar.visible = false; sonSol = sonSag = null; duraklat = false;
   hasDeger = 1; try { hasDeger = parseFloat(localStorage.getItem("ig_has_" + o.id)) || 1; } catch (e) {}
   hasYaz();
+  zemin.visible = true; zeminHarita(null);
   if (o.yerlesik) { kosuGoster(true); sifirla(); }
   else { kosuGoster(false); if (!o.kuruldu) { o.kur(); o.kuruldu = true; } o.ac(); }
 }
 function onizlemeleriCiz() {      // her oyunun kart resmi: oyunun kendi sahnesi küçük boyda çizilir (resim dosyası yok)
-  cizer.setPixelRatio(1); cizer.setSize(480, 300, false); kamera.aspect = 1.6; dar = false;
+  cizer.setPixelRatio(1); cizer.setSize(400, 250, false); kamera.aspect = 1.6; dar = false;
   for (const o of OYUNLAR) {
     modGec(o); o.onizle();
     kamPoz.copy(hPoz); kamBak.copy(hBak); kamera.fov = hFov; kamera.updateProjectionMatrix();
     kamera.position.copy(kamPoz); kamera.lookAt(kamBak); arka.position.copy(kamPoz); ufuk.position.set(kamPoz.x, 0, kamPoz.z);
     durusUygula(); elmasCiz(); parGuncelle(0, 0);
     cizer.render(sahne, kamera);
-    o.kartTuval.getContext("2d").drawImage(tuval, 0, 0, 480, 300);
+    o.kartTuval.getContext("2d").drawImage(tuval, 0, 0, 400, 250);
   }
   modGec(KOSU); kaliteUygula();
 }
@@ -1379,7 +1590,7 @@ function hubKur() {
   $("surumYazi").textContent = "v" + SURUM;
   for (const o of OYUNLAR) {
     const b = document.createElement("button"), c = document.createElement("canvas"), ad = document.createElement("div");
-    b.className = "oyunKart"; c.width = 480; c.height = 300; ad.className = "ad"; ad.innerHTML = "<span></span><small></small>";
+    b.className = "oyunKart"; c.width = 400; c.height = 250; ad.className = "ad"; ad.innerHTML = "<span></span><small></small>";
     const rz = document.createElement("div"); rz.className = "kilitRozet";
     o.kartTuval = c; o.kartAd = ad.firstChild; o.kartRekor = ad.lastChild; o.kart = b; o.kartKilit = rz; b.append(c, ad, rz);
     b.addEventListener("click", () => { if (!acikMi(o)) { kilitGoster(o); return; } modGec(o); baslaTiklandi(); });
@@ -1394,20 +1605,20 @@ function dongu(damga) {
   requestAnimationFrame(dongu);
   const dt = Math.min((damga - sonZamanDamga) / 1000 || 0.016, 0.05);
   sonZamanDamga = damga;
+  if (rafPompa && video.currentTime !== sonVideoZaman) { sonVideoZaman = video.currentTime; kareIsle(); }
   if (engel || document.hidden || durum === "menu") return;      // ana ekranda sahne çizilmez (pil)
   zaman += dt;
-  if (rafPompa && video.currentTime !== sonVideoZaman) { sonVideoZaman = video.currentTime; kareIsle(); }
 
   let adim = 0;
   if (aktif.yerlesik) {
     K.kok.rotation.y = yaklas(K.kok.rotation.y, durum === "menu" || durum === "hazirlik" ? PI : 0, 1 - Math.exp(-dt * 7));
-    if (durum === "oyun") adim = oyunGuncelle(dt);
+    if (durum === "oyun" && !ogAcik()) adim = oyunGuncelle(dt);
     if (durum !== "oyun") bekleGuncelle(dt);
-  } else if (durum === "oyun") {
+  } else if (durum === "oyun" && !ogAcik()) {
     if (kameraKontrol() && performance.now() - sonGorulme > 1500) { if (!duraklat) { duraklat = true; durumYaz("Seni göremiyorum, kadraja gir"); } }
     else { if (duraklat) { duraklat = false; durumYaz(""); } adim = aktif.guncelle(dt) || 0; }
-  } else aktif.bekle(dt);
-  if (durum === "bitti") { bittiSure += dt; if (bittiSure > 1.2 && girdi.elHavada) olcumeGec(); }
+  } else if (durum !== "oyun") aktif.bekle(dt);
+  if (durum === "bitti") bittiSure += dt;
   if (ipucuT && zaman > ipucuT) { ipucuT = 0; if (sonDurumYazi === t(aktif.ipucu)) durumYaz(""); }
   durusUygula();
 
@@ -1486,8 +1697,10 @@ function kartKilitYaz(o) {
 }
 function kilitMesaj(y) { $("kilitMesaj").textContent = y ? t(y) : ""; }
 let kilitOyun = null;
+let kilitOnay = false;
 function kilitGoster(o) {
-  kilitOyun = o; kilitMesaj("");
+  kilitOyun = o; kilitMesaj(""); kilitOnay = false; $("kpReklam").classList.remove("onay");
+  $("kpJest").textContent = kameraKontrol() ? t("🙆 Taç pozu: onayla  •  ✋ El kaldır: kapat") : "";
   $("kpBaslik").textContent = t(o.ad); $("kpYazi").textContent = t("Bu oyun kilitli");
   $("kpReklam").textContent = t("🎬 Reklam izle, 24 saat aç");
   $("kpSatin").textContent = t("⭐ Tüm oyunları aç") + (fiyat ? " — " + fiyat : "");
@@ -1495,7 +1708,11 @@ function kilitGoster(o) {
   $("kpGeri").textContent = t("Satın alımı geri yükle"); $("kpKapat").textContent = t("Kapat");
   $("kilitPanel").style.display = "flex";
 }
-function kilitKapat() { $("kilitPanel").style.display = "none"; menuGoster(); }
+function kilitKapat() { $("kilitPanel").style.display = "none"; kilitOnay = false; menuGoster(); }
+function kilitTac() {      // taç pozu: ilk seferde onay iste, ikincide reklamı başlat
+  if (!kilitOnay) { kilitOnay = true; $("kpReklam").classList.add("onay"); $("kpReklam").textContent = t("✅ Reklamı başlat"); kilitMesaj("Reklamı başlatmak için taç pozunu tekrar yap"); }
+  else { kilitOnay = false; $("kpReklam").click(); }
+}
 function tumunuAc() {
   tumAcik = true; try { localStorage.setItem("ig_tum", "1"); } catch (e) {}
   bannerKaldir();
