@@ -55,10 +55,25 @@
   #flas { position: fixed; inset: 0; background: #ff3b3b; opacity: 0; pointer-events: none; z-index: 5; }
   #hub { position: fixed; inset: 0 0 var(--alt) 0; z-index: 12; display: none; flex-direction: column; box-sizing: border-box;
     padding: 10px 14px 12px; background: rgba(255,238,224,.97); overflow: auto; }
-  #hubUst { display: flex; align-items: center; gap: 8px; margin: 0 58px 8px 0; }
-  #hubUst h1 { margin: 0; flex: 1; font-size: 24px; color: #ff4f9a; white-space: nowrap; }
+  #hubUst { display: flex; align-items: center; gap: 5px; margin: 0 58px 8px 0; }
+  #hubUst h1 { margin: 0; flex: none; font-size: 21px; color: #ff4f9a; white-space: nowrap; }
+  #modSec { display: flex; flex: none; margin-right: auto; padding: 3px; border-radius: 999px; background: rgba(255,255,255,.85); box-shadow: 0 3px 0 rgba(74,42,107,.12); }
+  #modSec button { border: 0; background: transparent; padding: 5px 8px; border-radius: 999px; font: 900 12px system-ui, sans-serif; color: #4a2a6b; cursor: pointer; }
+  #modSec button.secili { background: #ff4f9a; color: #fff; }
+  #cift { position: fixed; inset: 0; z-index: 35; display: none; background: #000; }
+  #cift iframe { position: absolute; top: 0; width: 50%; height: 100%; border: 0; }
+  #cift .ayrac { position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; margin-left: -2px; background: #fff; z-index: 2; box-shadow: 0 0 10px rgba(0,0,0,.3); }
+  #cift .etiket { position: absolute; bottom: 8px; z-index: 2; padding: 4px 12px; border-radius: 999px; background: rgba(60,36,90,.75); color: #fff; font: 900 13px system-ui, sans-serif; pointer-events: none; }
+  #cift .e0 { left: 25%; transform: translateX(-50%); } #cift .e1 { left: 75%; transform: translateX(-50%); }
+  #ciftEv { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); z-index: 3; width: 42px; height: 42px; border: 0; border-radius: 14px; background: rgba(255,255,255,.9); font-size: 20px; }
+  #ciftSonuc { position: absolute; inset: 0; z-index: 4; display: none; align-items: center; justify-content: center; background: rgba(74,42,107,.45); }
+  #ciftSonuc .kutu { padding: 16px 24px; border-radius: 24px; background: #fff; color: #4a2a6b; text-align: center; font-weight: 800; }
+  #ciftSonuc h2 { margin: 0 0 6px; color: #ff4f9a; font-size: 26px; }
+  #ciftSonuc button { margin: 10px 6px 0; padding: 10px 22px; border: 0; border-radius: 16px; font-weight: 900; font-size: 16px; color: #fff; background: #ff4f9a; }
+  #ciftSonuc button.ikinci { background: #8f5bff; }
+  body.dis #sag, body.dis #hub, body.dis #uyari { display: none !important; }
   #hubUst h1 small { font-size: 11px; color: #4a2a6b; opacity: .45; font-weight: 600; }
-  #hubUst .kart { flex: none; padding: 8px 14px; font-size: 15px; }
+  #hubUst .kart { flex: none; padding: 6px 8px; font-size: 14px; }
   #kartlar { flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: minmax(120px, 38vh); gap: 10px;
     padding: 4px 8px 4px 4px; scrollbar-width: auto; scrollbar-color: #ff4f9a rgba(74,42,107,.14); }
   #kartlar::-webkit-scrollbar { width: 16px; }
@@ -156,7 +171,9 @@
   <p id="ayDil"></p><div class="secim"><button class="kart" data-d="tr">Türkçe</button><button class="kart" data-d="en">English</button></div>
   <div class="secim"><button class="kart" id="ayGeri"></button><button class="kart" id="ayGuvenlik"></button><button class="kart" id="ayHata"></button></div><p class="kucuk" id="ayMesaj"></p>
   <button class="ana" id="ayKapat"></button></div></div>
-<div id="hub"><div id="hubUst"><h1>Interactive Game <small id="surumYazi"></small></h1>
+<div id="cift"><div class="ayrac"></div><div class="etiket e0"></div><div class="etiket e1"></div><button id="ciftEv" aria-label="Menü">🏠</button>
+  <div id="ciftSonuc"><div class="kutu"><h2 id="csBaslik"></h2><p id="csSkor"></p><p id="csIpucu"></p><button id="csTekrar"></button><button class="ikinci" id="csMenu"></button></div></div></div>
+<div id="hub"><div id="hubUst"><h1>Interactive Game <small id="surumYazi"></small></h1><div id="modSec"><button data-m="1">👤 1 Player</button><button data-m="2">👥 2 Player</button></div>
   <button class="kart" id="kameraAc">📷</button><button class="kart" id="ogMenu">❓</button><button class="kart" id="ayarAc">⚙️</button>
   <button class="kart" data-k="kiz">Ponçik</button><button class="kart" data-k="erkek">Zıpır</button></div><div id="hubBilgi"></div><div id="kartlar"></div><div id="jestIpucu"></div></div>
 <div id="kilit"><div class="ikon" id="kilitIkon"></div><div id="kilitYazi"></div>
@@ -175,11 +192,17 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js";
 import oyunlariKur from "./oyunlar.js";
 import oyunlar2Kur from "./oyunlar2.js";
+// 2 Player: sayfa ikiye bölünür, her yarıda bu sayfanın bir kopyası (iframe, ?dis=1) çalışır; kamera ve algılama ana sayfadadır
+const DIS = new URLSearchParams(location.search).get("dis") === "1", TARAF = parseInt(new URLSearchParams(location.search).get("taraf")) || 0;
+let disOran = 0.67, disDur = false;
+const IKI_OYUNCU = ["kosu", "araba", "motor", "dans", "kayak", "yuzme", "durkalk", "kano", "ikili"];
+let oyuncuModu = 1; try { if (localStorage.getItem("ig_mod") === "2") oyuncuModu = 2; } catch (e) {}
+const gorunur = o => oyuncuModu === 2 ? IKI_OYUNCU.includes(o.id) : o.id !== "ikili";
 
 // =====================================================================================================
 //  AYARLAR
 // =====================================================================================================
-const SURUM = "4.3";
+const SURUM = "4.4";
 const POZ_KUTUPHANE = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/vision_bundle.mjs";
 const POZ_WASM = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm";
 const POZ_MODEL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task";
@@ -225,7 +248,7 @@ const EN = {
   "Eller yukarı": "Hands up", "Kollar yana": "Arms out", "V yap": "Make a V", "Sol yukarı, sağ yana": "Left up, right out", "Sağ yukarı, sol yana": "Right up, left out",
   "Pazı göster": "Show muscles", "Eller belde": "Hands on hips", "Disko sol": "Disco left", "Disko sağ": "Disco right",
   "Sol el yukarı": "Left hand up",
-  "Kuş Uçuşu": "Bird Flight", "Uzak Vuruş": "Long Kick", "Şekil Duvarı": "Shape Wall", "Kaleci": "Goalkeeper", "Davulcu": "Drummer", "Kayak": "Ski", "Yüzme Yarışı": "Swim Race", "Dur-Kalk": "Freeze Run", "İp Atlama": "Jump Rope", "Hava Ressamı": "Air Painter", "Kano": "Canoe", "Toplam skor": "Total score", "Günün görevi": "Daily challenge", "gün seri": "day streak", "oturarak da oynanır": "can be played seated", "Günün görevi tamam!": "Daily challenge complete!", "Yeni yıldız!": "New star!", "Paylaş": "Share", "Güvenli oyun": "Play safely", "Etrafında en az 2 metre boş alan olsun; masa, cam ve eşyalardan uzak dur.": "Keep at least 2 meters of free space around you; stay away from tables, glass and furniture.", "Kaygan zeminde, çorapla oynama.": "Don't play on slippery floors or in socks.", "Telefonu sabit, düşmeyeceği bir yere koy.": "Place the phone somewhere steady where it can't fall.", "Çocuklar bir yetişkinin gözetiminde oynasın.": "Children should play with adult supervision.", "Yorulunca mola ver, su iç.": "Take a break and drink water when you're tired.", "Kamera görüntüsü sadece telefonunda işlenir; kaydedilmez ve hiçbir yere gönderilmez.": "The camera image is processed only on your phone; it is never recorded or sent anywhere.", "Anladım": "Got it", "Interactive Camera Motion Game'de": "In Interactive Camera Motion Game,", "puan yaptım!": "points!", "Skorunu paylaş": "Share your score", "📋 Kopyalandı": "📋 Copied", "Oyunu beğendin mi?": "Enjoying the game?", "Google Play'de puan verirsen bize çok yardımcı olur.": "Rating us on Google Play helps us a lot.", "Puan ver": "Rate", "Sonra": "Later", "Sorun bildir": "Report a problem", "👥 Arkanda başka biri görünüyor; hareketler karışabilir. Kadrajda yalnız kalmaya çalış.": "👥 Someone else is visible behind you; moves may get mixed up. Try to be alone in the frame.", "↔️ Kameraya çok yakınsın; bir iki adım geri çekil.": "↔️ You're too close to the camera; step back a little.", "↔️ Kadrajın kenarındasın; biraz ortaya geç.": "↔️ You're at the edge of the frame; move toward the center.", "💡 Ortam çok karanlık; algılama zayıflayabilir. Işığı açmayı dene.": "💡 It's too dark; tracking may weaken. Try turning on a light.", "İkili Yarış": "Two-Player Race", "İki kişi yan yana durun ve yerinde koşun!": "Two players stand side by side and run in place!", "İki kişi yan yana kameraya geçin": "Two players stand side by side in front of the camera", "Soldaki kişi soldaki oyuncak, sağdaki kişi sağdaki oyuncak": "The person on the left is the left toy, the one on the right is the right toy", "Yerinde koşun: kim hızlı koşarsa o öne geçer": "Run in place: whoever runs faster takes the lead", "Bitiş çizgisine ilk varan kazanır": "First to the finish line wins", "BAŞLA!": "GO!", "İkinci oyuncu da kameraya girsin": "The second player should step into the camera", "Soldaki oyuncu": "Left player", "Sağdaki oyuncu": "Right player", "kazandı!": "wins!", "Oyundan çıkılsın mı?": "Quit the game?", "🙆 Taç pozu: evet, ana menü": "🙆 Crown pose: yes, main menu", "🙌 İki kol yukarı: hayır, oyuna dön": "🙌 Both arms up: no, back to the game", "Evet": "Yes", "Hayır": "No", "Oyunda kollarını göğsünde çaprazla (çarpı): çıkış sorusu": "In a game, cross your arms on your chest (X): quit question", "Taç: çık  •  İki kol yukarı: oyuna dön": "Crown: quit  •  Both arms up: back to the game", "Sandal": "Rowboat", "Sandal devrildi!": "The boat capsized!", "Sol el sol kürek: sağa döner. Sağ el sağ kürek: sola. İkisi birlikte: hızlan": "Left hand left oar: turns right. Right hand right oar: turns left. Both together: speed up", "Sandal düz gider ve hızlanır": "The boat goes straight and speeds up", "Sandal sağa döner": "The boat turns right", "Sandal sola döner": "The boat turns left", "Sağ elin sağ kürek": "Your right hand is the right oar", "Sol elin sol kürek: aşağı ve geri çek": "Your left hand is the left oar: pull down and back", "İki kolunu birlikte çek": "Pull both arms together", "tamam!": "complete!", "Yere düştün!": "You hit the ground!", "Süper vuruş!": "Super kick!", "Güzel!": "Nice!", "Kameraya yan dur. Bacağını iyice geri al, sonra hızla öne savur": "Stand sideways. Pull your leg well back, then swing it forward fast", "Kaktüs": "Cactus", "Uçak": "Airplane", "Eller belde": "Hands on hips", "Selam": "Salute", "Yarım kaktüs": "Half cactus", "Şimşek": "Lightning", "Duraklatıldı": "Paused", "Sağ kolunu yana aç: sağdaki oyuna geç": "Raise your right arm to the side: next game", "Sol kolunu yana aç: soldaki oyuna geç": "Raise your left arm to the side: previous game", "Sağ elini yukarı kaldır: bir üst satır": "Raise your right hand up: row above", "Sol elini yukarı kaldır: bir alt satır": "Raise your left hand up: row below", "Her seferinde kolunu indir": "Lower your arm each time", "🙆 Taç pozu: seç  •  ✋ Kol yana: sağ / sol  •  ✋ El yukarı: satır": "🙆 Crown pose: select  •  ✋ Arm to side: right / left  •  ✋ Hand up: row", "Kollarını çırp: yüksel. Kollar açık: süzül. Yana yatın: dön": "Flap your arms: rise. Arms out: glide. Lean: turn", "Kameraya yan dur. Bacağını geri al ve topa savur": "Stand sideways to the camera. Pull your leg back and swing it at the ball", "Duvardaki deliğin şeklini al, delikten geç!": "Match the hole in the wall and pass through!", "Ellerinle topu kurtar. Yana kayarak kaleyi koru": "Save the ball with your hands. Step sideways to guard the goal", "Notalar davula inince o davula yumrukla vur!": "Hit the drum when a note lands on it!", "Sağa sola yatarak kay. Çömel: hızlan. Zıpla: tümsekten uç": "Lean left and right to ski. Crouch: speed up. Jump: fly over bumps", "Kollarını sırayla başının üstünden çevirerek kulaç at!": "Swim by swinging your arms over your head, one after the other!", "Yeşilde yerinde koş, kırmızıda don kal!": "Run in place on green, freeze on red!", "İp ayağının altından geçerken zıpla!": "Jump when the rope passes under your feet!", "Elini kaldır ve havada şekli çiz": "Raise your hand and draw the shape in the air", "Sol elle kürek: sağa. Sağ elle kürek: sola. Sırayla çek: hızlan": "Paddle left: turn right. Paddle right: turn left. Alternate: speed up", "Kollarını kanat gibi aşağı çırp": "Flap your arms down like wings", "Kuş yükselir": "The bird rises", "Kollarını yana açık tut": "Keep your arms out to the sides", "Kuş süzülerek yavaşça alçalır": "The bird glides and slowly descends", "Kollar açıkken sağa ya da sola yatın": "With arms out, lean left or right", "Kuş o yöne döner": "The bird turns that way", "Elmas topla, halkalardan geç, fırtına bulutlarından kaç": "Collect diamonds, fly through rings, avoid storm clouds", "Kameraya yan dur, telefon uzakta olsun (bütün vücudun görünsün)": "Stand sideways, phone far away (your whole body must be visible)", "Bacağını geri al": "Pull your leg back", "Hızla öne savur: ne kadar hızlı, o kadar uzak": "Swing it forward fast: faster means farther", "Top uçar, seke seke gider": "The ball flies and bounces along", "5 atışın toplam mesafesi skorun": "Your score is the total distance of 5 kicks", "Duvarda bir poz şeklinde delik var": "The wall has a hole shaped like a pose", "Duvar sana doğru gelir": "The wall comes toward you", "Duvar gelmeden aynı pozu al": "Strike the same pose before the wall arrives", "Oyuncağın senin gibi durur": "Your toy copies you", "Poz tutarsa delikten geçersin, tutmazsa duvara çarparsın": "If the pose matches you pass through, if not you hit the wall", "Top kaleye gelir: elini topun geldiği yere uzat": "The ball flies at the goal: reach your hand to where it's going", "Oyuncağın topu tutar": "Your toy catches the ball", "Yana adım at": "Step to the side", "Kaleci yana kayar": "The keeper moves sideways", "Kaçırırsan gol olur, can gider": "If you miss it's a goal and you lose a life", "Alçak davullar: yumruğunu aşağıya, beline doğru indir": "Low drums: bring your fist down toward your waist", "Alttaki davul çalar": "The lower drum plays", "Ziller: yumruğun omzunun üstündeyken aşağı vur": "Cymbals: strike down while your fist is above your shoulder", "Üstteki zil çalar": "The upper cymbal plays", "Sol elin soldaki, sağ elin sağdaki davulları çalar. Nota davula değdiği an vur!": "Your left hand plays the left drums, your right hand the right ones. Hit when the note touches the drum!", "Sağa ya da sola yatın": "Lean left or right", "Kayakçı o yöne kayar": "The skier glides that way", "Dizlerini bük, çömel": "Bend your knees, crouch", "Hızlanırsın": "You speed up", "Zıpla": "Jump", "Kayaların üstünden uçarsın": "You fly over rocks", "Bayrakların arasından geç, ağaçlara çarpma": "Pass between the flags, don't hit the trees", "Sol kolunu başının üstünden öne çevir": "Swing your left arm over your head", "Bir kulaç": "One stroke", "Sonra sağ kolunu çevir; sırayla devam": "Then your right arm; keep alternating", "Ne kadar hızlı, o kadar hızlı yüzersin": "The faster you stroke, the faster you swim", "Rakiplerinden önce 50 metreye ulaş!": "Reach 50 meters before your rivals!", "Yeşil ışıkta yerinde koş": "On green, run in place", "Oyuncağın ileri koşar": "Your toy runs forward", "Kırmızı ışıkta heykel gibi don!": "On red, freeze like a statue!", "Kıpırdarsan yakalanır, geri dönersin": "If you move you get caught and sent back", "Bitiş çizgisine ulaşınca bir sonraki seviye": "Reach the finish line for the next level", "İp döner; aşağı gelirken zıpla": "The rope turns; jump as it comes down", "Oyuncağın ipin üstünden atlar": "Your toy jumps over the rope", "Küçük bir zıplama yeter": "A small hop is enough", "İp hızlandıkça daha seri zıpla": "Jump quicker as the rope speeds up", "Elini omzunun üstüne kaldır: kalem değer": "Raise your hand above your shoulder: the pen touches down", "Ekranda çizmeye başlarsın": "You start drawing on the screen", "Elini gezdirerek noktaları takip et": "Move your hand to trace the dots", "Noktalar sarıya döner": "The dots turn yellow", "Elini indir: kalem kalkar": "Lower your hand: the pen lifts", "Şekil dolunca sıradakine geçersin": "When the shape is filled you move to the next one", "Sol elinle aşağı doğru kürek çek": "Paddle down with your left hand", "Kano sağa döner": "The canoe turns right", "Sağ elinle kürek çek": "Paddle with your right hand", "Kano sola döner": "The canoe turns left", "Sırayla iki elle çek": "Paddle with both hands, one after the other", "Kano hızlanır": "The canoe speeds up", "Kayalardan, kütüklerden ve girdaplardan kaç": "Avoid rocks, logs and whirlpools", "Atış": "Kick", "En uzak": "Farthest", "Vuruşlar bitti!": "Kicks done!", "Bulutlara düştün!": "You fell into the clouds!", "Duvara çarptın!": "You hit the wall!", "Kurtarış!": "Save!", "Gol!": "Goal!", "Maç bitti!": "Match over!", "Düştün!": "You fell!", "🥇 Birinci oldun!": "🥇 You won!", "🥈 İkinci oldun": "🥈 Second place", "🥉 Üçüncü oldun": "🥉 Third place", "KOŞ!": "RUN!", "Hazırlan…": "Get ready…", "DUR!": "FREEZE!", "Yakalandın!": "Caught!", "İpe takıldın!": "Tripped on the rope!", "Daire": "Circle", "Üçgen": "Triangle", "Kare": "Square", "Yıldız": "Star", "Kalp": "Heart", "Ev": "House", "Zikzak": "Zigzag", "Gülen yüz": "Smile", "Sergi tamam!": "Gallery complete!", "Süre bitti!": "Time's up!", "Kano devrildi!": "The canoe capsized!", "Ayakların görünsün: telefonu uzağa koy": "Your feet must be visible: place the phone farther away", "Menü hareketleri": "Menu moves", "Sağ elini kaldır: sağdaki oyuna geç": "Raise your right hand: next game", "Sol elini kaldır: soldaki oyuna geç": "Raise your left hand: previous game", "Taç pozu (eller başının üstünde): seç / başlat": "Crown pose (hands on top of your head): select / start", "Seçilen oyun açılır": "The selected game opens", "Oyun bitince iki kolunu tam yukarı uzat: tekrar oyna": "When a game ends, stretch both arms fully up: play again", "Oyun bitince taç pozu: ana menü": "When a game ends, crown pose: main menu", "Kilitli oyunda taç pozu: onay çıkar, tekrar taç: reklam başlar": "On a locked game, crown pose: confirm, crown again: the ad starts", "✅ Reklamı başlat": "✅ Start the ad", "Reklamı başlatmak için taç pozunu tekrar yap": "Do the crown pose again to start the ad", "🙆 Taç pozu: seç  •  ✋ Sağ / sol el: gez": "🙆 Crown pose: select  •  ✋ Right / left hand: browse", "🙆 Taç pozu: onayla  •  ✋ El kaldır: kapat": "🙆 Crown pose: confirm  •  ✋ Raise a hand: close", "🙆 Taç pozu: kapat": "🙆 Crown pose: close", "🙆 Taç pozu: ana menü": "🙆 Crown pose: main menu", "🙌 Kollarını tam yukarı uzat: tekrar oyna": "🙌 Stretch both arms fully up: play again", "Sen": "You", "Oyunda": "In the game", "Sağa ya da sola adım at": "Step left or right", "Oyuncak şerit değiştirir": "The toy changes lanes", "Zıpla: kalemlerin üstünden atla": "Jump: hop over the pencils", "Eğil: köprülerin altından geç": "Duck: pass under the bridges", "Elmasları topla": "Collect the diamonds", "Yumruklarını direksiyon gibi tut": "Hold your fists like a steering wheel", "Çevir: sağ yumruk aşağı = sağa": "Turn: right fist down = right", "Araba yumuşakça döner": "The car turns smoothly", "Gidonu tutar gibi dur, vücudunu yatır": "Hold an imaginary handlebar and lean your body", "Motor o yöne yatar": "The bike leans that way", "Kroşe: yumruğunu yandan içeri savur": "Hook: swing your fist in from the side", "Eldiven rakibe vurur": "The glove hits the opponent", "Yumruğunu yukarı kaldır, aşağı indir": "Raise your fist and bring it down", "Rakibin kafasına iner": "It lands on the opponent's head", "Yüzünü iki yumrukla kapat": "Cover your face with both fists", "Kalkan: hasar almazsın": "Guard: you take no damage", "Sağdaki oyuncağın duruşunu taklit et": "Copy the pose of the toy on the right", "Kolunu nesneye uzat ve vur": "Reach out and punch the object", "Nesne kırılır": "The object breaks", "Bombaya dokunma!": "Don't touch the bombs!",
+  "Kuş Uçuşu": "Bird Flight", "Uzak Vuruş": "Long Kick", "Şekil Duvarı": "Shape Wall", "Kaleci": "Goalkeeper", "Davulcu": "Drummer", "Kayak": "Ski", "Yüzme Yarışı": "Swim Race", "Dur-Kalk": "Freeze Run", "İp Atlama": "Jump Rope", "Hava Ressamı": "Air Painter", "Kano": "Canoe", "İki kişi birlikte iki kolunu yukarı kaldırırsa: 2 Player": "If two people raise both arms together: 2 Player", "Tek kişi kaldırırsa: 1 Player": "If only one person does: 1 Player", "Diğer oyuncu bekleniyor…": "Waiting for the other player…", "Berabere!": "It's a draw!", "🙌 İki kol yukarı: tekrar  •  🙆 Taç pozu: menü": "🙌 Both arms up: play again  •  🙆 Crown pose: menu", "2 Player kamerayla oynanır.": "2 Player needs the camera.", "Toplam skor": "Total score", "Günün görevi": "Daily challenge", "gün seri": "day streak", "oturarak da oynanır": "can be played seated", "Günün görevi tamam!": "Daily challenge complete!", "Yeni yıldız!": "New star!", "Paylaş": "Share", "Güvenli oyun": "Play safely", "Etrafında en az 2 metre boş alan olsun; masa, cam ve eşyalardan uzak dur.": "Keep at least 2 meters of free space around you; stay away from tables, glass and furniture.", "Kaygan zeminde, çorapla oynama.": "Don't play on slippery floors or in socks.", "Telefonu sabit, düşmeyeceği bir yere koy.": "Place the phone somewhere steady where it can't fall.", "Çocuklar bir yetişkinin gözetiminde oynasın.": "Children should play with adult supervision.", "Yorulunca mola ver, su iç.": "Take a break and drink water when you're tired.", "Kamera görüntüsü sadece telefonunda işlenir; kaydedilmez ve hiçbir yere gönderilmez.": "The camera image is processed only on your phone; it is never recorded or sent anywhere.", "Anladım": "Got it", "Interactive Camera Motion Game'de": "In Interactive Camera Motion Game,", "puan yaptım!": "points!", "Skorunu paylaş": "Share your score", "📋 Kopyalandı": "📋 Copied", "Oyunu beğendin mi?": "Enjoying the game?", "Google Play'de puan verirsen bize çok yardımcı olur.": "Rating us on Google Play helps us a lot.", "Puan ver": "Rate", "Sonra": "Later", "Sorun bildir": "Report a problem", "👥 Arkanda başka biri görünüyor; hareketler karışabilir. Kadrajda yalnız kalmaya çalış.": "👥 Someone else is visible behind you; moves may get mixed up. Try to be alone in the frame.", "↔️ Kameraya çok yakınsın; bir iki adım geri çekil.": "↔️ You're too close to the camera; step back a little.", "↔️ Kadrajın kenarındasın; biraz ortaya geç.": "↔️ You're at the edge of the frame; move toward the center.", "💡 Ortam çok karanlık; algılama zayıflayabilir. Işığı açmayı dene.": "💡 It's too dark; tracking may weaken. Try turning on a light.", "İkili Yarış": "Two-Player Race", "İki kişi yan yana durun ve yerinde koşun!": "Two players stand side by side and run in place!", "İki kişi yan yana kameraya geçin": "Two players stand side by side in front of the camera", "Soldaki kişi soldaki oyuncak, sağdaki kişi sağdaki oyuncak": "The person on the left is the left toy, the one on the right is the right toy", "Yerinde koşun: kim hızlı koşarsa o öne geçer": "Run in place: whoever runs faster takes the lead", "Bitiş çizgisine ilk varan kazanır": "First to the finish line wins", "BAŞLA!": "GO!", "İkinci oyuncu da kameraya girsin": "The second player should step into the camera", "Soldaki oyuncu": "Left player", "Sağdaki oyuncu": "Right player", "kazandı!": "wins!", "Oyundan çıkılsın mı?": "Quit the game?", "🙆 Taç pozu: evet, ana menü": "🙆 Crown pose: yes, main menu", "🙌 İki kol yukarı: hayır, oyuna dön": "🙌 Both arms up: no, back to the game", "Evet": "Yes", "Hayır": "No", "Oyunda kollarını göğsünde çaprazla (çarpı): çıkış sorusu": "In a game, cross your arms on your chest (X): quit question", "Taç: çık  •  İki kol yukarı: oyuna dön": "Crown: quit  •  Both arms up: back to the game", "Sandal": "Rowboat", "Sandal devrildi!": "The boat capsized!", "Sol el sol kürek: sağa döner. Sağ el sağ kürek: sola. İkisi birlikte: hızlan": "Left hand left oar: turns right. Right hand right oar: turns left. Both together: speed up", "Sandal düz gider ve hızlanır": "The boat goes straight and speeds up", "Sandal sağa döner": "The boat turns right", "Sandal sola döner": "The boat turns left", "Sağ elin sağ kürek": "Your right hand is the right oar", "Sol elin sol kürek: aşağı ve geri çek": "Your left hand is the left oar: pull down and back", "İki kolunu birlikte çek": "Pull both arms together", "tamam!": "complete!", "Yere düştün!": "You hit the ground!", "Süper vuruş!": "Super kick!", "Güzel!": "Nice!", "Kameraya yan dur. Bacağını iyice geri al, sonra hızla öne savur": "Stand sideways. Pull your leg well back, then swing it forward fast", "Kaktüs": "Cactus", "Uçak": "Airplane", "Eller belde": "Hands on hips", "Selam": "Salute", "Yarım kaktüs": "Half cactus", "Şimşek": "Lightning", "Duraklatıldı": "Paused", "Sağ kolunu yana aç: sağdaki oyuna geç": "Raise your right arm to the side: next game", "Sol kolunu yana aç: soldaki oyuna geç": "Raise your left arm to the side: previous game", "Sağ elini yukarı kaldır: bir üst satır": "Raise your right hand up: row above", "Sol elini yukarı kaldır: bir alt satır": "Raise your left hand up: row below", "Her seferinde kolunu indir": "Lower your arm each time", "🙆 Taç pozu: seç  •  ✋ Kol yana: sağ / sol  •  ✋ El yukarı: satır": "🙆 Crown pose: select  •  ✋ Arm to side: right / left  •  ✋ Hand up: row", "Kollarını çırp: yüksel. Kollar açık: süzül. Yana yatın: dön": "Flap your arms: rise. Arms out: glide. Lean: turn", "Kameraya yan dur. Bacağını geri al ve topa savur": "Stand sideways to the camera. Pull your leg back and swing it at the ball", "Duvardaki deliğin şeklini al, delikten geç!": "Match the hole in the wall and pass through!", "Ellerinle topu kurtar. Yana kayarak kaleyi koru": "Save the ball with your hands. Step sideways to guard the goal", "Notalar davula inince o davula yumrukla vur!": "Hit the drum when a note lands on it!", "Sağa sola yatarak kay. Çömel: hızlan. Zıpla: tümsekten uç": "Lean left and right to ski. Crouch: speed up. Jump: fly over bumps", "Kollarını sırayla başının üstünden çevirerek kulaç at!": "Swim by swinging your arms over your head, one after the other!", "Yeşilde yerinde koş, kırmızıda don kal!": "Run in place on green, freeze on red!", "İp ayağının altından geçerken zıpla!": "Jump when the rope passes under your feet!", "Elini kaldır ve havada şekli çiz": "Raise your hand and draw the shape in the air", "Sol elle kürek: sağa. Sağ elle kürek: sola. Sırayla çek: hızlan": "Paddle left: turn right. Paddle right: turn left. Alternate: speed up", "Kollarını kanat gibi aşağı çırp": "Flap your arms down like wings", "Kuş yükselir": "The bird rises", "Kollarını yana açık tut": "Keep your arms out to the sides", "Kuş süzülerek yavaşça alçalır": "The bird glides and slowly descends", "Kollar açıkken sağa ya da sola yatın": "With arms out, lean left or right", "Kuş o yöne döner": "The bird turns that way", "Elmas topla, halkalardan geç, fırtına bulutlarından kaç": "Collect diamonds, fly through rings, avoid storm clouds", "Kameraya yan dur, telefon uzakta olsun (bütün vücudun görünsün)": "Stand sideways, phone far away (your whole body must be visible)", "Bacağını geri al": "Pull your leg back", "Hızla öne savur: ne kadar hızlı, o kadar uzak": "Swing it forward fast: faster means farther", "Top uçar, seke seke gider": "The ball flies and bounces along", "5 atışın toplam mesafesi skorun": "Your score is the total distance of 5 kicks", "Duvarda bir poz şeklinde delik var": "The wall has a hole shaped like a pose", "Duvar sana doğru gelir": "The wall comes toward you", "Duvar gelmeden aynı pozu al": "Strike the same pose before the wall arrives", "Oyuncağın senin gibi durur": "Your toy copies you", "Poz tutarsa delikten geçersin, tutmazsa duvara çarparsın": "If the pose matches you pass through, if not you hit the wall", "Top kaleye gelir: elini topun geldiği yere uzat": "The ball flies at the goal: reach your hand to where it's going", "Oyuncağın topu tutar": "Your toy catches the ball", "Yana adım at": "Step to the side", "Kaleci yana kayar": "The keeper moves sideways", "Kaçırırsan gol olur, can gider": "If you miss it's a goal and you lose a life", "Alçak davullar: yumruğunu aşağıya, beline doğru indir": "Low drums: bring your fist down toward your waist", "Alttaki davul çalar": "The lower drum plays", "Ziller: yumruğun omzunun üstündeyken aşağı vur": "Cymbals: strike down while your fist is above your shoulder", "Üstteki zil çalar": "The upper cymbal plays", "Sol elin soldaki, sağ elin sağdaki davulları çalar. Nota davula değdiği an vur!": "Your left hand plays the left drums, your right hand the right ones. Hit when the note touches the drum!", "Sağa ya da sola yatın": "Lean left or right", "Kayakçı o yöne kayar": "The skier glides that way", "Dizlerini bük, çömel": "Bend your knees, crouch", "Hızlanırsın": "You speed up", "Zıpla": "Jump", "Kayaların üstünden uçarsın": "You fly over rocks", "Bayrakların arasından geç, ağaçlara çarpma": "Pass between the flags, don't hit the trees", "Sol kolunu başının üstünden öne çevir": "Swing your left arm over your head", "Bir kulaç": "One stroke", "Sonra sağ kolunu çevir; sırayla devam": "Then your right arm; keep alternating", "Ne kadar hızlı, o kadar hızlı yüzersin": "The faster you stroke, the faster you swim", "Rakiplerinden önce 50 metreye ulaş!": "Reach 50 meters before your rivals!", "Yeşil ışıkta yerinde koş": "On green, run in place", "Oyuncağın ileri koşar": "Your toy runs forward", "Kırmızı ışıkta heykel gibi don!": "On red, freeze like a statue!", "Kıpırdarsan yakalanır, geri dönersin": "If you move you get caught and sent back", "Bitiş çizgisine ulaşınca bir sonraki seviye": "Reach the finish line for the next level", "İp döner; aşağı gelirken zıpla": "The rope turns; jump as it comes down", "Oyuncağın ipin üstünden atlar": "Your toy jumps over the rope", "Küçük bir zıplama yeter": "A small hop is enough", "İp hızlandıkça daha seri zıpla": "Jump quicker as the rope speeds up", "Elini omzunun üstüne kaldır: kalem değer": "Raise your hand above your shoulder: the pen touches down", "Ekranda çizmeye başlarsın": "You start drawing on the screen", "Elini gezdirerek noktaları takip et": "Move your hand to trace the dots", "Noktalar sarıya döner": "The dots turn yellow", "Elini indir: kalem kalkar": "Lower your hand: the pen lifts", "Şekil dolunca sıradakine geçersin": "When the shape is filled you move to the next one", "Sol elinle aşağı doğru kürek çek": "Paddle down with your left hand", "Kano sağa döner": "The canoe turns right", "Sağ elinle kürek çek": "Paddle with your right hand", "Kano sola döner": "The canoe turns left", "Sırayla iki elle çek": "Paddle with both hands, one after the other", "Kano hızlanır": "The canoe speeds up", "Kayalardan, kütüklerden ve girdaplardan kaç": "Avoid rocks, logs and whirlpools", "Atış": "Kick", "En uzak": "Farthest", "Vuruşlar bitti!": "Kicks done!", "Bulutlara düştün!": "You fell into the clouds!", "Duvara çarptın!": "You hit the wall!", "Kurtarış!": "Save!", "Gol!": "Goal!", "Maç bitti!": "Match over!", "Düştün!": "You fell!", "🥇 Birinci oldun!": "🥇 You won!", "🥈 İkinci oldun": "🥈 Second place", "🥉 Üçüncü oldun": "🥉 Third place", "KOŞ!": "RUN!", "Hazırlan…": "Get ready…", "DUR!": "FREEZE!", "Yakalandın!": "Caught!", "İpe takıldın!": "Tripped on the rope!", "Daire": "Circle", "Üçgen": "Triangle", "Kare": "Square", "Yıldız": "Star", "Kalp": "Heart", "Ev": "House", "Zikzak": "Zigzag", "Gülen yüz": "Smile", "Sergi tamam!": "Gallery complete!", "Süre bitti!": "Time's up!", "Kano devrildi!": "The canoe capsized!", "Ayakların görünsün: telefonu uzağa koy": "Your feet must be visible: place the phone farther away", "Menü hareketleri": "Menu moves", "Sağ elini kaldır: sağdaki oyuna geç": "Raise your right hand: next game", "Sol elini kaldır: soldaki oyuna geç": "Raise your left hand: previous game", "Taç pozu (eller başının üstünde): seç / başlat": "Crown pose (hands on top of your head): select / start", "Seçilen oyun açılır": "The selected game opens", "Oyun bitince iki kolunu tam yukarı uzat: tekrar oyna": "When a game ends, stretch both arms fully up: play again", "Oyun bitince taç pozu: ana menü": "When a game ends, crown pose: main menu", "Kilitli oyunda taç pozu: onay çıkar, tekrar taç: reklam başlar": "On a locked game, crown pose: confirm, crown again: the ad starts", "✅ Reklamı başlat": "✅ Start the ad", "Reklamı başlatmak için taç pozunu tekrar yap": "Do the crown pose again to start the ad", "🙆 Taç pozu: seç  •  ✋ Sağ / sol el: gez": "🙆 Crown pose: select  •  ✋ Right / left hand: browse", "🙆 Taç pozu: onayla  •  ✋ El kaldır: kapat": "🙆 Crown pose: confirm  •  ✋ Raise a hand: close", "🙆 Taç pozu: kapat": "🙆 Crown pose: close", "🙆 Taç pozu: ana menü": "🙆 Crown pose: main menu", "🙌 Kollarını tam yukarı uzat: tekrar oyna": "🙌 Stretch both arms fully up: play again", "Sen": "You", "Oyunda": "In the game", "Sağa ya da sola adım at": "Step left or right", "Oyuncak şerit değiştirir": "The toy changes lanes", "Zıpla: kalemlerin üstünden atla": "Jump: hop over the pencils", "Eğil: köprülerin altından geç": "Duck: pass under the bridges", "Elmasları topla": "Collect the diamonds", "Yumruklarını direksiyon gibi tut": "Hold your fists like a steering wheel", "Çevir: sağ yumruk aşağı = sağa": "Turn: right fist down = right", "Araba yumuşakça döner": "The car turns smoothly", "Gidonu tutar gibi dur, vücudunu yatır": "Hold an imaginary handlebar and lean your body", "Motor o yöne yatar": "The bike leans that way", "Kroşe: yumruğunu yandan içeri savur": "Hook: swing your fist in from the side", "Eldiven rakibe vurur": "The glove hits the opponent", "Yumruğunu yukarı kaldır, aşağı indir": "Raise your fist and bring it down", "Rakibin kafasına iner": "It lands on the opponent's head", "Yüzünü iki yumrukla kapat": "Cover your face with both fists", "Kalkan: hasar almazsın": "Guard: you take no damage", "Sağdaki oyuncağın duruşunu taklit et": "Copy the pose of the toy on the right", "Kolunu nesneye uzat ve vur": "Reach out and punch the object", "Nesne kırılır": "The object breaks", "Bombaya dokunma!": "Don't touch the bombs!",
   "Bu oyun kilitli": "This game is locked", "🎬 Reklam izle, 24 saat aç": "🎬 Watch an ad, unlock for 24 h", "⭐ Tüm oyunları aç": "⭐ Unlock all games",
   "Kalıcı açılır, reklamlar da kalkar": "Unlocked forever, ads removed too", "Satın alımı geri yükle": "Restore purchase", "Kapat": "Close",
   "Reklam şu an yüklenemedi, biraz sonra dene": "The ad couldn't load, try again shortly", "Reklam yarıda kapandı": "The ad was closed early",
@@ -275,6 +298,7 @@ function sesleriYukle() {
   } catch (e) { sesCtx = null; }
 }
 function cal(ad, siddet = 1, perde = 1) {
+  if (DIS) { parent.postMessage({ tip: "ses", a: [ad, siddet, perde] }, "*"); return; }      // sesleri ana sayfa çalar
   const t = sesTampon[ad];
   if (!t || !sesCtx) return;
   try {
@@ -914,7 +938,7 @@ function isciSonuc(e) {
   }
   isciHataSay = 0;
   gecikme += ((performance.now() - m.zaman) / 1000 - gecikme) * 0.1;
-  pozIsle(kisiAyir(m.veri), m.zaman / 1000);
+  if (durum === "cift") ciftDagit(m.veri, m.zaman / 1000); else pozIsle(kisiAyir(m.veri), m.zaman / 1000);
 }
 function kareIsle() {
   if (pozDurum !== "hazir" || engel || document.hidden || video.readyState < 2) return;
@@ -934,7 +958,7 @@ function kareIsle() {
         if (i < 9) { veri[o + i * 3] = q.x; veri[o + i * 3 + 1] = q.y; veri[o + i * 3 + 2] = g; veri[o + 27 + i] = q.z || 0; } else { const j = i - 9; veri[o + 36 + j * 3] = q.x; veri[o + 37 + j * 3] = q.y; veri[o + 38 + j * 3] = g; veri[o + 48 + j] = q.z || 0; } } }); }
     } catch (e) {}
     gecikme += ((performance.now() - t) / 1000 - gecikme) * 0.1;
-    pozIsle(kisiAyir(veri), t / 1000);
+    if (durum === "cift") ciftDagit(veri, t / 1000); else pozIsle(kisiAyir(veri), t / 1000);
   }
 }
 // =====================================================================================================
@@ -994,6 +1018,7 @@ function uyariKontrol(dt) {
 // Uygulama arka plana geçince kamera tamamen kapanır, geri gelince yeniden açılır (pil ve gizlilik)
 let kameraGeriAc = false;
 document.addEventListener("visibilitychange", () => {
+  if (DIS) return;
   if (document.hidden && kameraVar) {
     try { video.srcObject && video.srcObject.getTracks().forEach(tr => tr.stop()); } catch (e) {}
     video.srcObject = null; kameraVar = false; kameraGeriAc = true;
@@ -1060,7 +1085,7 @@ function pozIsle(v, tSn) {
     return;
   }
   sonGorulme = simdi;
-  const oran = video.videoWidth / Math.max(1, video.videoHeight);
+  const oran = DIS ? disOran : video.videoWidth / Math.max(1, video.videoHeight);
   const omuzX = (v[3] + v[6]) / 2, omuzY = (v[4] + v[7]) / 2, gen = Math.abs(v[3] - v[6]);
   const kalcaGor = v[23] > 0.4 && v[26] > 0.4;
   const govdeBoy = kalcaGor ? Math.abs((v[22] + v[25]) / 2 - omuzY) : gen * oran * 1.35;
@@ -1188,6 +1213,7 @@ async function tamEkranAc() {
 }
 function tamEkranKapat() { try { (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (e) {} }
 function engelKontrol() {
+  if (DIS) return;
   if (!basladi || !dokunmatik) return;
   const tamYok = tamEkranDestek && !tamEkranMi(), dikey = innerWidth < innerHeight, yeni = tamYok || dikey;
   if (tamYok) { $("kilitIkon").textContent = "⛶"; $("kilitYazi").textContent = t("Oyun tam ekranda oynanır"); $("kilitDugme").style.display = ""; }
@@ -1232,7 +1258,7 @@ function jestGuncelle(v, oran, gen, govde, bilekGor, dt) {
   const capraz = v[17] > 0.4 && v[20] > 0.4 && (v[18] - v[15]) * (v[6] - v[3]) < 0 && Math.abs(v[18] - v[15]) > 0.15 * gen &&
     v[16] > Math.min(v[4], v[7]) - 0.5 * govde && v[19] > Math.min(v[4], v[7]) - 0.5 * govde && v[16] < v[4] + 1.0 * govde && v[19] < v[7] + 1.0 * govde;
   jest.carpiT = capraz ? (jest.carpiT || 0) + dt : 0;
-  if (jest.carpiT > 0.5 && durum !== "menu" && !cikisAcik() && !ogAcik()) { jest.carpiT = 0; jest.serbest = false; cikisGoster(); return; }
+  if (jest.carpiT > 0.5 && durum !== "menu" && !cikisAcik() && !ogAcik()) { jest.carpiT = 0; jest.serbest = false; if (DIS) parent.postMessage({ tip: "jest", tur: "carpi" }, "*"); else cikisGoster(); return; }
   jest.tacT = tac ? jest.tacT + dt : 0; jest.tamT = tam ? jest.tamT + dt : 0; jest.sagT = sag ? jest.sagT + dt : 0; jest.solT = sol ? jest.solT + dt : 0;
   jest.sagUT = sagU ? (jest.sagUT || 0) + dt : 0; jest.solUT = solU ? (jest.solUT || 0) + dt : 0;
   if (!jest.serbest) return;
@@ -1243,6 +1269,7 @@ function jestGuncelle(v, oran, gen, govde, bilekGor, dt) {
   if (jestOlay(tur)) { jest.serbest = false; jest.tacT = jest.tamT = jest.sagT = jest.solT = jest.sagUT = jest.solUT = 0; }
 }
 function jestOlay(tur) {      // true dönerse olay kullanıldı (eller inene kadar yeni olay yok)
+  if (DIS) { if (tur === "tac" || tur === "tam") { parent.postMessage({ tip: "jest", tur }, "*"); return true; } return false; }
   if (bilgiAcik()) { if (tur === "tac" && bilgiSonuc) { bilgiSonuc(bilgiTac); return true; } return false; }
   if (cikisAcik()) {
     if (tur === "tac") { cikisKapat(true); return true; }
@@ -1267,6 +1294,12 @@ function jestOlay(tur) {      // true dönerse olay kullanıldı (eller inene ka
     if (tur === "ust") { satirKaydir(-1); return true; }
     if (tur === "alt") { satirKaydir(1); return true; }
     if (tur === "tac") { secimBaslat(); return true; }
+    if (tur === "tam") {      // iki kol yukarı: kaç kişi kaldırdıysa o mod (2 kişi = 2 Player, tek kişi = 1 Player)
+      const ust = k => k[17] > 0.4 && k[20] > 0.4 && k[16] < k[1] && k[19] < k[1];
+      const yeni = kisiListe.filter(ust).length >= 2 ? 2 : 1;
+      if (yeni !== oyuncuModu) { oyuncuModu = yeni; try { localStorage.setItem("ig_mod", String(yeni)); } catch (e) {} modUygula(); cal("elmas", 0.7, yeni === 2 ? 1.4 : 1.1); durumYaz(yeni === 2 ? "👥 2 Player" : "👤 1 Player"); setTimeout(() => { if (durum === "menu") durumYaz(""); }, 1500); }
+      return true;
+    }
     return false;
   }
   if (durum === "bitti" && bittiSure > 1.0) {
@@ -1281,14 +1314,22 @@ function secimYaz(kaydir) {
   const k = OYUNLAR[secIdx] && OYUNLAR[secIdx].kart;
   if (kaydir && k) k.scrollIntoView({ block: "nearest", behavior: "smooth" });
 }
-function secimKaydir(d) { secIdx = (secIdx + d + OYUNLAR.length) % OYUNLAR.length; secimYaz(true); cal("adim1", 0.5, 1.3); }
-function sutunSay() { const k = OYUNLAR.map(o => o.kart).filter(Boolean); if (!k.length) return 1; const y = k[0].offsetTop; let n = 0; for (const c of k) { if (Math.abs(c.offsetTop - y) < 4) n++; else break; } return Math.max(1, n); }
+const gorunenler = () => OYUNLAR.filter(gorunur);
+function secimKaydir(d) { const L = gorunenler(); let j = L.indexOf(OYUNLAR[secIdx]); j = (j + d + L.length) % L.length; secIdx = OYUNLAR.indexOf(L[j]); secimYaz(true); cal("adim1", 0.5, 1.3); }
+function sutunSay() { const k = gorunenler().map(o => o.kart).filter(Boolean); if (!k.length) return 1; const y = k[0].offsetTop; let n = 0; for (const c of k) { if (Math.abs(c.offsetTop - y) < 4) n++; else break; } return Math.max(1, n); }
 function satirKaydir(d) {      // bir üst / alt satır, aynı sütun; uçta diğer uca sarar
-  const n = OYUNLAR.length, s = sutunSay(), satir = Math.ceil(n / s), sut = secIdx % s;
-  let r = Math.floor(secIdx / s) + d; r = (r + satir) % satir;
-  secIdx = Math.min(n - 1, r * s + sut); secimYaz(true); cal("adim1", 0.5, d < 0 ? 1.5 : 1.1);
+  const L = gorunenler(), n = L.length, s = sutunSay(), satir = Math.ceil(n / s), j = Math.max(0, L.indexOf(OYUNLAR[secIdx])), sut = j % s;
+  let r = Math.floor(j / s) + d; r = (r + satir) % satir;
+  secIdx = OYUNLAR.indexOf(L[Math.min(n - 1, r * s + sut)]); secimYaz(true); cal("adim1", 0.5, d < 0 ? 1.5 : 1.1);
 }
-function secimBaslat() { const o = OYUNLAR[secIdx]; cal("elmas", 0.6, 1.2); if (!acikMi(o)) { kilitGoster(o); return; } modGec(o); baslaTiklandi(); }
+function secimBaslat() { const o = OYUNLAR[secIdx]; cal("elmas", 0.6, 1.2); oyunAc(o); }
+function oyunAc(o) { if (!acikMi(o)) { kilitGoster(o); return; } if (oyuncuModu === 2 && o.id !== "ikili") ciftBaslat(o); else { modGec(o); baslaTiklandi(); } }
+function modUygula() {
+  document.querySelectorAll("#modSec [data-m]").forEach(b => b.classList.toggle("secili", +b.dataset.m === oyuncuModu));
+  for (const o of OYUNLAR) if (o.kart) o.kart.style.display = gorunur(o) ? "" : "none";
+  if (!gorunur(OYUNLAR[secIdx])) secIdx = OYUNLAR.indexOf(gorunenler()[0]);
+  secimYaz(false);
+}
 function jestIpucuYaz() { const e = $("jestIpucu"); e.style.display = kameraKontrol() ? "block" : "none"; e.textContent = t("🙆 Taç pozu: seç  •  ✋ Kol yana: sağ / sol  •  ✋ El yukarı: satır"); }
 
 // =====================================================================================================
@@ -1304,6 +1345,7 @@ const MENU_OG = [
   { tr: "Sağ elini yukarı kaldır: bir üst satır", a: og("duz"), b: og("duz", { ru: 2.9, rl: 2.9 }), efekt: "⬆️🎮", sonuc: "" },
   { tr: "Sol elini yukarı kaldır: bir alt satır", a: og("duz"), b: og("duz", { lu: -2.9, ll: -2.9 }), efekt: "⬇️🎮", sonuc: "" },
   { tr: "Taç pozu (eller başının üstünde): seç / başlat", a: og("duz"), b: TAC_PZ, efekt: "✅", sonuc: "Seçilen oyun açılır" },
+  { tr: "İki kişi birlikte iki kolunu yukarı kaldırırsa: 2 Player", a: og("duz"), b: og("duz", { lu: -2.95, ll: -2.95, ru: 2.95, rl: 2.95 }), efekt: "👥", sonuc: "Tek kişi kaldırırsa: 1 Player" },
   { tr: "Kilitli oyunda taç pozu: onay çıkar, tekrar taç: reklam başlar", a: TAC_PZ, b: og("duz"), efekt: "🎬", sonuc: "" },
   { tr: "Oyun bitince iki kolunu tam yukarı uzat: tekrar oyna", a: og("duz"), b: og("yukari"), efekt: "🔁", sonuc: "" },
   { tr: "Oyun bitince taç pozu: ana menü", a: og("duz"), b: TAC_PZ, efekt: "🏠", sonuc: "" },
@@ -1413,10 +1455,10 @@ function menuGoster() {
   panel.style.display = "none"; hub.style.display = "flex";
   elSkor.style.display = elElmas.style.display = "none"; $("ev").style.display = $("ayar").style.display = $("ayarCubuk").style.display = "none";
   for (const o of OYUNLAR) { const en = rekorAl(o); o.kartRekor.innerHTML = (en ? "🏆 " + en + " " : "") + "<span class='yildiz'>" + yildizYaz(yildizSay(o, en)) + "</span>"; o.kartAd.textContent = t(o.ad); kartKilitYaz(o); }
-  hubBilgiYaz(); $("bilgiPanel").style.display = "none";
+  hubBilgiYaz(); $("bilgiPanel").style.display = "none"; ciftKapat();
   dilUygula();
   hub.querySelectorAll(".kart[data-k]").forEach(k => k.classList.toggle("secili", k.dataset.k === secili));
-  secIdx = Math.max(0, OYUNLAR.indexOf(sonSecilen)); secimYaz(false); jestIpucuYaz(); $("ogBtn").style.display = "none";
+  secIdx = Math.max(0, OYUNLAR.indexOf(sonSecilen)); secimYaz(false); jestIpucuYaz(); $("ogBtn").style.display = "none"; modUygula();
 }
 async function baslaTiklandi() {
   sonSecilen = aktif; $("ogBtn").style.display = "block";
@@ -1726,7 +1768,84 @@ function sorunBildir() {
   window.location.href = "mailto:arturcemre@gmail.com?subject=" + encodeURIComponent("Interactive Game v" + SURUM + " - sorun") + "&body=" + encodeURIComponent(govde);
 }
 const rekorAnahtar = o => (o.yerlesik ? "kamKosuMax" : "ig_max_" + o.id) + (zorlukAd === "normal" ? "" : "_" + zorlukAd);
+// =====================================================================================================
+//  2 PLAYER — iki yarım ekran. Ana sayfa kamerayı açar, kişileri soldan sağa ayırır, her yarıya kendi kişisini
+//  (kendi yarı-kadrajına ölçeklenmiş olarak) yollar. Her yarı kendi ölçümünü ve oyununu yürütür.
+// =====================================================================================================
+const XI = [0, 3, 6, 9, 12, 15, 18, 21, 24, 36, 39, 42, 45];
+let ciftSkor = [null, null], ciftOyun = null;
+const ciftCerceve = () => [...document.querySelectorAll("#cift iframe")];
+function ciftYolla(m) { for (const f of ciftCerceve()) try { f.contentWindow.postMessage(m, "*"); } catch (e) {} }
+function ciftDagit(veri, tSn) {
+  const ks = [];
+  if (veri) for (let i = 0; i + 52 <= veri.length; i += 52) { const k = veri.slice(i, i + 52); if (k[5] > 0.5 && k[8] > 0.5) ks.push(k); }
+  const ekX = k => 1 - (k[3] + k[6]) / 2;      // aynalı ekranda yatay konum
+  ks.sort((a, b) => ekX(a) - ekX(b));
+  let yer = [null, null];
+  if (ks.length >= 2) yer = [ks[0], ks[ks.length - 1]];
+  else if (ks.length === 1) yer[ekX(ks[0]) < 0.5 ? 0 : 1] = ks[0];
+  const oran = video.videoWidth / Math.max(1, video.videoHeight) / 2, fr = ciftCerceve();
+  yer.forEach((k, i) => {
+    if (k) { const ofs = i === 0 ? 0.5 : 0; for (const j of XI) k[j] = (k[j] - ofs) * 2; }      // soldaki kişi ham görüntünün sağ yarısındadır
+    if (fr[i]) try { fr[i].contentWindow.postMessage({ tip: "poz", veri: k, t: tSn, oran }, "*"); } catch (e) {}
+  });
+}
+async function ciftBaslat(o) {
+  sonSecilen = o; ciftOyun = o; ciftSkor = [null, null];
+  if (dokunmatik) tamEkranAc();
+  sesleriYukle(); hub.style.display = "none"; durum = "hazirlik";
+  panel.innerHTML = "<h1>" + t("Hazırlanıyor") + "</h1><p>" + t("Kamera açılıyor…") + "</p>"; panel.style.display = "block";
+  try { await kamerayiAc(); await pozKur(); }
+  catch (h) { panel.innerHTML = "<h1>" + t("Kamera kullanılamıyor") + "</h1><p>" + t("2 Player kamerayla oynanır.") + "</p><button class='ana' id='devam'>" + t("Oyunlar") + "</button>"; $("devam").addEventListener("click", menuGoster); return; }
+  panel.style.display = "none"; durum = "cift";
+  const c = $("cift"), kar = [secili, secili === "kiz" ? "erkek" : "kiz"];
+  c.querySelectorAll("iframe").forEach(f => f.remove());
+  kar.forEach((k, i) => { const f = document.createElement("iframe"); f.src = "index.html?dis=1&taraf=" + i + "&oyun=" + o.id + "&k=" + k; f.style.left = i ? "50%" : "0"; f.setAttribute("allow", "autoplay"); c.prepend(f); });
+  c.querySelector(".e0").textContent = "1P • " + (kar[0] === "kiz" ? "Ponçik" : "Zıpır"); c.querySelector(".e1").textContent = "2P • " + (kar[1] === "kiz" ? "Ponçik" : "Zıpır");
+  $("ciftSonuc").style.display = "none"; c.style.display = "block";
+  durumYaz(""); cal("elmas", 0.6, 1.2);
+}
+function ciftKapat() { const c = $("cift"); c.querySelectorAll("iframe").forEach(f => f.remove()); c.style.display = "none"; ciftOyun = null; }
+function ciftTekrar() { ciftSkor = [null, null]; $("ciftSonuc").style.display = "none"; ciftCerceve().forEach(f => { f.src = f.src; }); cal("adim1", 0.6, 1.3); }
+function ciftSonucGoster() {
+  const [a, b] = ciftSkor, k = a === b ? 0 : a > b ? 1 : 2;
+  $("csBaslik").textContent = k === 0 ? "🤝 " + t("Berabere!") : "🏆 " + (k === 1 ? "1P" : "2P") + " " + t("kazandı!");
+  $("csSkor").innerHTML = "1P: <b>" + a + "</b> &nbsp; • &nbsp; 2P: <b>" + b + "</b>";
+  $("csIpucu").textContent = t("🙌 İki kol yukarı: tekrar  •  🙆 Taç pozu: menü");
+  $("csTekrar").textContent = t("Tekrar"); $("csMenu").textContent = t("Oyunlar");
+  $("ciftSonuc").style.display = "flex"; cal("elmas", 1, 1.3);
+}
+window.addEventListener("message", e => {
+  const m = e.data || {};
+  if (DIS) {
+    if (m.tip === "poz") { disOran = m.oran || disOran; pozIsle(m.veri ? kisiAyir(m.veri) : null, m.t); }
+    else if (m.tip === "dur") disDur = !!m.b;
+    return;
+  }
+  if (durum !== "cift") return;
+  if (m.tip === "ses") cal(...m.a);
+  else if (m.tip === "bitti") { ciftSkor[m.taraf ? 1 : 0] = m.skor; if (ciftSkor[0] !== null && ciftSkor[1] !== null) ciftSonucGoster(); }
+  else if (m.tip === "jest") {
+    if (cikisAcik()) { if (m.tur === "tac") cikisKapat(true); else if (m.tur === "tam") cikisKapat(false); }
+    else if (m.tur === "carpi") { cikisGoster(); ciftYolla({ tip: "dur", b: true }); }
+    else if ($("ciftSonuc").style.display === "flex") { if (m.tur === "tam") ciftTekrar(); else if (m.tur === "tac") menuGoster(); }
+  }
+});
+function disBaslat() {      // yarım ekran kopyası: menü yok, doğrudan ölçüm ve oyun
+  document.body.classList.add("dis");
+  const q = new URLSearchParams(location.search), k = q.get("k") === "erkek" ? "erkek" : "kiz";
+  secili = k; K = KARAKTER[k]; KARAKTER.kiz.kok.visible = k === "kiz"; KARAKTER.erkek.kok.visible = k === "erkek";
+  const o = OYUNLAR.find(x => x.id === q.get("oyun")) || KOSU;
+  modGec(o); sonSecilen = o; hub.style.display = "none"; elSkor.style.display = elElmas.style.display = "";
+  kameraVar = true; pozDurum = "hazir"; basladi = true; engel = false; durum = "olcum";
+  olcumeGec();
+}
 function bitisGoster(skor, ek) {
+  if (DIS) {      // 2 Player yarısı: rekor kaydetmez, sonucu ana sayfaya bildirir
+    durum = "bitti"; bittiSure = 0; durumYaz("");
+    panel.innerHTML = "<h1>" + t((ek && ek.baslik) || "Oyun bitti") + "</h1><p>" + t("Skor") + "</p><p class='buyuk'>" + skor + "</p><p>" + t("Diğer oyuncu bekleniyor…") + "</p>";
+    panel.style.display = "block"; parent.postMessage({ tip: "bitti", taraf: TARAF, skor }, "*"); return;
+  }
   durum = "bitti"; bittiSure = 0; durumYaz("");
   const anahtar = rekorAnahtar(aktif); let en = 0;
   try { en = parseInt(localStorage.getItem(anahtar)) || 0; } catch (e) {}
@@ -1761,14 +1880,14 @@ const OYUNLAR = [KOSU, ...oyunlariKur(O), ...oyunlar2Kur(O)];
 for (const o of OYUNLAR) if (!o.ogretici && OG_ESKI[o.id]) o.ogretici = OG_ESKI[o.id];
 
 let kamHizD = 4;
-function durdu() { return ogAcik() || $("ayarCubuk").style.display === "flex" || cikisAcik(); }
+function durdu() { return disDur || ogAcik() || $("ayarCubuk").style.display === "flex" || cikisAcik(); }
 const cikisAcik = () => $("cikisPanel").style.display === "flex";
 function duraklatYaz() { $("duraklatYazi").style.display = durum !== "menu" && ($("ayarCubuk").style.display === "flex") ? "block" : "none"; }
 function cikisGoster() {      // kollar çarpı: "oyundan çık?" sorusu; oyun durur
   $("ckBaslik").textContent = t("Oyundan çıkılsın mı?"); $("ckEvet").textContent = t("🙆 Taç pozu: evet, ana menü"); $("ckHayir").textContent = t("🙌 İki kol yukarı: hayır, oyuna dön");
   $("ckEvetB").textContent = t("Evet"); $("ckHayirB").textContent = t("Hayır"); $("cikisPanel").style.display = "flex"; cal("blok", 0.4, 1.3);
 }
-function cikisKapat(evet) { $("cikisPanel").style.display = "none"; if (evet) menuGoster(); else cal("adim1", 0.5, 1.2); }
+function cikisKapat(evet) { $("cikisPanel").style.display = "none"; ciftYolla({ tip: "dur", b: false }); if (evet) menuGoster(); else cal("adim1", 0.5, 1.2); }
 function modGec(o) {      // bir oyundan diğerine geç: öncekini gizle, yenisini kur ve göster
   if (aktif && aktif !== o) { if (aktif.yerlesik) { sifirla(); kosuGoster(false); } else aktif.kapat(); }
   karakterSifirla(); aktif = o; yildizlar.visible = false; sonSol = sonSag = null; duraklat = false;
@@ -1807,16 +1926,18 @@ function hubKur() {
   for (const b of document.querySelectorAll("#ayarPanel [data-z]")) b.addEventListener("click", () => { zorlukAd = b.dataset.z; try { localStorage.setItem("igZorluk", zorlukAd); } catch (e) {} dilUygula(); });
   for (const b of document.querySelectorAll("#ayarPanel [data-d]")) b.addEventListener("click", () => { dil = b.dataset.d; try { localStorage.setItem("igDil", dil); } catch (e) {} dilUygula(); });
   $("ayar").addEventListener("click", () => { const c = $("ayarCubuk"); c.style.display = c.style.display !== "flex" ? "flex" : "none"; duraklatYaz(); });
+  $("ciftEv").addEventListener("click", menuGoster); $("csTekrar").addEventListener("click", ciftTekrar); $("csMenu").addEventListener("click", menuGoster);
   $("ckEvetB").addEventListener("click", () => cikisKapat(true)); $("ckHayirB").addEventListener("click", () => cikisKapat(false));
   $("ayarKaydir").addEventListener("input", e => { hasDeger = parseFloat(e.target.value) || 1; hasYaz(); try { localStorage.setItem("ig_has_" + aktif.id, String(hasDeger)); } catch (h) {} });
   $("surumYazi").textContent = "v" + SURUM;
+  document.querySelectorAll("#modSec [data-m]").forEach(b => b.addEventListener("click", () => { oyuncuModu = +b.dataset.m; try { localStorage.setItem("ig_mod", String(oyuncuModu)); } catch (e) {} modUygula(); cal("adim1", 0.5, 1.3); }));
   for (const o of OYUNLAR) {
     const b = document.createElement("button"), c = document.createElement("canvas"), ad = document.createElement("div");
     b.className = "oyunKart"; c.width = 400; c.height = 250; ad.className = "ad"; ad.innerHTML = "<span></span><small></small>";
     const rz = document.createElement("div"); rz.className = "kilitRozet";
     o.kartTuval = c; o.kartAd = ad.firstChild; o.kartRekor = ad.lastChild; o.kart = b; o.kartKilit = rz; b.append(c, ad, rz);
     if (OTURARAK.includes(o.id)) { const ot = document.createElement("div"); ot.className = "otur"; ot.textContent = "🪑"; ot.title = t("oturarak da oynanır"); b.append(ot); }
-    b.addEventListener("click", () => { if (!acikMi(o)) { kilitGoster(o); return; } modGec(o); baslaTiklandi(); });
+    b.addEventListener("click", () => oyunAc(o));
     $("kartlar").appendChild(b);
   }
   hub.querySelectorAll(".kart[data-k]").forEach(k => k.addEventListener("click", () => { karakterSec(k.dataset.k); onizlemeleriCiz(); menuGoster(); }));
@@ -1829,7 +1950,7 @@ function dongu(damga) {
   const dt = Math.min((damga - sonZamanDamga) / 1000 || 0.016, 0.05);
   sonZamanDamga = damga;
   if (rafPompa && video.currentTime !== sonVideoZaman) { sonVideoZaman = video.currentTime; kareIsle(); }
-  if (engel || document.hidden || durum === "menu") return;      // ana ekranda sahne çizilmez (pil)
+  if (engel || document.hidden || durum === "menu" || durum === "cift") return;      // ana ekranda / 2 Player'da ana sahne çizilmez (pil)
   zaman += dt;
 
   let adim = 0;
@@ -1893,7 +2014,7 @@ window.ikonCiz = (w, h, kamZ, kamY, bakY) => {
 window.oyunTest = id => { modGec(OYUNLAR.find(o => o.id === id)); hub.style.display = "none"; elSkor.style.display = elElmas.style.display = ""; oyunuBaslat(false); };
 karakterSec(secili); secimZip = 0;
 hubKur();
-onizlemeleriCiz();
+if (!DIS) onizlemeleriCiz();
 // =====================================================================================================
 //  KİLİT, REKLAM, SATIN ALMA
 //  Koşu hep açık. Diğerleri: ödüllü reklam = o oyun 24 saat açık; satın alma (tum_oyunlar) = hepsi kalıcı + reklamsız.
@@ -2028,13 +2149,11 @@ $("kpSatin").addEventListener("click", async () => {
 $("kpGeri").addEventListener("click", () => geriYukle(false));
 $("kpKapat").addEventListener("click", kilitKapat);
 setInterval(() => { if (durum === "menu") for (const o of OYUNLAR) kartKilitYaz(o); }, 60000);      // kalan süre güncellensin
-reklamBaslat(); satisBaslat();
-
-menuGoster();
-if (!lsAl("ig_guvenlik")) guvenlikGoster();
+if (DIS) disBaslat();
+else { reklamBaslat(); satisBaslat(); menuGoster(); if (!lsAl("ig_guvenlik")) guvenlikGoster(); }
 kamera.position.copy(kamPoz);
 requestAnimationFrame(dongu);
-setTimeout(() => { pozKur().catch(() => {}); }, 600);   // algılama modeli arka planda önden yüklensin
+if (!DIS) setTimeout(() => { pozKur().catch(() => {}); }, 600);   // algılama modeli arka planda önden yüklensin (2P yarıları algılama yapmaz)
 </script>
 </body>
 </html>
