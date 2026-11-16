@@ -14,7 +14,7 @@ if (adim === "www") {
   const www = path.join(kok, "www");
   fs.rmSync(www, { recursive: true, force: true });
   fs.mkdirSync(www);
-  for (const f of ["index.html", "oyunlar.js", "oyunlar2.js", "poz-isci.js"]) fs.copyFileSync(path.join(kok, f), path.join(www, f));
+  for (const f of ["index.html", "oyunlar.js", "oyunlar2.js", "ikili.js", "poz-isci.js"]) fs.copyFileSync(path.join(kok, f), path.join(www, f));
   fs.cpSync(path.join(kok, "assets"), path.join(www, "assets"), { recursive: true });
   // Telefon eklentileri (Capacitor, AdMob, Google Play satın alma): sadece uygulamaya eklenir, web sürümünü etkilemez
   const lib = path.join(www, "lib"); fs.mkdirSync(lib);
