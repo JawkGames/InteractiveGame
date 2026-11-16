@@ -162,7 +162,7 @@ export default function oyunlar2Kur(O) {
       }
       iz.instanceMatrix.needsUpdate = true;
       bulutDeniz.position.y = 0; for (const n of nesneler) if (n.tur === "halka" || n.tur === "ruzgar") n.m.rotation.y += dt * (n.tur === "ruzgar" ? 3 : 0.8);
-      O.hPoz.set(-yon * 1.5, by + 2.4 + sinirla(vy, -8, 8) * 0.12, 7.2); O.hBak.set(0, by + 0.4 + sinirla(vy, -8, 8) * 0.2, -7);      // düşerken kamera önden takip eder
+      O.hPoz.set(-yon * 1.2, by + 2.0 + sinirla(vy, -8, 8) * 0.12, 6.0); O.hBak.set(0, by + 0.4 + sinirla(vy, -8, 8) * 0.2, -7);      // düşerken kamera önden takip eder
     }
     return {
       id: "kus", ad: "Kuş Uçuşu", elSerbest: true, elGerek: true, ipucu: "Kollarını çırp: yüksel. Kollar açık: süzül. Yana yatın: dön",
@@ -181,11 +181,11 @@ export default function oyunlar2Kur(O) {
           c.strokeStyle = "#f5e3c0"; c.lineWidth = 5; c.beginPath(); c.moveTo(0, 96); c.bezierCurveTo(80, 70, 170, 130, 256, 100); c.stroke(); c.beginPath(); c.moveTo(150, 0); c.bezierCurveTo(130, 90, 190, 170, 160, 256); c.stroke();
           for (let i = 0; i < 3; i++) { c.fillStyle = "#4fc3f7"; c.beginPath(); c.ellipse(30 + i * 90, 190 - i * 60, 18, 11, i, 0, 7); c.fill(); }
           for (let i = 0; i < 70; i++) { const x = Math.random() * w, y = Math.random() * h; c.fillStyle = "rgba(40,120,50,.55)"; c.beginPath(); c.arc(x, y, 3 + Math.random() * 3, 0, 7); c.fill(); }
-        }, 14, 14);
+        }, 7, 7);
         // 3B süsler: ağaçlar, evler, değirmenler — kuşun altından akar
         const tGeo = agac(), eGeo = birlestir([p(yKutu(1.6, 1.2, 1.6, 0.06), R.beyaz, 0, 0.6, 0), p(koni(4), R.kirmizi, 0, 1.65, 0, 0, PI / 4, 0, 1.4, 0.9, 1.4), p(yKutu(0.4, 0.6, 0.05, 0.02), R.ahsap, 0, 0.3, 0.81)]),
           dGeo = birlestir([p(sil(10), R.beyaz, 0, 1.4, 0, 0, 0, 0, 0.5, 2.8, 0.5), p(koni(10), R.mavi, 0, 3.1, 0, 0, 0, 0, 0.6, 0.6, 0.6), ...[0, 1, 2, 3].map(i => p(yKutu(0.18, 1.5, 0.04, 0.02), R.sari, Math.sin(i * PI / 2) * 0.7, 2.6 + Math.cos(i * PI / 2) * 0.7, 0.55, 0, 0, i * PI / 2 + PI / 2))]);
-        for (let i = 0; i < 70; i++) { const g = i % 9 === 0 ? dGeo : i % 4 === 0 ? eGeo : tGeo, m = new THREE.Mesh(g, mPlastik); m.castShadow = true; m.scale.setScalar(g === tGeo ? 1.3 + Math.random() * 0.8 : 1.1); m.rotation.y = Math.random() * 6; dunya.add(m); manzara.push(m); }
+        for (let i = 0; i < 70; i++) { const g = i % 9 === 0 ? dGeo : i % 4 === 0 ? eGeo : tGeo, m = new THREE.Mesh(g, mPlastik); m.castShadow = true; m.scale.setScalar((g === tGeo ? 1.3 + Math.random() * 0.8 : 1.1) * 2); /* çevre kuşa göre 2 kat büyük */ m.rotation.y = Math.random() * 6; dunya.add(m); manzara.push(m); }
         bulutDeniz = new THREE.Mesh(new THREE.PlaneGeometry(700, 700), new THREE.MeshStandardMaterial({ map: bulutDoku, roughness: 1, metalness: 0, envMapIntensity: 0.3 }));
         bulutDeniz.rotation.x = -PI / 2; bulutDeniz.receiveShadow = true; grup.add(bulutDeniz);
         for (let i = 0; i < 6; i++) { const b_ = ag([p(kure(10), R.beyaz, 0, 0, 0, 0, 0, 0, 3, 1.2, 2), p(kure(10), R.beyaz, 2.2, 0.4, 0.3, 0, 0, 0, 2.2, 1, 1.6), p(kure(10), R.beyaz, -2.1, 0.2, -0.2, 0, 0, 0, 2, 0.9, 1.5)]); b_.position.set((Math.random() - 0.5) * 120, 24 + Math.random() * 20, -40 - i * 25); dunya.add(b_); manzara.push(b_); b_.userData.bulut = true; }
@@ -205,7 +205,7 @@ export default function oyunlar2Kur(O) {
         grup.visible = true; O.zeminGoster(false);
         for (const n of nesneler) birak(n); nesneler = []; O.elmasListe().length = 0; izListe = [];
         for (const m of manzara) { m.position.x = (Math.random() - 0.5) * 120; m.position.z = 14 - Math.random() * 170; if (Math.abs(m.position.x) < 12 && m.position.z > -30) m.position.x += m.position.x < 0 ? -14 : 14; if (!m.userData.bulut) m.position.y = 0; }
-        O.kamHiz(10); by = 7; vy = 0; vx = 0; yon = 0; hedefYon = 0; hiz = 13 * Z().hiz; sure = 0; mesafe = 0; can = Z().kolay ? 5 : 3; dokunulmaz = 0; elmas = 0; halka = 0; intro = 1.6; sonraki = 0; kanatT = 0; cirp = 0; suzul = true; izT = 0;
+        O.kamHiz(10); by = 13; vy = 0;      // ağaçların üstünden başlar vx = 0; yon = 0; hedefYon = 0; hiz = 13 * Z().hiz; sure = 0; mesafe = 0; can = Z().kolay ? 5 : 3; dokunulmaz = 0; elmas = 0; halka = 0; intro = 1.6; sonraki = 0; kanatT = 0; cirp = 0; suzul = true; izT = 0;
         const tip = O.karakter().tip; aktifKus = kusG[tip];
         kusG.kiz.visible = kusG.erkek.visible = false;
         const renk = new THREE.Color(tip === "kiz" ? 0xff8fc8 : 0x7fd0ff), renk2 = new THREE.Color(tip === "kiz" ? 0xffe17a : 0xffffff);
@@ -266,6 +266,15 @@ export default function oyunlar2Kur(O) {
           const e = l[i]; e.z += adim; e.x -= vx * dt;
           if (Math.abs(e.z) < 1.2 && Math.hypot(e.x, e.y - by) < 1.3) { elmas++; O.cal("elmas", 0.6, 1 + Math.random() * 0.2); O.parAt(e.x, e.y, e.z, 5, 0x9defff, 3, 0.09); l[i] = l[l.length - 1]; l.pop(); }
           else if (e.z > 10 || Math.abs(e.x) > 80) { l[i] = l[l.length - 1]; l.pop(); }
+        }
+        for (const m of manzara) {      // ağaca / eve / değirmene çarpma
+          if (m.userData.bulut || dokunulmaz > 0 || Math.abs(m.position.z) > 1.2) continue;
+          if (!m.geometry.boundingBox) m.geometry.computeBoundingBox();
+          const bb = m.geometry.boundingBox, sc = m.scale.x;
+          if (Math.abs(m.position.x) < Math.max(bb.max.x, bb.max.z) * sc * 0.75 + 0.4 && by < bb.max.y * sc + 0.2) {
+            can--; dokunulmaz = 1.5; vy = 9; O.cal("carp"); O.flas(); O.sarsinti(0.3); O.durumYaz("🌳 " + T("Ağaca çarptın!")); O.sagYaz(kalp(can));
+            if (can <= 0) { O.cal("kaybet"); O.bitir(skor(), { baslik: "Ağaca çarptın!", satir: Math.floor(mesafe) + " m" }); return 0; }
+          }
         }
         for (const m of manzara) { m.position.z += adim; m.position.x -= vx * dt; if (m.position.z > 16) { m.position.z -= 175; m.position.x = (Math.random() - 0.5) * 120; } if (m.position.x > 65) m.position.x -= 130; else if (m.position.x < -65) m.position.x += 130; }
         bulutDoku.offset.y = (bulutDoku.offset.y + adim / 50) % 1; bulutDoku.offset.x = (bulutDoku.offset.x + vx * dt / 50) % 1;
@@ -468,13 +477,13 @@ export default function oyunlar2Kur(O) {
       const S = OLCEK_D, X = x => (x + 3.4) / 6.8 * w, Y = y => (5.1 - y) / 5.1 * h, U = u => u / 6.8 * w;
       c.globalCompositeOperation = "destination-out"; c.lineCap = "round"; c.lineJoin = "round"; c.strokeStyle = "#000"; c.fillStyle = "#000";
       const omuzY = 1.31 * S, kalcaY = 0.84 * S;
-      c.beginPath(); c.arc(X(0), Y(1.98 * S), U(0.5 * S), 0, 7); c.fill();                                   // kafa + saç
-      c.lineWidth = U(0.8 * S); c.beginPath(); c.moveTo(X(0), Y(omuzY)); c.lineTo(X(0), Y(kalcaY - 0.1)); c.stroke();      // gövde
+      c.beginPath(); c.arc(X(0), Y(1.98 * S), U(0.46 * S), 0, 7); c.fill();                                   // kafa + saç
+      c.lineWidth = U(0.72 * S); c.beginPath(); c.moveTo(X(0), Y(omuzY)); c.lineTo(X(0), Y(kalcaY - 0.1)); c.stroke();      // gövde
       c.beginPath(); c.moveTo(X(-0.5 * S), Y(kalcaY + 0.05)); c.lineTo(X(0.5 * S), Y(kalcaY + 0.05)); c.lineTo(X(0.42 * S), Y(0)); c.lineTo(X(-0.42 * S), Y(0)); c.closePath(); c.fill();      // bacaklar / etek
-      c.lineWidth = U(0.34 * S);
-      for (const [yon, ac] of [[-1, pz.L], [1, pz.R]]) {
-        const x0 = yon * 0.33 * S, y0 = omuzY, x1 = x0 + Math.sin(ac[0]) * 0.3 * S, y1 = y0 - Math.cos(ac[0]) * 0.3 * S, x2 = x1 + Math.sin(ac[1]) * 0.3 * S, y2 = y1 - Math.cos(ac[1]) * 0.3 * S;
-        c.beginPath(); c.moveTo(X(x0), Y(y0)); c.lineTo(X(x1), Y(y1)); c.lineTo(X(x2), Y(y2)); c.stroke(); c.beginPath(); c.arc(X(x2), Y(y2), U(0.2 * S), 0, 7); c.fill();
+      c.lineWidth = U(0.26 * S);
+      for (const [yon, ac] of [[-1, pz.L], [1, pz.R]]) {      // kollar gövdeden ve kafadan ayrık, ayrı yarık olarak çizilir (net görünür)
+        const x0 = yon * 0.8 * S, y0 = omuzY + 0.05 * S, x1 = x0 + Math.sin(ac[0]) * 0.3 * S, y1 = y0 - Math.cos(ac[0]) * 0.3 * S, x2 = x1 + Math.sin(ac[1]) * 0.3 * S, y2 = y1 - Math.cos(ac[1]) * 0.3 * S;
+        c.beginPath(); c.moveTo(X(x0), Y(y0)); c.lineTo(X(x1), Y(y1)); c.lineTo(X(x2), Y(y2)); c.stroke(); c.beginPath(); c.arc(X(x2), Y(y2), U(0.17 * S), 0, 7); c.fill();
       }
       c.globalCompositeOperation = "source-over"; duvarDk.needsUpdate = true;
     }
@@ -558,6 +567,17 @@ export default function oyunlar2Kur(O) {
       O.cal("vur", 0.8, 0.8); O.parAt(top.position.x, 0.3, 3.2, 8, 0xffffff, 3, 0.1); O.sarsinti(0.08);
     }
     const eller = () => [elYeri(ox, -1, kL, OLCEK, UZAT), elYeri(ox, 1, kR, OLCEK, UZAT)];
+    const segUzak = (px, py, ax, ay, bx, by) => { const dx = bx - ax, dy = by - ay, t = sinirla(((px - ax) * dx + (py - ay) * dy) / Math.max(1e-6, dx * dx + dy * dy), 0, 1); return Math.hypot(px - ax - dx * t, py - ay - dy * t); };
+    function govdeTutar(x, y) {      // geniş vuruş kutusu: kafa + saç, gövde, bacaklar, iki kolun tamamı (top yarıçapı dahil)
+      const S = OLCEK, TR = 0.32;
+      if (Math.hypot(x - ox, y - (0.1 + 1.98 * S)) < 0.55 * S + TR) return true;                    // kafa ve saç
+      if (Math.abs(x - ox) < 0.48 * S + TR && y < 0.1 + 1.55 * S + TR) return true;                  // gövde ve bacaklar
+      for (const [yon, k] of [[-1, kL], [1, kR]]) {
+        const ax = ox + yon * 0.33 * S, ay = 0.1 + 1.31 * S, K1 = 0.3 * S * UZAT, ex = ax + K1 * Math.sin(k.a), ey = ay - K1 * Math.cos(k.a), h = elYeri(ox, yon, k, OLCEK, UZAT);
+        if (segUzak(x, y, ax, ay, ex, ey) < 0.17 * S + TR || segUzak(x, y, ex, ey, h.x, h.y) < 0.17 * S + TR) return true;
+      }
+      return false;
+    }
     function sahne_(dt) {
       const k = us(dt, 18); kolYumusat(kL, hedefL, k); kolYumusat(kR, hedefR, k);
       ox += (hx - ox) * us(dt, 10);
@@ -623,7 +643,7 @@ export default function oyunlar2Kur(O) {
           sut.t += dt;
           if (sut.t >= sut.T) {
             const x = top.position.x, y = top.position.y, [e1, e2] = eller();
-            const tuttu = Math.hypot(e1.x - x, e1.y - y) < 0.85 || Math.hypot(e2.x - x, e2.y - y) < 0.85 || (Math.abs(x - ox) < 0.6 && y < 2.3);
+            const tuttu = govdeTutar(x, y) || Math.hypot(e1.x - x, e1.y - y) < 0.95 || Math.hypot(e2.x - x, e2.y - y) < 0.95;
             sut = null;
             if (tuttu) { seri++; skor += 10 + Math.min(seri, 10) * 2; kurtardiT = 0.9; tutX = x; tutY = y; O.cal("vur", 0.8, 1.2); O.parAt(x, y, KZ + 0.8, 16, 0xffe066, 5, 0.12); O.durumYaz("🧤 " + T("Kurtarış!")); }
             else { can--; seri = 0; golT = 0.9; O.cal("carp"); O.flas(); O.sarsinti(0.3); O.durumYaz("⚽ " + T("Gol!")); O.sagYaz(kalp(can)); if (can <= 0) { O.cal("kaybet"); O.bitir(skor, { baslik: "Maç bitti!", satir: "" }); return 0; } }
@@ -645,7 +665,8 @@ export default function oyunlar2Kur(O) {
   function davulcu() {
     const PED = [{ x: -1.35, y: 1.05, ust: false, ses: "kick", renk: R.kirmizi }, { x: -1.75, y: 2.35, ust: true, ses: "zil", renk: R.sari },
       { x: 1.75, y: 2.35, ust: true, ses: "zil", renk: R.sari }, { x: 1.35, y: 1.05, ust: false, ses: "tom", renk: R.mavi }];
-    const DUSUS = 2.0;
+    const DUSUS = 4.0, SARKI = 90;      // nota düşüş süresi (iki kat yavaş), şarkı uzunluğu (sn)
+    let geriT = 0;
     let grup, notaAg, cubuklar = [], notalar = [], pedM = [], pedT = [0, 0, 0, 0], sure, beatT, bpm, can, skor, seri, kacan, kL, kR, hL, hR;
     const L = izci(), Rr = izci(); let hazirL = true, hazirR = true;
     const m4 = new THREE.Matrix4();
@@ -653,7 +674,7 @@ export default function oyunlar2Kur(O) {
       pedT[i] = 0.15; sentez(PED[i].ses, 0.9);
       let en = null, enF = 9;
       for (const n of notalar) if (n.serit === i && !n.vuruldu) { const f = Math.abs(n.t - DUSUS); if (f < enF) { enF = f; en = n; } }
-      const pencere = Z().kolay ? 0.32 : Z().zor ? 0.18 : 0.24;
+      const pencere = (Z().kolay ? 0.32 : Z().zor ? 0.18 : 0.24) + 0.3;      // +0,3 sn tolerans
       if (en && enF < pencere) {
         en.vuruldu = true; seri++; const mukemmel = enF < pencere * 0.45; skor += (mukemmel ? 20 : 10) + Math.min(seri, 20);
         O.parAt(PED[i].x, PED[i].y + 0.3, 1.2, 10, mukemmel ? 0xffe066 : 0x9defff, 4, 0.11); O.durumYaz(mukemmel ? "⭐ Harika!" : "👍 İyi");
@@ -698,16 +719,23 @@ export default function oyunlar2Kur(O) {
         grup.add(ag([p(yKutu(8, 0.25, 4.5, 0.08), 0x8f5bff, 0, 0.12, 0.3), ...l], false));
       },
       ac() {
-        grup.visible = true; O.susGoster(true); const kr = O.karakter(); O.karakterTak(kr, grup, 0, 0.25, -0.2, 1.25, PI);
+        grup.visible = true; O.susGoster(true); const kr = O.karakter(); O.karakterTak(kr, grup, 0, 0.25, 0.6, 1.25, PI);      // davullara yakın: kollar ve çubuklar davulların önüne gelir
         kr.solDirsek.add(cubuklar[0]); kr.sagDirsek.add(cubuklar[1]); cubuklar.forEach(c => c.position.set(0, -0.27, 0));      // çubuklar ellerde: davullara yetişir
         kL = { a: -0.6, ab: -1.8 }; kR = { a: 0.6, ab: 1.8 }; hL = { a: -0.6, ab: -1.8 }; hR = { a: 0.6, ab: 1.8 };
-        notalar = []; sure = 0; beatT = 1.2; bpm = Z().kolay ? 72 : Z().zor ? 100 : 86; can = 5; skor = 0; seri = 0; kacan = 0;
-        O.solYaz("0"); O.sagYaz(kalp(can)); O.fov(52); sahne_(0.001);
+        notalar = []; sure = 0; beatT = 1.2; bpm = Z().kolay ? 72 : Z().zor ? 100 : 86; can = 5; skor = 0; seri = 0; kacan = 0; geriT = 0;
+        O.solYaz("0"); O.sagYaz("⏱ " + SARKI); O.fov(52); sahne_(0.001);
       },
       kapat() { grup.visible = false; notalar = []; O.susGoster(false); cubuklar.forEach(c => c.removeFromParent()); },
       bekle(dt) { sahne_(dt); },
       guncelle(dt) {
-        const zr = Z(); sure += dt; bpm = Math.min(150, (zr.kolay ? 72 : zr.zor ? 100 : 86) + sure * zr.rampa * 0.12);
+        const zr = Z();
+        if (geriT > 0) {      // kaçırılan nota: notalar zaman geri sarılır gibi yukarı çekilir
+          geriT -= dt; for (const n of notalar) if (!n.vuruldu) n.t = Math.max(0, n.t - dt * 3.2);
+          sahne_(dt); return 0;
+        }
+        sure += dt; bpm = Math.min(130, (zr.kolay ? 72 : zr.zor ? 100 : 86) + sure * zr.rampa * 0.08);
+        O.sagYaz("⏱ " + Math.max(0, Math.ceil(SARKI - sure)));
+        if (sure >= SARKI) { O.cal("elmas", 0.9, 1.3); O.bitir(skor, { baslik: "Şarkı bitti!", satir: "" }); return 0; }
         beatT -= dt;
         if (beatT <= 0) {      // her vuruşta (dörtlükte) nota üret
           beatT += 60 / bpm; sentez("tik", 0.8);
@@ -716,8 +744,9 @@ export default function oyunlar2Kur(O) {
         }
         for (let i = notalar.length - 1; i >= 0; i--) {
           const n = notalar[i]; n.t += dt;
-          if (!n.vuruldu && n.t > DUSUS + 0.28) { n.vuruldu = true; seri = 0; can--; O.durumYaz("Kaçtı!"); O.sagYaz(kalp(can)); if (can <= 0) { O.cal("kaybet"); O.bitir(skor, { baslik: "Ritim kaçtı!", satir: "" }); return 0; } }
-          if (n.t > DUSUS + 0.5) notalar.splice(i, 1);
+          const pencere = zr.kolay ? 0.32 : zr.zor ? 0.18 : 0.24;
+          if (!n.vuruldu && n.t > DUSUS + pencere + 0.3) { geriT = 0.4; O.durumYaz("⏪ " + T("Tekrar dene!")); O.cal("adim1", 0.6, 0.7); break; }      // kaçırma sayılmaz
+          if (n.vuruldu && n.t > DUSUS + 0.5) notalar.splice(i, 1);
         }
         sahne_(dt);
         return 0;
