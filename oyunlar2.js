@@ -207,7 +207,7 @@ export default function oyunlar2Kur(O) {
         grup.visible = true; O.zeminGoster(false);
         for (const n of nesneler) birak(n); nesneler = []; O.elmasListe().length = 0; izListe = [];
         for (const m of manzara) { m.position.x = (Math.random() - 0.5) * 120; m.position.z = 14 - Math.random() * 170; if (Math.abs(m.position.x) < 12 && m.position.z > -30) m.position.x += m.position.x < 0 ? -14 : 14; if (!m.userData.bulut) m.position.y = 0; }
-        O.kamHiz(10); by = 13; vy = 0;      // ağaçların üstünden başlar vx = 0; yon = 0; hedefYon = 0; hiz = 13 * Z().hiz; sure = 0; mesafe = 0; can = Z().kolay ? 5 : 3; dokunulmaz = 0; elmas = 0; halka = 0; intro = 1.6; sonraki = 0; kanatT = 0; cirp = 0; suzul = true; izT = 0;
+        O.kamHiz(10); by = 13; vy = 0; /* ağaçların üstünden başlar */ vx = 0; yon = 0; hedefYon = 0; hiz = 13 * Z().hiz; sure = 0; mesafe = 0; can = Z().kolay ? 5 : 3; dokunulmaz = 0; elmas = 0; halka = 0; intro = 1.6; sonraki = 0; kanatT = 0; cirp = 0; suzul = true; izT = 0;
         const tip = O.karakter().tip; aktifKus = kusG[tip];
         kusG.kiz.visible = kusG.erkek.visible = false;
         const renk = new THREE.Color(tip === "kiz" ? 0xff8fc8 : 0x7fd0ff), renk2 = new THREE.Color(tip === "kiz" ? 0xffe17a : 0xffffff);
@@ -668,18 +668,21 @@ export default function oyunlar2Kur(O) {
     const PED = [{ x: -1.35, y: 1.05, ust: false, ses: "kick", renk: R.kirmizi }, { x: -1.75, y: 2.35, ust: true, ses: "zil", renk: R.sari },
       { x: 1.75, y: 2.35, ust: true, ses: "zil", renk: R.sari }, { x: 1.35, y: 1.05, ust: false, ses: "tom", renk: R.mavi }];
     const DUSUS = 4.0, SARKI = 90;      // nota düşüş süresi (iki kat yavaş), şarkı uzunluğu (sn)
-    let geriT = 0;
+    const GEC = 0.9;      // nota çizgiyi geçtikten sonra bu kadar süre içinde vurulursa kabul
+    let geriKalan = 0;
     let grup, notaAg, cubuklar = [], notalar = [], pedM = [], pedT = [0, 0, 0, 0], sure, beatT, bpm, can, skor, seri, kacan, kL, kR, hL, hR;
     const L = izci(), Rr = izci(); let hazirL = true, hazirR = true;
     const m4 = new THREE.Matrix4();
     function vurus(i) {
       pedT[i] = 0.15; sentez(PED[i].ses, 0.9);
       let en = null, enF = 9;
-      for (const n of notalar) if (n.serit === i && !n.vuruldu) { const f = Math.abs(n.t - DUSUS); if (f < enF) { enF = f; en = n; } }
       const pencere = (Z().kolay ? 0.32 : Z().zor ? 0.18 : 0.24) + 0.3;      // +0,3 sn tolerans
-      if (en && enF < pencere) {
-        en.vuruldu = true; seri++; const mukemmel = enF < pencere * 0.45; skor += (mukemmel ? 20 : 10) + Math.min(seri, 20);
-        O.parAt(PED[i].x, PED[i].y + 0.3, 1.2, 10, mukemmel ? 0xffe066 : 0x9defff, 4, 0.11); O.durumYaz(mukemmel ? "⭐ Harika!" : "👍 İyi");
+      for (const n of notalar) if (n.serit === i && !n.vuruldu && !n.kacti && n.t > DUSUS - pencere && n.t < DUSUS + GEC) { const f = Math.abs(n.t - DUSUS); if (f < enF) { enF = f; en = n; } }
+      if (en) {
+        const gec = en.t - DUSUS > pencere;      // geçtikten sonra vurdu: kabul edilir, notalar o kadar geri çekilip ritme denk getirilir
+        en.vuruldu = true; seri++; const mukemmel = !gec && enF < pencere * 0.45; skor += (mukemmel ? 20 : gec ? 6 : 10) + Math.min(seri, 20);
+        if (gec) { geriKalan = en.t - DUSUS; O.durumYaz("⏪ " + T("Geç ama oldu!")); }
+        O.parAt(PED[i].x, PED[i].y + 0.3, 1.2, 10, mukemmel ? 0xffe066 : 0x9defff, 4, 0.11); if (!gec) O.durumYaz(mukemmel ? "⭐ Harika!" : "👍 İyi");
         if (seri % 16 === 0 && can < 5) { can++; O.sagYaz(kalp(can)); }
         O.solYaz(String(skor));
       }
@@ -724,15 +727,15 @@ export default function oyunlar2Kur(O) {
         grup.visible = true; O.susGoster(true); const kr = O.karakter(); O.karakterTak(kr, grup, 0, 0.25, 0.6, 1.25, PI);      // davullara yakın: kollar ve çubuklar davulların önüne gelir
         kr.solDirsek.add(cubuklar[0]); kr.sagDirsek.add(cubuklar[1]); cubuklar.forEach(c => c.position.set(0, -0.27, 0));      // çubuklar ellerde: davullara yetişir
         kL = { a: -0.6, ab: -1.8 }; kR = { a: 0.6, ab: 1.8 }; hL = { a: -0.6, ab: -1.8 }; hR = { a: 0.6, ab: 1.8 };
-        notalar = []; sure = 0; beatT = 1.2; bpm = Z().kolay ? 72 : Z().zor ? 100 : 86; can = 5; skor = 0; seri = 0; kacan = 0; geriT = 0;
+        notalar = []; sure = 0; beatT = 1.2; bpm = Z().kolay ? 72 : Z().zor ? 100 : 86; can = 5; skor = 0; seri = 0; kacan = 0; geriKalan = 0;
         O.solYaz("0"); O.sagYaz("⏱ " + SARKI); O.fov(52); sahne_(0.001);
       },
       kapat() { grup.visible = false; notalar = []; O.susGoster(false); cubuklar.forEach(c => c.removeFromParent()); },
       bekle(dt) { sahne_(dt); },
       guncelle(dt) {
         const zr = Z();
-        if (geriT > 0) {      // kaçırılan nota: notalar zaman geri sarılır gibi yukarı çekilir
-          geriT -= dt; for (const n of notalar) if (!n.vuruldu) n.t = Math.max(0, n.t - dt * 3.2);
+        if (geriKalan > 0) {      // geç vuruştan sonra notalar kısa bir an geri sarılır (ritim yeniden denk gelir)
+          const d = Math.min(geriKalan, dt * 3); geriKalan -= d; for (const n of notalar) if (!n.vuruldu && !n.kacti) n.t = Math.max(0, n.t - d);
           sahne_(dt); return 0;
         }
         sure += dt; bpm = Math.min(130, (zr.kolay ? 72 : zr.zor ? 100 : 86) + sure * zr.rampa * 0.08);
@@ -747,8 +750,8 @@ export default function oyunlar2Kur(O) {
         for (let i = notalar.length - 1; i >= 0; i--) {
           const n = notalar[i]; n.t += dt;
           const pencere = zr.kolay ? 0.32 : zr.zor ? 0.18 : 0.24;
-          if (!n.vuruldu && n.t > DUSUS + pencere + 0.3) { geriT = 0.4; O.durumYaz("⏪ " + T("Tekrar dene!")); O.cal("adim1", 0.6, 0.7); break; }      // kaçırma sayılmaz
-          if (n.vuruldu && n.t > DUSUS + 0.5) notalar.splice(i, 1);
+          if (!n.vuruldu && !n.kacti && n.t > DUSUS + GEC) { n.kacti = true; seri = 0; O.durumYaz(T("Kaçtı!")); }      // can gitmez, sadece seri sıfırlanır
+          if ((n.vuruldu || n.kacti) && n.t > DUSUS + 1.2) notalar.splice(i, 1);
         }
         sahne_(dt);
         return 0;
