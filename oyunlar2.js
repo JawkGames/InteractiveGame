@@ -477,16 +477,24 @@ export default function oyunlar2Kur(O) {
       }
       // Delik: oyuncağın gerçek boyunda (dünya ölçüsünde) silüet. Duvar 6,8 x 5,1 birim, alt kenarı yerde.
       const S = OLCEK_D, X = x => (x + 3.4) / 6.8 * w, Y = y => (5.1 - y) / 5.1 * h, U = u => u / 6.8 * w;
-      c.globalCompositeOperation = "destination-out"; c.lineCap = "round"; c.lineJoin = "round"; c.strokeStyle = "#000"; c.fillStyle = "#000";
       const omuzY = 1.31 * S, kalcaY = 0.84 * S;
-      c.beginPath(); c.arc(X(0), Y(1.98 * S), U(0.46 * S), 0, 7); c.fill();                                   // kafa + saç
-      c.lineWidth = U(0.72 * S); c.beginPath(); c.moveTo(X(0), Y(omuzY)); c.lineTo(X(0), Y(kalcaY - 0.1)); c.stroke();      // gövde
-      c.beginPath(); c.moveTo(X(-0.5 * S), Y(kalcaY + 0.05)); c.lineTo(X(0.5 * S), Y(kalcaY + 0.05)); c.lineTo(X(0.42 * S), Y(0)); c.lineTo(X(-0.42 * S), Y(0)); c.closePath(); c.fill();      // bacaklar / etek
-      c.lineWidth = U(0.26 * S);
-      for (const [yon, ac] of [[-1, pz.L], [1, pz.R]]) {      // kollar gövdeden ve kafadan ayrık, ayrı yarık olarak çizilir (net görünür)
-        const x0 = yon * 0.8 * S, y0 = omuzY + 0.05 * S, x1 = x0 + Math.sin(ac[0]) * 0.3 * S, y1 = y0 - Math.cos(ac[0]) * 0.3 * S, x2 = x1 + Math.sin(ac[1]) * 0.3 * S, y2 = y1 - Math.cos(ac[1]) * 0.3 * S;
-        c.beginPath(); c.moveTo(X(x0), Y(y0)); c.lineTo(X(x1), Y(y1)); c.lineTo(X(x2), Y(y2)); c.stroke(); c.beginPath(); c.arc(X(x2), Y(y2), U(0.17 * S), 0, 7); c.fill();
+      // Silüet: ek = kenarlık için kalınlık (ışıklı çerçeve önce kalın çizilir, sonra delik açılır)
+      function siluet(ek) {
+        c.lineCap = "round"; c.lineJoin = "round";
+        c.beginPath(); c.arc(X(0), Y(1.98 * S), U(0.46 * S) + ek, 0, 7); c.fill();                                   // kafa + saç
+        c.lineWidth = U(0.72 * S) + ek * 2; c.beginPath(); c.moveTo(X(0), Y(omuzY)); c.lineTo(X(0), Y(kalcaY - 0.1)); c.stroke();      // gövde
+        c.lineWidth = ek * 2 + 1; c.beginPath(); c.moveTo(X(-0.5 * S), Y(kalcaY + 0.05)); c.lineTo(X(0.5 * S), Y(kalcaY + 0.05)); c.lineTo(X(0.42 * S), Y(0)); c.lineTo(X(-0.42 * S), Y(0)); c.closePath(); c.fill(); if (ek) c.stroke();      // bacaklar / etek
+        c.lineWidth = U(0.26 * S) + ek * 2;
+        for (const [yon, ac] of [[-1, pz.L], [1, pz.R]]) {      // kol gövdeden uzakta ayrı yarık; omuzdan kısa bir bağla gövdeye bağlanır
+          const xo = yon * 0.34 * S, x0 = yon * 0.8 * S, y0 = omuzY + 0.05 * S, x1 = x0 + Math.sin(ac[0]) * 0.3 * S, y1 = y0 - Math.cos(ac[0]) * 0.3 * S, x2 = x1 + Math.sin(ac[1]) * 0.3 * S, y2 = y1 - Math.cos(ac[1]) * 0.3 * S;
+          c.beginPath(); c.moveTo(X(xo), Y(omuzY)); c.lineTo(X(x0), Y(y0)); c.lineTo(X(x1), Y(y1)); c.lineTo(X(x2), Y(y2)); c.stroke(); c.beginPath(); c.arc(X(x2), Y(y2), U(0.17 * S) + ek, 0, 7); c.fill();
+        }
       }
+      // Uzaktan net görünsün: parlak, ışıklı kenarlık (dış parıltı + beyaz çizgi), sonra delik
+      c.globalCompositeOperation = "source-over";
+      c.shadowColor = "#00f0ff"; c.shadowBlur = 26; c.fillStyle = c.strokeStyle = "#00e5ff"; siluet(U(0.16));
+      c.shadowBlur = 0; c.fillStyle = c.strokeStyle = "#ffffff"; siluet(U(0.07));
+      c.globalCompositeOperation = "destination-out"; c.fillStyle = c.strokeStyle = "#000"; siluet(0);
       c.globalCompositeOperation = "source-over"; duvarDk.needsUpdate = true;
     }
     function yeniDuvar() {
@@ -518,7 +526,7 @@ export default function oyunlar2Kur(O) {
         grup = grupYap();
         duvarC = document.createElement("canvas"); duvarC.width = 512; duvarC.height = 384; duvarCtx = duvarC.getContext("2d");
         duvarDk = new THREE.CanvasTexture(duvarC); duvarDk.colorSpace = THREE.SRGBColorSpace; duvarDk.wrapS = duvarDk.wrapT = THREE.ClampToEdgeWrapping;
-        duvarM = new THREE.Mesh(new THREE.PlaneGeometry(6.8, 5.1), new THREE.MeshStandardMaterial({ map: duvarDk, transparent: true, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.5, metalness: 0 }));
+        duvarM = new THREE.Mesh(new THREE.PlaneGeometry(6.8, 5.1), new THREE.MeshStandardMaterial({ map: duvarDk, emissive: 0xffffff, emissiveMap: duvarDk, emissiveIntensity: 0.3, transparent: true, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.5, metalness: 0 }));
         duvarM.castShadow = true; duvarM.position.y = 2.55; grup.add(duvarM);
         arkaM = new THREE.Mesh(new THREE.PlaneGeometry(6.8, 5.1), new THREE.MeshStandardMaterial({ map: duvarDk, transparent: true, alphaTest: 0.5, side: THREE.DoubleSide, color: 0x9a8fb0, roughness: 0.8 }));
         arkaM.position.y = 2.55; grup.add(arkaM);
