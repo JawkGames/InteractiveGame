@@ -709,20 +709,20 @@ export default function oyunlar2Kur(O) {
       notaAg.count = j; notaAg.instanceMatrix.needsUpdate = true; if (notaAg.instanceColor) notaAg.instanceColor.needsUpdate = true;
       O.hPoz.set(0, 2.4, 7.4); O.hBak.set(0, 2.1, 0);
     }
-    function bolge(w, P, sol) { const ust = w.y < w.sy - P.tgovde * 0.12; return sol ? (ust ? 1 : 0) : (ust ? 2 : 3); }
+    function bolge(w, P, sol) { return sol ? 0 : 3; }      // sadece iki davul: sol el kırmızı, sağ el mavi (ziller kaldırıldı)
     return {
-      id: "davul", ad: "Davulcu", elSerbest: true, elGerek: true, ipucu: "Notalar davula inince o davula yumrukla vur!",
+      id: "davul", ad: "Davulcu", elSerbest: true, elGerek: true, ipucu: "Nota inince: sol yumruk kırmızı, sağ yumruk mavi davul!",
       ogretici: [
-        { tr: "Alçak davullar: yumruğunu aşağıya, beline doğru indir", a: Pz("onde", { lu: -0.9, ll: -2.4 }), b: Pz("onde", { lu: -0.6, ll: -0.9 }), efekt: "🥁", sonuc: "Alttaki davul çalar" },
-        { tr: "Ziller: yumruğun omzunun üstündeyken aşağı vur", a: Pz("yana", { lu: -2.4, ll: -2.6 }), b: Pz("yana", { lu: -1.9, ll: -1.6 }), efekt: "🔔", sonuc: "Üstteki zil çalar" },
-        { tr: "Sol elin soldaki, sağ elin sağdaki davulları çalar. Nota davula değdiği an vur!", a: Pz("onde"), b: Pz("yanaAsagi"), efekt: "🎵⏱️", sonuc: "" }
+        { tr: "Sol yumruğunu biraz kaldırıp indir: kırmızı davul", a: Pz("onde", { lu: -0.9, ll: -1.9 }), b: Pz("onde", { lu: -0.6, ll: -0.9 }), efekt: "🥁", sonuc: "Az kaldırmak yeter" },
+        { tr: "Sağ yumruğunu biraz kaldırıp indir: mavi davul", a: Pz("onde", { ru: 0.9, rl: 1.9 }), b: Pz("onde", { ru: 0.6, rl: 0.9 }), efekt: "🥁", sonuc: "" },
+        { tr: "Nota davula değdiği an vur!", a: Pz("onde"), b: Pz("yanaAsagi"), efekt: "🎵⏱️", sonuc: "" }
       ],
       kur() {
         grup = grupYap();
         PED.forEach((pd, i) => {
           const m = pd.ust ? ag([p(sil(20), 0xffe27a, 0, 0, 0, 0.25, 0, 0, 0.75, 0.04, 0.75), p(sil(8), R.gri, 0, -1.2, 0, 0, 0, 0, 0.04, 2.4, 0.04)])
             : ag([p(sil(20), pd.renk, 0, -0.25, 0, 0.2, 0, 0, 0.62, 0.5, 0.62), p(sil(20), R.beyaz, 0, 0.02, -0.05, 0.2, 0, 0, 0.6, 0.04, 0.6), p(simit(0.62, 0.05, PI * 2, 24), R.gri, 0, 0.01, -0.05, PI / 2 + 0.2, 0, 0), p(sil(8), R.gri, 0, -0.75, 0, 0, 0, 0, 0.04, 0.6, 0.04)]);
-          m.position.set(pd.x, pd.y, 1.25); grup.add(m); pedM.push(m);
+          m.position.set(pd.x, pd.y, 1.25); m.visible = !pd.ust; grup.add(m); pedM.push(m);      // ziller gizli
         });
         const cubukGeo = birlestir([p(sil(8), 0xe8c48a, 0, -0.42, 0, 0, 0, 0, 0.035, 0.85, 0.035), p(kure(8), 0xfff3dc, 0, -0.86, 0, 0, 0, 0, 0.055, 0.075, 0.055)]);
         for (let i = 0; i < 2; i++) { const c = new THREE.Group(), m = new THREE.Mesh(cubukGeo, mPlastik); m.castShadow = true; c.add(m); c.rotation.x = 0.7; cubuklar.push(c); }
@@ -753,7 +753,7 @@ export default function oyunlar2Kur(O) {
         if (beatT <= 0) {      // her vuruşta (dörtlükte) nota üret
           beatT += 60 / bpm; sentez("tik", 0.8);
           const olas = zr.kolay ? 0.5 : zr.zor ? 0.85 : 0.7;
-          if (Math.random() < olas) { const s = rast(4); notalar.push({ serit: s, t: 0, vuruldu: false }); if (!zr.kolay && Math.random() < 0.18) notalar.push({ serit: s < 2 ? 3 - s : 3 - s, t: 0, vuruldu: false }); }
+          if (Math.random() < olas) { const s = Math.random() < 0.5 ? 0 : 3; notalar.push({ serit: s, t: 0, vuruldu: false }); if (!zr.kolay && Math.random() < 0.15) notalar.push({ serit: 3 - s, t: 0, vuruldu: false }); }
         }
         for (let i = notalar.length - 1; i >= 0; i--) {
           const n = notalar[i]; n.t += dt;
@@ -764,15 +764,15 @@ export default function oyunlar2Kur(O) {
         sahne_(dt);
         return 0;
       },
-      tus(k) { const i = { a: 0, q: 1, e: 2, d: 3, ArrowLeft: 0, ArrowUp: 1, ArrowRight: 3, ArrowDown: 2 }[k]; if (i !== undefined) vurus(i); },
-      dokun(x, y) { vurus(x < 0.5 ? (y < 0.5 ? 1 : 0) : (y < 0.5 ? 2 : 3)); },
+      tus(k) { const i = { a: 0, d: 3, ArrowLeft: 0, ArrowRight: 3 }[k]; if (i !== undefined) vurus(i); },
+      dokun(x) { vurus(x < 0.5 ? 0 : 3); },
       poz(P, dt) {
         kolAci(P.sol, P.oran, hL); kolAci(P.sag, P.oran, hR);
-        const esik = 3.0 / O.has();
+        const esik = 1.9 / O.has();      // az kaldırıp indirmek yeter
         if (P.sol.g > 0.35) { izle(L, P.sol.x, P.sol.y, P.tgen, P.oran, dt); if (hazirL && L.vy > esik) { hazirL = false; vurus(bolge(P.sol, P, true)); } else if (!hazirL && L.vy < esik * 0.25) hazirL = true; }
         if (P.sag.g > 0.35) { izle(Rr, P.sag.x, P.sag.y, P.tgen, P.oran, dt); if (hazirR && Rr.vy > esik) { hazirR = false; vurus(bolge(P.sag, P, false)); } else if (!hazirR && Rr.vy < esik * 0.25) hazirR = true; }
       },
-      onizle() { this.ac(); notalar = [{ serit: 0, t: 1.7, vuruldu: false }, { serit: 2, t: 1.1, vuruldu: false }, { serit: 3, t: 0.5, vuruldu: false }, { serit: 1, t: 1.9, vuruldu: false }]; hL.a = kL.a = -2.0; hL.ab = kL.ab = -2.4; pedT[0] = 0.1; sahne_(0.001); }
+      onizle() { this.ac(); notalar = [{ serit: 0, t: 1.7, vuruldu: false }, { serit: 3, t: 1.1, vuruldu: false }, { serit: 3, t: 0.5, vuruldu: false }, { serit: 0, t: 2.9, vuruldu: false }]; hL.a = kL.a = -2.0; hL.ab = kL.ab = -2.4; pedT[0] = 0.1; sahne_(0.001); }
     };
   }
 
