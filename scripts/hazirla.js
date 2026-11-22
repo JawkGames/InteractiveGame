@@ -50,7 +50,9 @@ if (adim === "config") {
     appId: PAKET,
     appName: AD,
     webDir: "www",
-    android: { backgroundColor: "#d9eeff" }
+    android: { backgroundColor: "#d9eeff" },
+    // Gerçek tam ekran: saat / bildirim çubuğu ve gezinme çubuğu gizli, kenarlarda boşluk yok
+    plugins: { SystemBars: { hidden: true, insetsHandling: "disable" } }
   }, null, 2));
   console.log("capacitor.config.json yazıldı");
 }
@@ -68,7 +70,41 @@ if (adim === "android") {
   if (!m.includes("permission.AD_ID")) m = m.replace("<application", '<uses-permission android:name="com.google.android.gms.permission.AD_ID" />\n    <application');
   if (!m.includes("vending.BILLING")) m = m.replace("<application", '<uses-permission android:name="com.android.vending.BILLING" />\n    <application');
   if (!m.includes("screenOrientation")) m = m.replace("<activity", '<activity\n            android:screenOrientation="sensorLandscape"');
+  // Donanım özellikleri zorunlu değil (Play Console "gerekli donanım özellikleri cihazları kısıtlıyor" uyarısı çıkmasın)
+  if (!m.includes("hardware.screen.landscape")) m = m.replace("<application", '<uses-feature android:name="android.hardware.screen.landscape" android:required="false" />\n    <uses-feature android:name="android.hardware.screen.portrait" android:required="false" />\n    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />\n    <application');
   fs.writeFileSync(man, m);
+
+  // MainActivity: açılışta ve her geri dönüşte tam ekran (immersive), çentikli ekranlarda da kenarda boşluk yok
+  const akt = path.join(app, "src/main/java", ...PAKET.split("."), "MainActivity.java");
+  fs.mkdirSync(path.dirname(akt), { recursive: true });
+  fs.writeFileSync(akt, `package ${PAKET};
+
+import android.os.Build;
+import android.os.Bundle;
+import android.view.WindowManager;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
+import com.getcapacitor.BridgeActivity;
+
+public class MainActivity extends BridgeActivity {
+    @Override public void onCreate(Bundle b) { super.onCreate(b); tamEkran(); }
+    @Override public void onResume() { super.onResume(); tamEkran(); }
+    @Override public void onWindowFocusChanged(boolean odak) { super.onWindowFocusChanged(odak); if (odak) tamEkran(); }
+
+    private void tamEkran() {
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        if (Build.VERSION.SDK_INT >= 28) {
+            WindowManager.LayoutParams lp = getWindow().getAttributes();
+            lp.layoutInDisplayCutoutMode = Build.VERSION.SDK_INT >= 30 ? WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS : WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            getWindow().setAttributes(lp);
+        }
+        WindowInsetsControllerCompat c = WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+        c.hide(WindowInsetsCompat.Type.systemBars());
+        c.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+    }
+}
+`);
 
   // Sürüm numarası (her derlemede artar, Play Console bunu ister)
   const gradle = path.join(app, "build.gradle");
@@ -87,7 +123,26 @@ if (adim === "android") {
     }
     buildTypes {`).replace("minifyEnabled false", "minifyEnabled false\n            signingConfig signingConfigs.release");
   }
+  // Küçültme: R8 kod + kaynak küçültme (yayın sürümünde)
+  g = g.replace(/(release\s*\{[^}]*?)minifyEnabled false/, "$1minifyEnabled true\n            shrinkResources true");
   fs.writeFileSync(gradle, g);
+  const pro = path.join(app, "proguard-rules.pro");
+  let pr = fs.existsSync(pro) ? fs.readFileSync(pro, "utf8") : "";
+  if (!pr.includes("com.getcapacitor")) fs.writeFileSync(pro, pr + `
+# Capacitor ve eklentiler (JS köprüsü yansıma kullanır, isimler korunmalı)
+-keep class com.getcapacitor.** { *; }
+-keep @com.getcapacitor.annotation.CapacitorPlugin public class * { *; }
+-keepclassmembers class * { @com.getcapacitor.PluginMethod public <methods>; }
+-keepclassmembers class * { @android.webkit.JavascriptInterface <methods>; }
+-keep class com.getcapacitor.community.admob.** { *; }
+-keep class ee.forgr.nativepurchases.** { *; }
+-keep class com.capacitorjs.plugins.** { *; }
+-keep class com.google.android.gms.ads.** { *; }
+-keep class com.android.billingclient.** { *; }
+-keep class ${PAKET}.** { *; }
+-dontwarn com.google.android.gms.**
+-dontwarn com.android.billingclient.**
+`);
 
   // Simgeler: android-res/ varsa projenin res klasörüne kopyalanır
   const kaynak = path.join(kok, "android-res");

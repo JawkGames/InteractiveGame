@@ -201,7 +201,7 @@ const gorunur = o => oyuncuModu === 2 ? !!o.ikiKisi : !o.ikiKisi;      // 2 Play
 // =====================================================================================================
 //  AYARLAR
 // =====================================================================================================
-const SURUM = "5.0";
+const SURUM = "5.1";
 const POZ_KUTUPHANE = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/vision_bundle.mjs";
 const POZ_WASM = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm";
 const POZ_MODEL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task";
@@ -1227,7 +1227,9 @@ tuval.addEventListener("pointermove", isaretYaz);
 addEventListener("pointerup", () => { isaretci.basili = false; });
 
 const kok = document.documentElement;
-const tamEkranDestek = !!(kok.requestFullscreen || kok.webkitRequestFullscreen);
+// Telefon uygulamasında (Capacitor) uygulama zaten gerçek tam ekran açılır: tam ekran düğmesi ve tarayıcıya özel şeyler gizlenir
+const UYGULAMA = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+const tamEkranDestek = !UYGULAMA && !!(kok.requestFullscreen || kok.webkitRequestFullscreen);
 const tamEkranMi = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
 const elKilit = $("kilit"), elTamEkran = $("tamEkran");
 let basladi = false, engel = false;
