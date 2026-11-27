@@ -210,6 +210,9 @@
   /* Tam ekran pencereler de reklam şeridinin üstünde biter (butonlar reklamın altında kalmasın) */
   #ogretici, #ayarPanel, #cikisPanel, #bilgiPanel, #kilit, #cift { bottom: var(--alt); }
   @media (orientation: portrait) { #kartlar { grid-template-columns: repeat(3, 1fr); grid-auto-rows: auto; flex: 1; } }
+  /* Oyunun kendi simgeleri (emojilerin yerine, tek resim atlası) */
+  .sm { display: inline-block; width: 1.3em; height: 1.3em; vertical-align: -0.3em; background: url(assets/simgeler.webp) 0 0 / 1000% 900% no-repeat; font-style: normal; }
+  button .sm, .rozet .sm { margin: 0 .05em; }
 </style>
 </head>
 <body>
@@ -361,6 +364,46 @@ async function dilYukle(k) {
   SOZ = null; if (k === "tr" || k === "en") return;
   try { const m = await import("./dil/" + k + ".js"), an = Object.keys(EN); SOZ = {}; m.default.forEach((v, i) => { if (v) SOZ[an[i]] = v; }); } catch (e) { SOZ = null; }
 }
+// =====================================================================================================
+//  SİMGELER — ekrandaki emojiler oyunun kendi çizim simgeleriyle (assets/simgeler.webp, tek resim) değiştirilir.
+//  Tek tablo: emoji → simge adı. Sayfadaki her yazı (düğme, mesaj, panel) otomatik çevrilir; tuvale de aynı simge çizilir.
+// =====================================================================================================
+const SIMGE_KOL = 10, SIMGE_SAT = 9, SIMGE_BOY = 128, SIMGE_YER = {"ayar":0,"soru":1,"kamera":2,"ev":3,"tamekran":4,"dunya":5,"paylas":6,"geriyukle":7,"bocek":8,"kalkan":9,"kilit":10,"kumsaati":11,"reklam":12,"yildiz":13,"onay":14,"takvim":15,"sandalye":16,"duraklat":17,"telefon":18,"bebek":19,"gulen":20,"alev":21,"tek":22,"iki":23,"kupa":24,"elmas":25,"kalp":26,"tac":27,"zafer":28,"el":29,"altin":30,"gumus":31,"bronz":32,"bosyildiz":33,"bitis":34,"begen":35,"carpi":36,"tokalasma":37,"isikyesil":38,"isiksari":39,"isikkirmizi":40,"sasik":41,"pano":42,"ampul":43,"ciftok":44,"geri":45,"patlama":46,"agac":47,"ayakta":48,"kosan":49,"kumanda":50,"yukari":51,"asagi":52,"sag":53,"sol":54,"kivrikyukari":55,"kivrikasagi":56,"sagadonus":57,"soladonus":58,"dongu":59,"top":60,"ruzgar":61,"eldiven":62,"kale":63,"boks":64,"nota":65,"davul":66,"kronometre":67,"bomba":68,"vazo":69,"kus":70,"halka":71,"firtina":72,"araba":73,"motor":74,"ayi":75,"ip":76,"duvar":77,"kayakci":78,"kayik":79,"yuzucu":80,"dans":81,"kaya":82,"kutuk":83,"girdap":84,"kopru":85,"kalem":86,"bayrak":87,"cam":88,"simsek":89};
+const EMOJI_SIMGE = { "📱↻": "telefon", "💃🕺": "dans", "⚙": "ayar", "❓": "soru", "📷": "kamera", "🏠": "ev", "⛶": "tamekran", "🌐": "dunya", "📤": "paylas", "🔄": "geriyukle", "🐞": "bocek", "🛡": "kalkan", "🔒": "kilit", "⏳": "kumsaati", "🎬": "reklam", "⭐": "yildiz", "★": "yildiz", "☆": "bosyildiz", "✅": "onay", "📅": "takvim", "🪑": "sandalye", "⏸": "duraklat", "📱": "telefon", "👶": "bebek", "🙂": "gulen", "🔥": "alev", "👤": "tek", "👥": "iki", "🏆": "kupa", "💎": "elmas", "❤": "kalp", "🙆": "tac", "🙌": "zafer", "✋": "el", "🥇": "altin", "🥈": "gumus", "🥉": "bronz", "🏁": "bitis", "👍": "begen", "❌": "carpi", "✗": "carpi", "🤝": "tokalasma", "🟢": "isikyesil", "🟡": "isiksari", "🔴": "isikkirmizi", "😮": "sasik", "📋": "pano", "💡": "ampul", "↔": "ciftok", "⏪": "geri", "💥": "patlama", "🌳": "agac", "🧍": "ayakta", "🏃": "kosan", "🎮": "kumanda", "⬆": "yukari", "⬇": "asagi", "➡": "sag", "⬅": "sol", "⤴": "kivrikyukari", "⤵": "kivrikasagi", "↪": "sagadonus", "↩": "soladonus", "🔁": "dongu", "⚽": "top", "💨": "ruzgar", "🧤": "eldiven", "🥅": "kale", "🥊": "boks", "🎵": "nota", "🥁": "davul", "⏱": "kronometre", "💣": "bomba", "🏺": "vazo", "🐦": "kus", "⭕": "halka", "⛈": "firtina", "🚗": "araba", "🏍": "motor", "🧸": "ayi", "🪢": "ip", "🧱": "duvar", "⛷": "kayakci", "🚣": "kayik", "🏊": "yuzucu", "💃": "dans", "🕺": "dans", "🪨": "kaya", "🪵": "kutuk", "🌀": "girdap", "🌉": "kopru", "✏": "kalem", "🚩": "bayrak", "🌲": "cam", "⚡": "simsek" };
+const simgeDesen = new RegExp("(" + Object.keys(EMOJI_SIMGE).sort((a, b) => b.length - a.length).map(e => e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")\uFE0F?", "gu");
+const simgeResim = new Image(); simgeResim.src = "assets/simgeler.webp";
+function simgeKonum(ad) { const i = SIMGE_YER[ad]; return [i % SIMGE_KOL, Math.floor(i / SIMGE_KOL)]; }
+function simgeEl(ad) {
+  const e = document.createElement("i"), [k, r] = simgeKonum(ad);
+  e.className = "sm"; e.setAttribute("aria-hidden", "true");
+  e.style.backgroundPosition = (k / (SIMGE_KOL - 1) * 100) + "% " + (r / (SIMGE_SAT - 1) * 100) + "%";
+  return e;
+}
+function simgele(kok) {      // kok altındaki yazılardaki emojileri simgeye çevir
+  const yuru = document.createTreeWalker(kok, NodeFilter.SHOW_TEXT, { acceptNode: n => /^(SCRIPT|STYLE|TEXTAREA|TITLE)$/.test(n.parentNode && n.parentNode.nodeName) ? 2 : 1 });
+  const liste = []; for (let n = kok.nodeType === 3 ? kok : yuru.nextNode(); n; n = kok.nodeType === 3 ? null : yuru.nextNode()) { simgeDesen.lastIndex = 0; if (simgeDesen.test(n.nodeValue)) liste.push(n); }
+  for (const n of liste) {
+    const parca = document.createDocumentFragment(), y = n.nodeValue; let son = 0; simgeDesen.lastIndex = 0;
+    for (const m of y.matchAll(simgeDesen)) { if (m.index > son) parca.append(y.slice(son, m.index)); parca.append(simgeEl(EMOJI_SIMGE[m[1]])); son = m.index + m[0].length; }
+    if (son < y.length) parca.append(y.slice(son));
+    n.replaceWith(parca);
+  }
+}
+simgele(document.body);
+new MutationObserver(l => { for (const m of l) { if (m.type === "characterData") simgele(m.target); else for (const n of m.addedNodes) if (n.nodeType === 1 || n.nodeType === 3) simgele(n); } })
+  .observe(document.body, { childList: true, subtree: true, characterData: true });
+function simgeliYaz(c, yazi, x, y, boy) {      // tuvale yazı + simge (sol hizalı, y = yazı tabanı)
+  let son = 0; simgeDesen.lastIndex = 0;
+  const yaz = p => { if (p) { c.fillText(p, x, y); x += c.measureText(p).width; } };
+  for (const m of yazi.matchAll(simgeDesen)) {
+    yaz(yazi.slice(son, m.index));
+    const [k, r] = simgeKonum(EMOJI_SIMGE[m[1]]);
+    if (simgeResim.complete && simgeResim.naturalWidth) c.drawImage(simgeResim, k * SIMGE_BOY, r * SIMGE_BOY, SIMGE_BOY, SIMGE_BOY, x, y - boy * 0.82, boy, boy);
+    x += boy + 2; son = m.index + m[0].length;
+  }
+  yaz(yazi.slice(son));
+}
+
 await dilYukle(dil);
 window.yuklemeIlerle && yuklemeIlerle(0.55);
 
@@ -1579,9 +1622,9 @@ function ogCiz(ts) {
   c.fillStyle = "rgba(74,42,107,.08)"; c.fillRect(0, 214, 560, 36);
   c.fillStyle = "#4a2a6b"; c.font = "600 18px " + YAZI; c.textAlign = "center"; c.fillText(t("Sen"), 150, 26); c.fillText(t("Oyunda"), 410, 26);
   figur(c, 150, 214, 78, pz, false);
-  c.font = "600 34px " + YAZI; c.fillText("→", 280, 135);
+  simgeliYaz(c, "➡", 258, 140, 44);
   figur(c, 410, 214, 70, pz, true);
-  c.font = "34px " + YAZI; c.textAlign = "left"; c.fillText(a.efekt || "", 462, 110 + Math.sin(ogT * 4) * 4); c.textAlign = "center";
+  c.font = "34px " + YAZI; c.textAlign = "left"; simgeliYaz(c, a.efekt || "", 458, 118 + Math.sin(ogT * 4) * 4, 46); c.textAlign = "center";
 }
 $("ogTamam").addEventListener("click", ogKapat);
 $("ogIleri").addEventListener("click", () => ogAdim(ogI + 1));
