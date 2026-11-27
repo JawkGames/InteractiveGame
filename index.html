@@ -2155,8 +2155,19 @@ async function bannerGoster() {
     bannerAcik = true;
   } catch (e) {}
 }
+// Web'de gerçek reklam yok: telefondaki banner'ın kaplayacağı yer beyaz çubukla gösterilir (düzen kontrolü için)
+const WEB_BANNER_YUKSEKLIK = 50;
+function webBannerGoster() {
+  if (AdMob || tumAcik || $("webBanner")) return;
+  const d = document.createElement("div");
+  d.id = "webBanner"; d.textContent = "Reklam alanı (banner)";
+  d.style.cssText = "position:fixed;left:0;right:0;bottom:0;height:" + WEB_BANNER_YUKSEKLIK + "px;background:#fff;color:#888;font:600 12px system-ui,sans-serif;display:flex;align-items:center;justify-content:center;z-index:60;pointer-events:none";
+  document.body.appendChild(d);
+  altBosluk(WEB_BANNER_YUKSEKLIK);
+}
 function bannerKaldir() {
   altBosluk(0);
+  const wb = $("webBanner"); if (wb) wb.remove();
   if (AdMob && bannerAcik) { AdMob.removeBanner().catch(() => {}); bannerAcik = false; }
 }
 async function reklamBaslat() {
@@ -2233,7 +2244,7 @@ $("kpGeri").addEventListener("click", () => geriYukle(false));
 $("kpKapat").addEventListener("click", kilitKapat);
 setInterval(() => { if (durum === "menu") for (const o of OYUNLAR) kartKilitYaz(o); }, 60000);      // kalan süre güncellensin
 if (DIS) disBaslat();
-else { reklamBaslat(); satisBaslat(); menuGoster(); if (!lsAl("ig_guvenlik")) guvenlikGoster(); }
+else { reklamBaslat(); webBannerGoster(); satisBaslat(); menuGoster(); if (!lsAl("ig_guvenlik")) guvenlikGoster(); }
 kamera.position.copy(kamPoz);
 requestAnimationFrame(dongu);
 if (!DIS) setTimeout(() => { pozKur().catch(() => {}); }, 600);   // algılama modeli arka planda önden yüklensin (2P yarıları algılama yapmaz)
