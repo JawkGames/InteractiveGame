@@ -23,12 +23,14 @@
   #durum { position: fixed; left: 50%; top: 58px; transform: translateX(-50%); max-width: 86vw; padding: 8px 18px;
     border-radius: 999px; background: rgba(60,36,90,.6); color: #fff; font-weight: 800; font-size: 18px;
     text-align: center; pointer-events: none; display: none; }
-  #panel { position: fixed; left: 4vw; top: 50%; transform: translateY(-50%); width: min(42vw, 360px);
-    max-height: 92vh; overflow: auto; box-sizing: border-box; padding: 20px 22px; border-radius: 26px; text-align: center;
+  #panel { position: fixed; left: 50%; top: calc(6px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); width: min(94vw, 520px);
+    max-height: 46vh; overflow: auto; box-sizing: border-box; padding: 8px 16px 10px; border-radius: 20px; text-align: center;
     background: rgba(255,255,255,.93); color: #4a2a6b; box-shadow: 0 10px 0 rgba(74,42,107,.14); z-index: 10; }
-  #panel h1 { margin: 0 0 6px; font-size: 28px; color: #ff4f9a; line-height: 1.1; }
-  #panel p { margin: 6px 0; font-size: 15px; line-height: 1.4; }
-  #panel .buyuk { font-size: 40px; font-weight: 900; color: #ff8a00; margin: 0; line-height: 1.1; }
+  #panel h1 { margin: 0 0 2px; font-size: 21px; color: #ff4f9a; line-height: 1.1; }
+  #panel p { margin: 2px 0; font-size: 13px; line-height: 1.3; }
+  #panel .buyuk { font-size: 28px; font-weight: 900; color: #ff8a00; margin: 0; line-height: 1.1; }
+  #panel .ana, #panel .ikinci { margin-top: 6px; padding: 8px 20px; font-size: 16px; border-radius: 14px; }
+  #panel .ana { box-shadow: 0 3px 0 #c92f73; }
   #panel .ipucu { font-size: 13px; opacity: .75; }
   #panel .surum { font-size: 11px; opacity: .45; margin-top: 8px; }
   .secim { display: flex; gap: 10px; margin: 12px 0 4px; }
@@ -52,6 +54,8 @@
   #ayarPanel h2 { margin: 0 0 6px; color: #ff4f9a; font-size: 24px; }
   #ayarPanel p { margin: 10px 0 0; font-weight: 800; font-size: 15px; }
   #ayarPanel .secim { margin: 6px 0 0; }
+  #dilSecim { flex-wrap: wrap; gap: 6px; }
+  #dilSecim .kart { flex: 1 1 28%; padding: 7px 4px; font-size: 13px; border-radius: 12px; }
   #flas { position: fixed; inset: 0; background: #ff3b3b; opacity: 0; pointer-events: none; z-index: 5; }
   #hub { position: fixed; inset: 0 0 var(--alt) 0; z-index: 12; display: none; flex-direction: column; box-sizing: border-box;
     padding: 10px 14px 12px; background: rgba(255,238,224,.97); overflow: auto; }
@@ -97,13 +101,18 @@
   .oyunKart .kilitRozet { position: absolute; left: 8px; top: 8px; padding: 4px 10px; border-radius: 999px; background: rgba(60,36,90,.78);
     color: #fff; font-weight: 900; font-size: 14px; pointer-events: none; }
   .oyunKart.kilitli canvas { filter: saturate(.55) brightness(.92); }
-  #kilitPanel { position: fixed; inset: 0; z-index: 41; display: none; align-items: center; justify-content: center; background: rgba(74,42,107,.45); }
-  #kilitPanel .kutu { width: min(86vw, 380px); max-height: 92vh; overflow: auto; box-sizing: border-box; padding: 16px 20px; border-radius: 24px;
-    background: #fff; color: #4a2a6b; text-align: center; box-shadow: 0 10px 0 rgba(74,42,107,.18); }
-  #kilitPanel h2 { margin: 0 0 4px; color: #ff4f9a; font-size: 24px; }
-  #kilitPanel .ana, #kilitPanel .ikinci { display: block; width: 100%; margin: 10px 0 0; }
-  #kilitPanel .kucuk { font-size: 12px; opacity: .65; margin: 4px 0 0; }
-  #kilitPanel .baglanti { margin-top: 10px; background: none; border: 0; color: #4a2a6b; opacity: .6; font-weight: 800; text-decoration: underline; font-size: 13px; }
+  #kilitPanel { position: fixed; left: 50%; bottom: calc(6px + var(--alt) + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: min(98vw, 880px); z-index: 41; display: none; }
+  #kilitPanel .kutu { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 12px; max-height: 44vh; overflow: auto; box-sizing: border-box; padding: 8px 14px; border-radius: 20px;
+    background: #fff; color: #4a2a6b; text-align: center; box-shadow: 0 4px 0 rgba(74,42,107,.22), 0 0 0 2px rgba(255,79,154,.35); }
+  #kilitPanel h2 { margin: 0; color: #ff4f9a; font-size: 18px; }
+  #kilitPanel p { margin: 0; font-weight: 800; font-size: 13px; }
+  #kilitPanel p:empty { display: none; }
+  #kilitPanel .kutu { width: 100%; }
+  #kilitPanel #kilitMesaj { min-height: 0; margin: 0; font-size: 12px; }
+  #kilitPanel .ana, #kilitPanel .ikinci { display: inline-block; width: auto; margin: 0; padding: 8px 14px; font-size: 15px; border-radius: 14px; }
+  #kilitPanel .ana { box-shadow: 0 3px 0 #c92f73; }
+  #kilitPanel .kucuk { font-size: 11px; opacity: .65; margin: 0; }
+  #kilitPanel .baglanti { margin: 0; padding: 4px 6px; background: none; border: 0; color: #4a2a6b; opacity: .7; font-weight: 800; text-decoration: underline; font-size: 12px; }
   #cikisPanel { position: fixed; inset: 0; z-index: 42; display: none; align-items: center; justify-content: center; background: rgba(74,42,107,.45); }
   #cikisPanel .kutu { width: min(86vw, 380px); box-sizing: border-box; padding: 16px 20px; border-radius: 24px; background: #fff; color: #4a2a6b; text-align: center; box-shadow: 0 10px 0 rgba(74,42,107,.18); }
   #cikisPanel h2 { margin: 0 0 8px; color: #ff4f9a; font-size: 24px; }
@@ -161,14 +170,14 @@
 <div id="cikisPanel"><div class="kutu"><h2 id="ckBaslik"></h2><p id="ckEvet"></p><p id="ckHayir"></p><button id="ckEvetB"></button><button class="ikinci" id="ckHayirB"></button></div></div>
 <div id="kilitPanel"><div class="kutu"><h2 id="kpBaslik"></h2><p id="kpYazi"></p><p class="kucuk" id="kpJest"></p>
   <button class="ana" id="kpReklam"></button><button class="ikinci" id="kpSatin"></button><p class="kucuk" id="kpNot"></p>
-  <p id="kilitMesaj"></p><button class="baglanti" id="kpGeri"></button><br><button class="baglanti" id="kpKapat"></button></div></div>
+  <p id="kilitMesaj"></p><button class="baglanti" id="kpGeri"></button><button class="baglanti" id="kpKapat"></button></div></div>
 <div id="ogretici"><div class="kutu"><h2 id="ogBaslik"></h2><canvas id="ogTuval" width="560" height="250"></canvas>
   <p id="ogYazi"></p><p class="kucuk" id="ogSonuc"></p><div id="ogNokta"></div>
   <div class="dugmeler"><button class="ikinci" id="ogGeri">◀</button><button class="ana" id="ogTamam"></button><button class="ikinci" id="ogIleri">▶</button></div>
   <p class="kucuk" id="ogIpucu"></p></div></div>
 <div id="ayarPanel"><div class="kutu"><h2 id="ayBaslik"></h2>
   <p id="ayZorluk"></p><div class="secim"><button class="kart" data-z="kolay"></button><button class="kart" data-z="normal"></button><button class="kart" data-z="zor"></button></div>
-  <p id="ayDil"></p><div class="secim"><button class="kart" data-d="tr">Türkçe</button><button class="kart" data-d="en">English</button></div>
+  <p id="ayDil"></p><div class="secim" id="dilSecim"></div>
   <div class="secim"><button class="kart" id="ayGeri"></button><button class="kart" id="ayGuvenlik"></button><button class="kart" id="ayHata"></button></div><p class="kucuk" id="ayMesaj"></p>
   <button class="ana" id="ayKapat"></button></div></div>
 <div id="cift"><div class="ayrac"></div><div class="etiket e0"></div><div class="etiket e1"></div><button id="ciftEv" aria-label="Menü">🏠</button>
@@ -201,7 +210,7 @@ const gorunur = o => oyuncuModu === 2 ? !!o.ikiKisi : !o.ikiKisi;      // 2 Play
 // =====================================================================================================
 //  AYARLAR
 // =====================================================================================================
-const SURUM = "5.1";
+const SURUM = "5.2";
 const POZ_KUTUPHANE = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/vision_bundle.mjs";
 const POZ_WASM = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm";
 const POZ_MODEL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task";
@@ -252,11 +261,26 @@ const EN = {
   "Kalıcı açılır, reklamlar da kalkar": "Unlocked forever, ads removed too", "Satın alımı geri yükle": "Restore purchase", "Kapat": "Close",
   "Reklam şu an yüklenemedi, biraz sonra dene": "The ad couldn't load, try again shortly", "Reklam yarıda kapandı": "The ad was closed early",
   "Satın alma sadece Play Store sürümünde çalışır": "Purchases only work in the Play Store version", "Teşekkürler! Tüm oyunlar açıldı": "Thank you! All games unlocked",
-  "Satın alma bulunamadı": "No purchase found", "Satın alma tamamlanamadı": "The purchase could not be completed", "Bekleniyor…": "Please wait…", "Sağ el yukarı": "Right hand up"
+  "Satın alma bulunamadı": "No purchase found", "Satın alma tamamlanamadı": "The purchase could not be completed", "Bekleniyor…": "Please wait…", "Sağ el yukarı": "Right hand up",
+  "sa": "h"
 };
-let dil = "tr";
-try { dil = localStorage.getItem("igDil") || ((navigator.language || "tr").toLowerCase().startsWith("tr") ? "tr" : "en"); } catch (e) {}
-const t = s => dil === "en" && EN[s] !== undefined ? EN[s] : s;
+// UYARI: "sa" (saat birimi) EN'in SON girdisi olmalı; yeni metin eklenecekse dil/*.js dizilerinin de aynı sıraya eklenmesi gerekir (scripts/dil-kontrol.js denetler)
+// 16 dil (Play Store listesiyle aynı). Metin anahtarı Türkçedir; "en" yukarıdaki EN sözlüğünden, diğerleri dil/<kod>.js dosyasından yüklenir.
+// dil/<kod>.js: EN sözlüğüyle AYNI SIRADA çeviri dizisi (scripts/dil-kontrol.js sırayı ve sayıyı denetler). Eksik/boş çeviri İngilizceye düşer.
+const DILLER = [["tr", "Türkçe"], ["en", "English"], ["es", "Español"], ["fr", "Français"], ["de", "Deutsch"], ["pt", "Português"], ["ru", "Русский"], ["id", "Bahasa Indonesia"],
+  ["vi", "Tiếng Việt"], ["ja", "日本語"], ["zh", "简体中文"], ["ko", "한국어"], ["hi", "हिन्दी"], ["ar", "العربية"], ["bn", "বাংলা"], ["ur", "اردو"]];
+const SAGDAN_SOLA = new Set(["ar", "ur"]);
+let dil = "en", SOZ = null;
+try {
+  const kayit = localStorage.getItem("igDil"), tel = (navigator.language || "en").toLowerCase().split("-")[0];
+  dil = DILLER.some(d => d[0] === kayit) ? kayit : DILLER.some(d => d[0] === tel) ? tel : "en";
+} catch (e) {}
+const t = s => dil === "tr" ? s : SOZ && SOZ[s] ? SOZ[s] : EN[s] !== undefined ? EN[s] : s;
+async function dilYukle(k) {
+  SOZ = null; if (k === "tr" || k === "en") return;
+  try { const m = await import("./dil/" + k + ".js"), an = Object.keys(EN); SOZ = {}; m.default.forEach((v, i) => { if (v) SOZ[an[i]] = v; }); } catch (e) { SOZ = null; }
+}
+await dilYukle(dil);
 
 // --- Zorluk: tüm oyunlar okur. hiz = hız çarpanı, rampa = zorlaşma hızı, yogun = engel sıklığı, hasar = alınan hasar ---
 const ZORLUKLAR = {
@@ -873,7 +897,19 @@ function sifirla() {
 function oyunuBaslat(devam) {
   if (!devam) { if (aktif.yerlesik) sifirla(); else aktif.ac(); }
   panel.style.display = "none"; durum = "oyun"; duraklat = false;
+  if (aktif.ikiKisi && !devam) { geriSayT = GERI_SAY_SN; geriSayYazildi = -1; ipucuT = 0; durumYaz(""); return; }      // 2 kişilik oyun: kalibrasyondan sonra ortak 3-2-1
   durumYaz(aktif.ipucu || ""); ipucuT = zaman + 4.5;      // ilk saniyelerde nasıl oynandığını yaz
+}
+// Tüm 2 kişilik oyunların ortak başlangıç geri sayımı (3-2-1-BAŞLA); oyunlar kendi geri sayımını yapmaz
+const GERI_SAY_SN = 3; let geriSayT = 0, geriSayYazildi = -1;
+function geriSayGuncelle(dt) {
+  const once = Math.ceil(Math.max(geriSayT, 0)); geriSayT -= dt; const simdi = Math.ceil(Math.max(geriSayT, 0));
+  if (simdi !== geriSayYazildi) {
+    geriSayYazildi = simdi; durumYaz(simdi > 0 ? String(simdi) : "🏁 " + t("BAŞLA!")); cal("adim1", 0.7, simdi > 0 ? 1 : 1.5);
+    if (simdi === 0) { const y = sonDurumYazi; setTimeout(() => { if (sonDurumYazi === y) durumYaz(""); }, 900); }
+  }
+  aktif.bekle(dt);
+  return once;
 }
 function oyunBitti(n) {
   durum = "bitti"; bittiSure = 0; zamanOlcek = 1; sarsinti = 0.45;
@@ -1956,7 +1992,8 @@ function hasYaz() { $("ayarKaydir").value = hasDeger; $("ayarYazi").textContent 
 function dilUygula() {
   document.documentElement.lang = dil;
   $("kilitDugme").textContent = t("Tam ekran yap"); $("ayBaslik").textContent = t("Ayarlar"); $("ayZorluk").textContent = t("Zorluk");
-  $("ayDil").textContent = dil === "en" ? "Language / Dil" : "Dil / Language"; $("ayKapat").textContent = t("Tamam");
+  document.documentElement.dir = SAGDAN_SOLA.has(dil) ? "rtl" : "ltr";
+  $("ayDil").textContent = "🌐 " + (dil === "tr" ? "Dil / Language" : "Language / Dil"); $("ayKapat").textContent = t("Tamam");
   $("ayGeri").textContent = "🔄 " + t("Satın alımı geri yükle"); $("ayGuvenlik").textContent = "🛡️ " + t("Güvenli oyun"); $("ayHata").textContent = "🐞 " + t("Sorun bildir"); $("ayarAc").textContent = "⚙️ " + Z().ikon;
   for (const b of document.querySelectorAll("#ayarPanel [data-z]")) { const z = ZORLUKLAR[b.dataset.z]; b.textContent = z.ikon + " " + (z.ad === "normal" ? "Normal" : t(z.ad === "kolay" ? "Kolay" : "Zor")); b.classList.toggle("secili", z.ad === zorlukAd); }
   for (const b of document.querySelectorAll("#ayarPanel [data-d]")) b.classList.toggle("secili", b.dataset.d === dil);
@@ -1967,7 +2004,10 @@ function hubKur() {
   $("ayKapat").addEventListener("click", () => { $("ayarPanel").style.display = "none"; menuGoster(); });
   $("ayGeri").addEventListener("click", () => geriYukle(false)); $("ayGuvenlik").addEventListener("click", () => { $("ayarPanel").style.display = "none"; guvenlikGoster(); }); $("ayHata").addEventListener("click", sorunBildir);
   for (const b of document.querySelectorAll("#ayarPanel [data-z]")) b.addEventListener("click", () => { zorlukAd = b.dataset.z; try { localStorage.setItem("igZorluk", zorlukAd); } catch (e) {} dilUygula(); });
-  for (const b of document.querySelectorAll("#ayarPanel [data-d]")) b.addEventListener("click", () => { dil = b.dataset.d; try { localStorage.setItem("igDil", dil); } catch (e) {} dilUygula(); });
+  for (const [k, ad] of DILLER) {
+    const b = document.createElement("button"); b.className = "kart"; b.dataset.d = k; b.textContent = ad; $("dilSecim").appendChild(b);
+    b.addEventListener("click", async () => { dil = k; try { localStorage.setItem("igDil", dil); } catch (e) {} await dilYukle(dil); dilUygula(); });
+  }
   $("ayar").addEventListener("click", () => { const c = $("ayarCubuk"); c.style.display = c.style.display !== "flex" ? "flex" : "none"; duraklatYaz(); });
   $("ciftEv").addEventListener("click", menuGoster); $("csTekrar").addEventListener("click", ciftTekrar); $("csMenu").addEventListener("click", menuGoster);
   $("ckEvetB").addEventListener("click", () => cikisKapat(true)); $("ckHayirB").addEventListener("click", () => cikisKapat(false));
@@ -2003,7 +2043,7 @@ function dongu(damga) {
     if (durum !== "oyun") bekleGuncelle(dt);
   } else if (durum === "oyun" && !durdu()) {
     if (kameraKontrol() && performance.now() - sonGorulme > 1500) { if (!duraklat) { duraklat = true; durumYaz("Seni göremiyorum, kadraja gir"); } }
-    else { if (duraklat) { duraklat = false; durumYaz(""); } adim = aktif.guncelle(dt) || 0; }
+    else { if (duraklat) { duraklat = false; durumYaz(""); } if (geriSayT > 0) geriSayGuncelle(dt); else adim = aktif.guncelle(dt) || 0; }
   } else if (durum !== "oyun") aktif.bekle(dt);
   if (durum === "bitti") bittiSure += dt;
   uyariKontrol(dt);
@@ -2081,7 +2121,7 @@ function kartKilitYaz(o) {
   const kalan = acikSure(o) - Date.now(), kilitli = !acikMi(o);
   o.kart.classList.toggle("kilitli", kilitli);
   o.kartKilit.style.display = o.yerlesik || o.esi === "kosu" || tumAcik ? "none" : "block";
-  o.kartKilit.textContent = kilitli ? "🔒" : "⏳ " + Math.max(1, Math.ceil(kalan / 3600000)) + (dil === "en" ? " h" : " sa");
+  o.kartKilit.textContent = kilitli ? "🔒" : "⏳ " + Math.max(1, Math.ceil(kalan / 3600000)) + " " + t("sa");
 }
 function kilitMesaj(y) { $("kilitMesaj").textContent = $("ayMesaj").textContent = y ? t(y) : ""; }
 let kilitOyun = null;

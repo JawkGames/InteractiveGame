@@ -1363,7 +1363,7 @@ export default function oyunlar2Kur(O) {
   // ===================================================================================================
   function kosuIkili() {
     const BITIS = 120, AD = ["Ponçik", "Zıpır"];
-    let grup, bitisG, ks, d = [0, 0], e = [0, 0], dRef, sure, kutlaT, kazanan, basladiT;
+    let grup, bitisG, ks, d = [0, 0], e = [0, 0], dRef, sure, kutlaT, kazanan;
     const D2 = O.yeniDurus(), onc = [null, null];
     function kos(k, Dx, en, faz, z, x, kazandi, kaybetti) {
       const kosu = Math.min(1, en / 3);
@@ -1401,18 +1401,13 @@ export default function oyunlar2Kur(O) {
       ac() {
         grup.visible = true; O.kosuYol(true); O.zeminHarita(null);
         ks = O.oyuncular(); O.karakterTak(ks[0], grup, -1.1, 0, 0, 1, 0); O.karakterTak(ks[1], grup, 1.1, 0, 0, 1, 0);
-        d = [0, 0]; e = [0, 0]; dRef = 0; sure = 0; kutlaT = 0; kazanan = -1; basladiT = 3; onc[0] = onc[1] = null;
+        d = [0, 0]; e = [0, 0]; dRef = 0; sure = 0; kutlaT = 0; kazanan = -1; onc[0] = onc[1] = null;
         O.solYaz(AD[0] + " 0 m"); O.sagYaz(AD[1] + " 0 m"); O.fov(60); sahne_();
       },
       kapat() { grup.visible = false; O.kosuYol(false); },
       bekle() { sahne_(); },
       guncelle(dt) {
         if (kazanan >= 0) { kutlaT += dt; if (Math.random() < 0.4) O.parAt(kazanan ? 1.1 : -1.1, 2, -(d[kazanan] - dRef), 3, CANLI[rast(8)], 5, 0.12); sahne_(); return 0; }
-        if (basladiT > 0) {
-          const once = Math.ceil(basladiT); basladiT -= dt; const simdi = Math.ceil(basladiT);
-          if (simdi !== once || basladiT > 2.98) { O.durumYaz(simdi > 0 ? String(simdi) : "🏁 " + T("BAŞLA!")); O.cal("adim1", 0.7, simdi > 0 ? 1 : 1.5); }
-          e = [0, 0]; sahne_(); return 0;
-        }
         sure += dt;
         const [L, Rr] = O.ikiP();
         if (!O.kameraKontrol()) { e = e.map(x => x * Math.exp(-dt * 2.5)); }
@@ -1430,7 +1425,7 @@ export default function oyunlar2Kur(O) {
       tus(k) { if (k === "a" || k === "A") e[0] = Math.min(4, e[0] + 0.9); if (k === "l" || k === "L" || k === "ArrowRight") e[1] = Math.min(4, e[1] + 0.9); },
       dokun(x) { if (x < 0.5) e[0] = Math.min(4, e[0] + 0.9); else e[1] = Math.min(4, e[1] + 0.9); },
       poz(P, dt) { O.ikiP().forEach((H, i) => { if (H.var) enerjiOlc(i, H, dt); else onc[i] = null; }); },
-      onizle() { this.ac(); basladiT = 0; d = [26, 21]; dRef = 23.5; e = [3, 2.6]; sahne_(); }
+      onizle() { this.ac(); d = [26, 21]; dRef = 23.5; e = [3, 2.6]; sahne_(); }
     };
   }
 

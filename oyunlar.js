@@ -29,6 +29,10 @@ export default function oyunlariKur(O) {
   const bombaGeo = () => birlestir([p(kure(16), 0x2a2233, 0, 0, 0, 0, 0, 0, 0.5), p(sil(10), 0x555a66, 0, 0.5, 0, 0, 0, 0, 0.13, 0.14, 0.13),
     p(sil(6), 0xc9a36a, 0.06, 0.68, 0, 0, 0, -0.4, 0.03, 0.26, 0.03), p(kure(8), 0xff7b1c, 0.13, 0.82, 0, 0, 0, 0, 0.09), p(kure(8), 0xffffff, -0.18, 0.2, 0.4, 0, 0, 0, 0.1, 0.14, 0.05)]);
 
+  // Yolda toplanan can kalbi (araba oyunu): iki top + aşağı bakan koni
+  const kalpGeo = () => birlestir([p(kure(14), R.kirmizi, -0.23, 0.2, 0, 0, 0, 0, 0.36), p(kure(14), R.kirmizi, 0.23, 0.2, 0, 0, 0, 0, 0.36), p(koni(14), R.kirmizi, 0, -0.18, 0, 0, 0, PI, 0.55, 0.78, 0.36), p(kure(8), R.beyaz, -0.3, 0.32, 0.26, 0, 0, 0, 0.07)]);
+  const KALP_ARALIK = 500, KALP_MAKS = 5;
+
   // ===================================================================================================
   //  OYUNCAK YARIŞ ve GAZLI MOTOR — karşıya giden yol; direksiyon yumuşak (şerit atlamalı değil)
   // ===================================================================================================
@@ -83,6 +87,7 @@ export default function oyunlariKur(O) {
     const SERIT = araba ? [-3.6, -1.2, 1.2, 3.6] : [-2.6, 0, 2.6], YARI = araba ? 4.8 : 3.9, H0 = araba ? 15 : 19, H1 = araba ? 32 : 38;
     const TRAFIK = 5;       // trafiğin kendi hızı: hepsi aynı, böylece arkadan gelen dalga öndekine yetişip üç şeridi kapatamaz
     let grup, aracG, yolDoku, geo, trafik = [], x, direksiyon, hedefDir, hiz, sure, mesafe, can, dokunulmaz, sonraki, elmasSay;
+    let kalpAg, kalpVar = false, kalpX = 0, kalpZ = 0, sonrakiKalp = KALP_ARALIK;   // sadece araba: her 500 puanda yolda bir kalp
     const havuz = {};
     const al = ad => { const h = havuz[ad] || (havuz[ad] = []); let m = h.pop(); if (!m) { m = new THREE.Mesh(geo[ad], mPlastik); m.castShadow = m.receiveShadow = true; grup.add(m); } m.visible = true; return m; };
     const birak = t => { t.ag.visible = false; havuz[t.ad].push(t.ag); };
@@ -98,6 +103,24 @@ export default function oyunlariKur(O) {
       for (let k = 0; k < 5; k++) O.elmasEkle(SERIT[bos], 0.9, z + 10 - k * 2.4);
     }
     const skor = () => Math.floor(mesafe / 2) + elmasSay * 10;
+    // Her 500 puanda yola bir kalp çıkar (önceki alınmadıysa o tur atlanır); alınca +1 can, en fazla KALP_MAKS
+    function kalpGuncelle(dt, adim) {
+      while (skor() >= sonrakiKalp) {
+        if (!kalpVar) {
+          const bos = SERIT.filter(sx => !trafik.some(t => t.x === sx && Math.abs(t.z + 70) < 12)), kaynak = bos.length ? bos : SERIT;
+          kalpX = kaynak[rast(kaynak.length)]; kalpZ = -70; kalpVar = true; kalpAg.visible = true;
+        }
+        sonrakiKalp += KALP_ARALIK;
+      }
+      if (!kalpVar) return;
+      kalpZ += adim - TRAFIK * dt;
+      kalpAg.position.set(kalpX, 1.15 + Math.sin(O.zaman() * 4) * 0.12, kalpZ); kalpAg.rotation.y += dt * 2.6;
+      if (Math.abs(kalpZ) < 1.7 && Math.abs(kalpX - x) < 1.5) {
+        kalpVar = false; kalpAg.visible = false;
+        if (can < KALP_MAKS) { can++; O.sagYaz(kalp(can)); }
+        O.cal("elmas", 1.3, 1.5); O.parAt(kalpX, 1.1, kalpZ, 12, 0xff4756, 4, 0.12);
+      } else if (kalpZ > 12) { kalpVar = false; kalpAg.visible = false; }
+    }
     function yerlestir() {
       const k = O.karakter(), t = O.zaman();
       aracG.position.set(x, Math.sin(t * 30) * 0.012, 0);
@@ -126,16 +149,18 @@ export default function oyunlariKur(O) {
         geo = { oto0: arabaGeo(R.mavi, true), oto1: arabaGeo(R.yesil, true), oto2: arabaGeo(R.sari, true), oto3: arabaGeo(R.mor, true), koni: oyuncakKamyonGeo() };      // motor: koni yerine yavaş oyuncak kamyon
         aracG = new THREE.Group(); grup.add(aracG);
         const govde = new THREE.Mesh(araba ? arabaGeo(R.kirmizi, false) : motorGeo(R.kirmizi), mPlastik); govde.castShadow = true; aracG.add(govde);
+        if (araba) { kalpAg = new THREE.Mesh(kalpGeo(), mPlastik); kalpAg.castShadow = true; kalpAg.visible = false; grup.add(kalpAg); }
       },
       ac() {
         grup.visible = true; O.susGoster(true, yolOrtak.sus); O.zeminHarita(yolOrtak.cim, 0.95);
         for (const t of trafik) birak(t); trafik = []; O.elmasListe().length = 0;
         x = 0; direksiyon = hedefDir = 0; hiz = H0 * Z().hiz; sure = 0; mesafe = 0; can = 3; dokunulmaz = 0; elmasSay = 0; sonraki = 0;
+        kalpVar = false; sonrakiKalp = KALP_ARALIK; if (kalpAg) kalpAg.visible = false;
         O.karakterTak(O.karakter(), aracG, 0, araba ? -0.05 : 0.4, araba ? 0.25 : 0.3, araba ? 0.8 : 0.85);
         dalga(-50); dalga(-78);
         O.solYaz("0"); O.sagYaz(kalp(3)); O.fov(60); yerlestir();
       },
-      kapat() { grup.visible = false; O.susGoster(false); O.zeminHarita(null); for (const t of trafik) birak(t); trafik = []; O.elmasListe().length = 0; },
+      kapat() { grup.visible = false; if (kalpAg) kalpAg.visible = false; O.susGoster(false); O.zeminHarita(null); for (const t of trafik) birak(t); trafik = []; O.elmasListe().length = 0; },
       bekle() { dokunulmaz = 0; yerlestir(); },
       guncelle(dt) {
         const zr = Z(); sure += dt; const zor = Math.min(1, sure * zr.rampa / 480); hiz = (H0 + (H1 - H0) * zor) * zr.hiz;
@@ -155,6 +180,7 @@ export default function oyunlariKur(O) {
           if (sil_) { birak(t); trafik[i] = trafik[trafik.length - 1]; trafik.pop(); }
         }
         elmasSay += elmasTopla(e => { e.z += adim - TRAFIK * dt; return Math.abs(e.z) < 1.4 && Math.abs(e.x - x) < 1.2 ? 1 : e.z > 10 ? 2 : 0; });
+        if (araba) kalpGuncelle(dt, adim);
         yolDoku.offset.y = (yolDoku.offset.y + adim / 8) % 1; yolOrtak.cim.offset.y = (yolOrtak.cim.offset.y + adim / 16) % 1;
         yerlestir(); O.fov(60 + zor * 8); O.solYaz(String(skor()));
         return adim;

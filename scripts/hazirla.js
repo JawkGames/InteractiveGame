@@ -16,6 +16,7 @@ if (adim === "www") {
   fs.mkdirSync(www);
   for (const f of ["index.html", "oyunlar.js", "oyunlar2.js", "ikili.js", "poz-isci.js"]) fs.copyFileSync(path.join(kok, f), path.join(www, f));
   fs.cpSync(path.join(kok, "assets"), path.join(www, "assets"), { recursive: true });
+  fs.cpSync(path.join(kok, "dil"), path.join(www, "dil"), { recursive: true });      // dil çevirileri (dil/<kod>.js)
   // Telefon eklentileri (Capacitor, AdMob, Google Play satın alma): sadece uygulamaya eklenir, web sürümünü etkilemez
   const lib = path.join(www, "lib"); fs.mkdirSync(lib);
   const nm = path.join(kok, "node_modules");
