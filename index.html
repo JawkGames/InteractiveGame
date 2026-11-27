@@ -3,13 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-<meta name="theme-color" content="#ffe3cf">
+<meta name="theme-color" content="#2f9bff">
 <title>Interactive Game</title>
 <style>
+  /* Yazı tipi: Fredoka (yuvarlak, oyuncak havası). Uygulamada internetsiz çalışsın diye assets/yazi içinde. Desteklemediği alfabeler sistem yazısına düşer. */
+  @font-face { font-family: "Fredoka"; font-weight: 300 700; font-display: swap; src: url(assets/yazi/fredoka-latin.woff2) format("woff2");
+    unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+  @font-face { font-family: "Fredoka"; font-weight: 300 700; font-display: swap; src: url(assets/yazi/fredoka-latin-ext.woff2) format("woff2");
+    unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+  :root { --yazi: "Fredoka", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
   html, body { margin: 0; height: 100%; background: #ffe3cf; overflow: hidden;
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family: var(--yazi);
     -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
-  #oyun { display: block; width: 100vw; height: 100vh; touch-action: none; }
+  button, input, select { font-family: inherit; }
+  #oyun { display: block; width: 100vw; height: calc(100vh - var(--alt)); touch-action: none; }      /* oyun sahnesi alttaki reklamın altında kalmaz */
   :root { --alt: 0px; }      /* alttaki banner reklamın yüksekliği (telefonda dolar) */
   #video { position: fixed; left: 10px; bottom: calc(10px + var(--alt)); width: 92px; border-radius: 12px; transform: scaleX(-1);
     opacity: .9; border: 2px solid #fff; display: none; box-shadow: 0 3px 0 rgba(0,0,0,.15); }
@@ -62,12 +69,12 @@
   #hubUst { display: flex; align-items: center; gap: 5px; margin: 0 58px 8px 0; }
   #hubUst h1 { margin: 0; flex: none; font-size: 21px; color: #ff4f9a; white-space: nowrap; }
   #modSec { display: flex; flex: none; margin-right: auto; padding: 3px; border-radius: 999px; background: rgba(255,255,255,.85); box-shadow: 0 3px 0 rgba(74,42,107,.12); }
-  #modSec button { border: 0; background: transparent; padding: 5px 8px; border-radius: 999px; font: 900 12px system-ui, sans-serif; color: #4a2a6b; cursor: pointer; }
+  #modSec button { border: 0; background: transparent; padding: 5px 8px; border-radius: 999px; font: 900 12px var(--yazi); color: #4a2a6b; cursor: pointer; }
   #modSec button.secili { background: #ff4f9a; color: #fff; }
   #cift { position: fixed; inset: 0; z-index: 35; display: none; background: #000; }
   #cift iframe { position: absolute; top: 0; width: 50%; height: 100%; border: 0; }
   #cift .ayrac { position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; margin-left: -2px; background: #fff; z-index: 2; box-shadow: 0 0 10px rgba(0,0,0,.3); }
-  #cift .etiket { position: absolute; bottom: 8px; z-index: 2; padding: 4px 12px; border-radius: 999px; background: rgba(60,36,90,.75); color: #fff; font: 900 13px system-ui, sans-serif; pointer-events: none; }
+  #cift .etiket { position: absolute; bottom: 8px; z-index: 2; padding: 4px 12px; border-radius: 999px; background: rgba(60,36,90,.75); color: #fff; font: 900 13px var(--yazi); pointer-events: none; }
   #cift .e0 { left: 25%; transform: translateX(-50%); } #cift .e1 { left: 75%; transform: translateX(-50%); }
   #ciftEv { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); z-index: 3; width: 42px; height: 42px; border: 0; border-radius: 14px; background: rgba(255,255,255,.9); font-size: 20px; }
   #ciftSonuc { position: absolute; inset: 0; z-index: 4; display: none; align-items: center; justify-content: center; background: rgba(74,42,107,.45); }
@@ -120,9 +127,9 @@
   #cikisPanel button { margin: 10px 6px 0; padding: 10px 22px; border: 0; border-radius: 16px; font-weight: 900; font-size: 16px; color: #fff; background: #ff4f9a; }
   #cikisPanel button.ikinci { background: #8f5bff; }
   #duraklatYazi { position: fixed; left: 50%; top: 45%; transform: translate(-50%, -50%); z-index: 29; display: none; pointer-events: none;
-    font: 900 clamp(48px, 13vw, 120px) system-ui, sans-serif; color: rgba(255,255,255,.55); text-shadow: 0 4px 18px rgba(74,42,107,.35); letter-spacing: 4px; }
+    font: 900 clamp(48px, 13vw, 120px) var(--yazi); color: rgba(255,255,255,.55); text-shadow: 0 4px 18px rgba(74,42,107,.35); letter-spacing: 4px; }
   #uyari { position: fixed; left: 50%; top: 104px; transform: translate(-50%, -10px); z-index: 28; max-width: 80vw; padding: 8px 16px; border-radius: 16px;
-    background: rgba(60,36,90,.82); color: #fff; font: 800 14px system-ui, sans-serif; text-align: center; opacity: 0; pointer-events: none; transition: opacity .35s, transform .35s; }
+    background: rgba(60,36,90,.82); color: #fff; font: 800 14px var(--yazi); text-align: center; opacity: 0; pointer-events: none; transition: opacity .35s, transform .35s; }
   #uyari.acik { opacity: 1; transform: translate(-50%, 0); }
   #bilgiPanel { position: fixed; inset: 0; z-index: 43; display: none; align-items: center; justify-content: center; background: rgba(74,42,107,.5); }
   #bilgiPanel .kutu { width: min(88vw, 420px); max-height: 92vh; overflow: auto; box-sizing: border-box; padding: 16px 20px; border-radius: 24px; background: #fff; color: #4a2a6b; text-align: center; box-shadow: 0 10px 0 rgba(74,42,107,.18); }
@@ -135,7 +142,7 @@
   #hubBilgi { display: flex; flex-direction: row; flex-wrap: nowrap; gap: 8px; align-items: center; margin: 0 58px 8px 0; overflow-x: auto; flex: none; scrollbar-width: none;
     font-weight: 800; font-size: 13px; color: #4a2a6b; }
   #hubBilgi::-webkit-scrollbar { display: none; }
-  #hubBilgi .rozet { flex: none; white-space: nowrap; padding: 4px 11px; color: #4a2a6b; font: 800 13px system-ui, sans-serif; text-shadow: none; border-radius: 999px; background: rgba(255,255,255,.85); box-shadow: 0 3px 0 rgba(74,42,107,.12); }
+  #hubBilgi .rozet { flex: none; white-space: nowrap; padding: 4px 11px; color: #4a2a6b; font: 800 13px var(--yazi); text-shadow: none; border-radius: 999px; background: rgba(255,255,255,.85); box-shadow: 0 3px 0 rgba(74,42,107,.12); }
   #hubBilgi .gorev { background: #fff3c4; cursor: pointer; }
   #hubBilgi .gorev.tamam { background: #d6f7dc; }
   .oyunKart .otur { position: absolute; right: 8px; top: 8px; padding: 3px 8px; border-radius: 999px; background: rgba(255,255,255,.9); font-size: 13px; }
@@ -154,9 +161,82 @@
     #hubUst { flex-wrap: wrap; }
     #panel { left: 50%; top: auto; bottom: 3vh; transform: translateX(-50%); width: min(88vw, 380px); max-height: 56vh; }
   }
+  /* ---------- YÜKLEME EKRANI: kapak siyah-beyaz başlar, yüklendikçe soldan sağa renklenir; dolunca ana sayfa açılır ---------- */
+  #yukleme { position: fixed; inset: 0; z-index: 1000; background: #0d1530; overflow: hidden; transition: opacity .35s; }
+  #yukleme img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+  #yukleme .sb { filter: grayscale(1) brightness(.78) contrast(1.05); }
+  #yukleme .renk { clip-path: inset(0 calc(100% - var(--yk, 0%)) 0 0); }
+  #yukleme .cizgi { position: absolute; top: 0; bottom: 0; left: var(--yk, 0%); width: 6px; margin-left: -3px;
+    background: linear-gradient(transparent, rgba(255,255,255,.95) 20%, rgba(255,255,255,.95) 80%, transparent); box-shadow: 0 0 18px 6px rgba(255,255,255,.55); }
+  #yukleme.bitti { opacity: 0; pointer-events: none; }
+
+  /* ---------- ANA SAYFA: ikonlarla uyumlu gökyüzü, güneş ışınları, bulutlar, tepeler ---------- */
+  #hub { background: linear-gradient(180deg, #2f9bff 0%, #62bcff 38%, #a9e0ff 72%, #d8f2ff 100%); isolation: isolate; }
+  #hub::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      repeating-conic-gradient(from 0deg at 50% -10%, rgba(255,255,255,.10) 0deg 7deg, transparent 7deg 16deg),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 700' preserveAspectRatio='none'%3E%3Cg fill='%23fff'%3E%3Cg opacity='.92'%3E%3Ccircle cx='110' cy='120' r='46'/%3E%3Ccircle cx='170' cy='100' r='60'/%3E%3Ccircle cx='235' cy='125' r='44'/%3E%3Crect x='95' y='120' width='170' height='46' rx='23'/%3E%3C/g%3E%3Cg opacity='.85'%3E%3Ccircle cx='900' cy='90' r='40'/%3E%3Ccircle cx='955' cy='70' r='55'/%3E%3Ccircle cx='1015' cy='92' r='40'/%3E%3Crect x='880' y='88' width='160' height='42' rx='21'/%3E%3C/g%3E%3Cg opacity='.7'%3E%3Ccircle cx='560' cy='60' r='26'/%3E%3Ccircle cx='596' cy='48' r='34'/%3E%3Ccircle cx='634' cy='62' r='26'/%3E%3Crect x='546' y='60' width='104' height='28' rx='14'/%3E%3C/g%3E%3C/g%3E%3Cpath d='M0 560 Q180 470 380 540 T760 520 T1200 500 V700 H0Z' fill='%2378d64b'/%3E%3Cpath d='M0 610 Q220 540 470 600 T900 590 T1200 570 V700 H0Z' fill='%2353b934'/%3E%3C/svg%3E") center / 100% 100% no-repeat; }
+  #hubUst h1 { color: #fff; font-weight: 700; font-size: 24px; letter-spacing: .3px; -webkit-text-stroke: 1px #0b5fc4; paint-order: stroke fill;
+    text-shadow: 0 3px 0 #0b5fc4, 0 5px 10px rgba(0,40,110,.35); }
+  #hubUst h1 small { color: #fff; opacity: .8; -webkit-text-stroke: 0; text-shadow: none; }
+  #hubUst .kart { background: #fff; color: #0b4fa8; border: 0; box-shadow: 0 3px 0 #0b5fc4; }
+  #hubUst .kart.secili { background: #ffd23f; color: #6b3b00; box-shadow: 0 3px 0 #c98f00; }
+  #modSec { background: rgba(255,255,255,.92); box-shadow: 0 3px 0 #0b5fc4; }
+  #modSec button { font-weight: 700; color: #0b4fa8; }
+  #modSec button.secili { background: linear-gradient(#ffcf3a, #ff9f1a); color: #fff; text-shadow: 0 1px 0 rgba(150,70,0,.5); }
+  #hubBilgi .rozet { box-shadow: 0 3px 0 rgba(11,95,196,.55); }
+
+  /* Oyun kartları: kare ikon + mavi isim şeridi (ikonların kendi stiliyle aynı) */
+  #kartlar { display: grid; grid-template-columns: repeat(auto-fill, minmax(clamp(128px, 15vw, 230px), 1fr)); grid-auto-rows: auto; gap: 16px; padding: 8px 12px 16px 8px;
+    scrollbar-color: #ffcf3a rgba(255,255,255,.35); }
+  #kartlar::-webkit-scrollbar-track { background: rgba(255,255,255,.35); }
+  #kartlar::-webkit-scrollbar-thumb { background: #ffcf3a; border-color: #8fd3ff; }
+  .oyunKart { display: block; aspect-ratio: 1 / 1; min-height: auto; overflow: visible; border-radius: 22%; background: #1f8fff; border: 4px solid #fff;
+    box-shadow: 0 0 0 3px #1677e6, 0 7px 0 #0b5fc4, 0 10px 16px rgba(0,40,110,.25); transition: transform .12s; cursor: pointer; }
+  .oyunKart:active { transform: scale(.96); }
+  .oyunKart img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 19%; }      /* kart overflow:visible: kare oranı ızgara satırını doğru büyütür */
+  .oyunKart.kilitli img { filter: saturate(.45) brightness(.82); }
+  .oyunKart .ad { position: absolute; left: 6%; right: 6%; bottom: 5%; flex-direction: column; justify-content: center; gap: 0; padding: 3px 6px 4px;
+    border-radius: 999px; background: linear-gradient(#45b6ff, #1677e6); border: 2px solid rgba(255,255,255,.9); box-shadow: 0 3px 0 rgba(8,60,140,.55);
+    color: #fff; font-weight: 700; font-size: clamp(11px, 1.35vw, 16px); line-height: 1.1; text-align: center; text-shadow: 0 1px 0 rgba(0,40,110,.6); }
+  .oyunKart .ad span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .oyunKart .ad small { color: #fff3b0; font-size: .72em; font-weight: 600; }
+  .oyunKart .ad small:empty { display: none; }
+  .oyunKart .yildiz { color: #ffd23f; }
+  .oyunKart .kilitRozet { left: 7%; top: 6%; background: rgba(20,40,90,.8); font-weight: 700; }
+  .oyunKart .otur { right: 7%; top: 6%; }
+  .oyunKart.secim { outline: 5px solid #ffd23f; outline-offset: 3px; box-shadow: 0 0 0 3px #1677e6, 0 7px 0 #0b5fc4, 0 0 22px 6px rgba(255,210,63,.7); }
+  .oyunKart.gunluk { outline: 4px dashed #ffd23f; outline-offset: 3px; }
+  /* Tam ekran pencereler de reklam şeridinin üstünde biter (butonlar reklamın altında kalmasın) */
+  #ogretici, #ayarPanel, #cikisPanel, #bilgiPanel, #kilit, #cift { bottom: var(--alt); }
+  @media (orientation: portrait) { #kartlar { grid-template-columns: repeat(3, 1fr); grid-auto-rows: auto; flex: 1; } }
 </style>
 </head>
 <body>
+<div id="yukleme"><img class="sb" src="assets/kapak.webp" alt=""><img class="renk" src="assets/kapak.webp" alt=""><div class="cizgi"></div></div>
+<script>
+// Yükleme ekranı: gerçek yükleme adımları ilerletir (yuklemeIlerle), beklerken de yavaşça ilerler; bitince doldurup kapanır
+(function () {
+  const el = document.getElementById("yukleme");
+  if (new URLSearchParams(location.search).get("dis") === "1") { el.remove(); return; }      // 2 Player yarıları
+  const bas = performance.now(), EN_AZ = 1100;      // çok hızlı yüklense de renklenme görünsün
+  let hedef = 0.05, gor = 0, bitti = false, kapandi = false;
+  window.yuklemeIlerle = p => { hedef = Math.max(hedef, p); };
+  window.yuklemeBitir = () => { bitti = true; };
+  function kare() {
+    if (kapandi) return;
+    const sure = performance.now() - bas;
+    if (!bitti) hedef = Math.min(0.92, hedef + 0.0012);      // beklerken de durmasın
+    else hedef = 1;
+    gor = Math.min(hedef, gor + Math.max((hedef - gor) * 0.09, bitti ? 0.006 : 0));
+    el.style.setProperty("--yk", (gor * 100).toFixed(2) + "%");
+    if (bitti && gor >= 0.999 && sure >= EN_AZ) { kapandi = true; el.classList.add("bitti"); setTimeout(() => el.remove(), 400); return; }
+    requestAnimationFrame(kare);
+  }
+  requestAnimationFrame(kare);
+  setTimeout(() => { bitti = true; }, 40000);      // bir şey takılırsa ekran sonsuza dek kalmasın
+})();
+</script>
 <canvas id="oyun"></canvas>
 <video id="video" playsinline muted></video>
 <div class="rozet" id="skor">0</div>
@@ -202,6 +282,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
 import oyunlariKur from "./oyunlar.js";
 import oyunlar2Kur from "./oyunlar2.js";
 // 2 Player: sayfa ikiye bölünür, her yarıda bu sayfanın bir kopyası (iframe, ?dis=1) çalışır; kamera ve algılama ana sayfadadır
+const YAZI = '"Fredoka", system-ui, sans-serif';      // tuvale yazılan yazılar da oyunun yazı tipiyle
 const DIS = new URLSearchParams(location.search).get("dis") === "1", TARAF = parseInt(new URLSearchParams(location.search).get("taraf")) || 0;
 let disOran = 0.67, disDur = false;
 let oyuncuModu = 1; try { if (localStorage.getItem("ig_mod") === "2") oyuncuModu = 2; } catch (e) {}
@@ -281,6 +362,7 @@ async function dilYukle(k) {
   try { const m = await import("./dil/" + k + ".js"), an = Object.keys(EN); SOZ = {}; m.default.forEach((v, i) => { if (v) SOZ[an[i]] = v; }); } catch (e) { SOZ = null; }
 }
 await dilYukle(dil);
+window.yuklemeIlerle && yuklemeIlerle(0.55);
 
 // --- Zorluk: tüm oyunlar okur. hiz = hız çarpanı, rampa = zorlaşma hızı, yogun = engel sıklığı, hasar = alınan hasar ---
 const ZORLUKLAR = {
@@ -1257,7 +1339,7 @@ const tus = {}, isaretci = { x: 0.5, y: 0.5, basili: false };
 const oyunda = () => durum === "oyun" && aktif && !aktif.yerlesik;
 addEventListener("keydown", e => { if (e.repeat) return; tus[e.key] = true; if (oyunda() && aktif.tus) aktif.tus(e.key); });
 addEventListener("keyup", e => { tus[e.key] = false; });
-const isaretYaz = e => { isaretci.x = e.clientX / innerWidth; isaretci.y = e.clientY / innerHeight; };
+const isaretYaz = e => { isaretci.x = e.clientX / innerWidth; isaretci.y = e.clientY / Math.max(1, innerHeight - altPx); };
 tuval.addEventListener("pointerdown", e => { isaretYaz(e); isaretci.basili = true; if (oyunda() && aktif.dokun) aktif.dokun(isaretci.x, isaretci.y); });
 tuval.addEventListener("pointermove", isaretYaz);
 addEventListener("pointerup", () => { isaretci.basili = false; });
@@ -1495,11 +1577,11 @@ function ogCiz(ts) {
   }
   c.clearRect(0, 0, 560, 250);
   c.fillStyle = "rgba(74,42,107,.08)"; c.fillRect(0, 214, 560, 36);
-  c.fillStyle = "#4a2a6b"; c.font = "bold 18px system-ui"; c.textAlign = "center"; c.fillText(t("Sen"), 150, 26); c.fillText(t("Oyunda"), 410, 26);
+  c.fillStyle = "#4a2a6b"; c.font = "600 18px " + YAZI; c.textAlign = "center"; c.fillText(t("Sen"), 150, 26); c.fillText(t("Oyunda"), 410, 26);
   figur(c, 150, 214, 78, pz, false);
-  c.font = "bold 34px system-ui"; c.fillText("→", 280, 135);
+  c.font = "600 34px " + YAZI; c.fillText("→", 280, 135);
   figur(c, 410, 214, 70, pz, true);
-  c.font = "34px system-ui"; c.textAlign = "left"; c.fillText(a.efekt || "", 462, 110 + Math.sin(ogT * 4) * 4); c.textAlign = "center";
+  c.font = "34px " + YAZI; c.textAlign = "left"; c.fillText(a.efekt || "", 462, 110 + Math.sin(ogT * 4) * 4); c.textAlign = "center";
 }
 $("ogTamam").addEventListener("click", ogKapat);
 $("ogIleri").addEventListener("click", () => ogAdim(ogI + 1));
@@ -1567,9 +1649,11 @@ const KALITE = [{ pr: 2, golge: 2048 }, { pr: 1.5, golge: 1024 }, { pr: 1.25, go
 const kaliteSabit = new URLSearchParams(location.search).get("kalite");
 let kalite = kaliteSabit !== null ? sinirla(parseInt(kaliteSabit) || 0, 0, 3) : (devicePixelRatio >= 2.5 || (navigator.hardwareConcurrency || 8) <= 4 || dokunmatik) ? 1 : 0;
 let dar = false, fpsSay = 0, fpsSure = 0;
+let altPx = 0;      // alttaki banner reklamın yüksekliği: oyun sahnesi bunun üstüne çizilir
 function boyutla() {
-  cizer.setSize(innerWidth, innerHeight, false);
-  kamera.aspect = innerWidth / innerHeight; dar = kamera.aspect < 1;
+  const y = Math.max(1, innerHeight - altPx);
+  cizer.setSize(innerWidth, y, false);
+  kamera.aspect = innerWidth / y; dar = kamera.aspect < 1;
   kamera.updateProjectionMatrix();
 }
 function kaliteUygula() {
@@ -1976,18 +2060,9 @@ function modGec(o) {      // bir oyundan diğerine geç: öncekini gizle, yenisi
   if (o.yerlesik) { kosuGoster(true); sifirla(); }
   else { kosuGoster(false); if (!o.kuruldu) { o.kur(); o.kuruldu = true; } o.ac(); }
 }
-function onizlemeleriCiz() {      // her oyunun kart resmi: oyunun kendi sahnesi küçük boyda çizilir (resim dosyası yok)
-  cizer.setPixelRatio(1); cizer.setSize(400, 250, false); kamera.aspect = 1.6; dar = false;
-  for (const o of OYUNLAR) {
-    modGec(o); o.onizle();
-    kamPoz.copy(hPoz); kamBak.copy(hBak); kamera.fov = hFov; kamera.updateProjectionMatrix();
-    kamera.position.copy(kamPoz); kamera.lookAt(kamBak); arka.position.copy(kamPoz); ufuk.position.set(kamPoz.x, 0, kamPoz.z);
-    durusUygula(); elmasCiz(); parGuncelle(0, 0);
-    cizer.render(sahne, kamera);
-    o.kartTuval.getContext("2d").drawImage(tuval, 0, 0, 400, 250);
-  }
-  modGec(KOSU); kaliteUygula();
-}
+// Kart resimleri: assets/ikon/<oyuncak>-<id>.webp (1 Player, seçili oyuncağa göre) ve <id>.webp (2 Player). 3D önizleme çizilmez: açılış hızlanır.
+const ikonYolu = o => "assets/ikon/" + (o.ikiKisi ? o.id : secili + "-" + o.id) + ".webp";
+function ikonlariYaz() { for (const o of OYUNLAR) if (o.kartResim) { const y = ikonYolu(o); if (o.kartResim.getAttribute("src") !== y) o.kartResim.src = y; } }
 function hasYaz() { $("ayarKaydir").value = hasDeger; $("ayarYazi").textContent = t("Hassasiyet") + " " + hasDeger.toFixed(1); }
 function dilUygula() {
   document.documentElement.lang = dil;
@@ -2015,15 +2090,15 @@ function hubKur() {
   $("surumYazi").textContent = "v" + SURUM;
   document.querySelectorAll("#modSec [data-m]").forEach(b => b.addEventListener("click", () => { oyuncuModu = +b.dataset.m; try { localStorage.setItem("ig_mod", String(oyuncuModu)); } catch (e) {} modUygula(); cal("adim1", 0.5, 1.3); }));
   for (const o of OYUNLAR) {
-    const b = document.createElement("button"), c = document.createElement("canvas"), ad = document.createElement("div");
-    b.className = "oyunKart"; c.width = 400; c.height = 250; ad.className = "ad"; ad.innerHTML = "<span></span><small></small>";
+    const b = document.createElement("button"), c = document.createElement("img"), ad = document.createElement("div");
+    b.className = "oyunKart"; c.alt = ""; c.decoding = "async"; c.draggable = false; ad.className = "ad"; ad.innerHTML = "<span></span><small></small>";
     const rz = document.createElement("div"); rz.className = "kilitRozet";
-    o.kartTuval = c; o.kartAd = ad.firstChild; o.kartRekor = ad.lastChild; o.kart = b; o.kartKilit = rz; b.append(c, ad, rz);
+    o.kartResim = c; o.kartAd = ad.firstChild; o.kartRekor = ad.lastChild; o.kart = b; o.kartKilit = rz; b.append(c, ad, rz);
     if (OTURARAK.includes(o.id)) { const ot = document.createElement("div"); ot.className = "otur"; ot.textContent = "🪑"; ot.title = t("oturarak da oynanır"); b.append(ot); }
     b.addEventListener("click", () => oyunAc(o));
     $("kartlar").appendChild(b);
   }
-  hub.querySelectorAll(".kart[data-k]").forEach(k => k.addEventListener("click", () => { karakterSec(k.dataset.k); onizlemeleriCiz(); menuGoster(); }));
+  hub.querySelectorAll(".kart[data-k]").forEach(k => k.addEventListener("click", () => { karakterSec(k.dataset.k); ikonlariYaz(); menuGoster(); }));
   $("ev").addEventListener("click", menuGoster);
 }
 
@@ -2097,7 +2172,7 @@ window.ikonCiz = (w, h, kamZ, kamY, bakY) => {
 window.oyunTest = id => { modGec(OYUNLAR.find(o => o.id === id)); hub.style.display = "none"; elSkor.style.display = elElmas.style.display = ""; oyunuBaslat(false); };
 karakterSec(secili); secimZip = 0;
 hubKur();
-if (!DIS) onizlemeleriCiz();
+if (!DIS) { ikonlariYaz(); window.yuklemeIlerle && yuklemeIlerle(0.8); }
 // =====================================================================================================
 //  KİLİT, REKLAM, SATIN ALMA
 //  Koşu hep açık. Diğerleri: ödüllü reklam = o oyun 24 saat açık; satın alma (tum_oyunlar) = hepsi kalıcı + reklamsız.
@@ -2147,7 +2222,7 @@ function tumunuAc() {
 }
 
 // --- Reklam ---
-function altBosluk(px) { document.documentElement.style.setProperty("--alt", Math.round(px || 0) + "px"); }
+function altBosluk(px) { altPx = Math.round(px || 0); document.documentElement.style.setProperty("--alt", altPx + "px"); boyutla(); }
 async function bannerGoster() {
   if (!AdMob || !reklamHazir || tumAcik || bannerAcik) return;
   try {
@@ -2245,6 +2320,10 @@ $("kpKapat").addEventListener("click", kilitKapat);
 setInterval(() => { if (durum === "menu") for (const o of OYUNLAR) kartKilitYaz(o); }, 60000);      // kalan süre güncellensin
 if (DIS) disBaslat();
 else { reklamBaslat(); webBannerGoster(); satisBaslat(); menuGoster(); if (!lsAl("ig_guvenlik")) guvenlikGoster(); }
+if (!DIS) {      // ana sayfa hazır: kart resimleri de inince (en çok 3 sn) yükleme ekranı dolup kapanır
+  const bekle = OYUNLAR.filter(gorunur).map(o => o.kartResim.decode ? o.kartResim.decode().catch(() => {}) : null);
+  Promise.race([Promise.all(bekle), new Promise(r => setTimeout(r, 3000))]).then(() => window.yuklemeBitir && yuklemeBitir());
+}
 kamera.position.copy(kamPoz);
 requestAnimationFrame(dongu);
 if (!DIS) setTimeout(() => { pozKur().catch(() => {}); }, 600);   // algılama modeli arka planda önden yüklensin (2P yarıları algılama yapmaz)

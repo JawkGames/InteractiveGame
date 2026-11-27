@@ -316,7 +316,7 @@ export default function oyunlar2Kur(O) {
     function sayiDoku(n) {
       const c = document.createElement("canvas"); c.width = 128; c.height = 64; const x = c.getContext("2d");
       x.fillStyle = "#ffffff"; x.beginPath(); x.roundRect ? x.roundRect(4, 4, 120, 56, 14) : x.rect(4, 4, 120, 56); x.fill();
-      x.fillStyle = "#4a2a6b"; x.font = "bold 38px system-ui, sans-serif"; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(n + "m", 64, 34);
+      x.fillStyle = "#4a2a6b"; x.font = "600 38px Fredoka, system-ui, sans-serif"; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(n + "m", 64, 34);
       const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
     }
     const sayiCache = {};
