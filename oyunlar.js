@@ -16,7 +16,7 @@ export default function oyunlariKur(O) {
       const s = kosul(l[i]);
       if (s) { if (s === 1) { n++; O.parAt(l[i].x, l[i].y, l[i].z, 5, 0x9defff, 3.2, 0.09); } l[i] = l[l.length - 1]; l.pop(); }
     }
-    if (n) O.cal("elmas", 0.6);
+    if (n) { O.cal("elmas", 0.6); O.elmasAl(n); }
     return n;
   }
   // Karakterin ellerine takılan boks eldiveni (boks rakibi ve kırma oyunu kullanır)
@@ -102,7 +102,7 @@ export default function oyunlariKur(O) {
       for (const s of dolu) ekle(!araba && Math.random() < 0.4 ? "koni" : "oto" + rast(4), SERIT[s], z, TRAFIK);
       for (let k = 0; k < 5; k++) O.elmasEkle(SERIT[bos], 0.9, z + 10 - k * 2.4);
     }
-    const skor = () => Math.floor(mesafe / 2) + elmasSay * 10;
+    const skor = () => Math.floor(mesafe / 2) + elmasSay * O.ELMAS_PUAN;
     // Her 500 puanda yola bir kalp çıkar (önceki alınmadıysa o tur atlanır); alınca +1 can, en fazla KALP_MAKS
     function kalpGuncelle(dt, adim) {
       while (skor() >= sonrakiKalp) {

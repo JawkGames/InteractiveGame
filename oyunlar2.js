@@ -140,7 +140,7 @@ export default function oyunlar2Kur(O) {
         for (let k = 0; k < 4; k++) O.elmasEkle(cx, cy + k * 1.2, z + 8);
       }
     }
-    const skor = () => Math.floor(mesafe / 2) + elmas * 10 + halka * 25;
+    const skor = () => Math.floor(mesafe / 2) + elmas * O.ELMAS_PUAN + halka * 25;
     function sahne_(dt, oyun) {
       const zm = O.zaman();
       if (aktifKus) {
@@ -266,7 +266,7 @@ export default function oyunlar2Kur(O) {
         const l = O.elmasListe();
         for (let i = l.length - 1; i >= 0; i--) {
           const e = l[i]; e.z += adim; e.x -= vx * dt;
-          if (Math.abs(e.z) < 1.2 && Math.hypot(e.x, e.y - by) < 1.3) { elmas++; O.cal("elmas", 0.6, 1 + Math.random() * 0.2); O.parAt(e.x, e.y, e.z, 5, 0x9defff, 3, 0.09); l[i] = l[l.length - 1]; l.pop(); }
+          if (Math.abs(e.z) < 1.2 && Math.hypot(e.x, e.y - by) < 1.3) { elmas++; O.elmasAl(); O.cal("elmas", 0.6, 1 + Math.random() * 0.2); O.parAt(e.x, e.y, e.z, 5, 0x9defff, 3, 0.09); l[i] = l[l.length - 1]; l.pop(); }
           else if (e.z > 10 || Math.abs(e.x) > 80) { l[i] = l[l.length - 1]; l.pop(); }
         }
         for (const m of manzara) {      // ağaca / eve / değirmene çarpma
@@ -416,17 +416,17 @@ export default function oyunlar2Kur(O) {
           }
           for (const b of balonlar) if (b.visible && Math.hypot(b.position.x - bx, b.position.y - byy) < 0.9) { b.visible = false; bvx += 4; bvy = Math.max(bvy, 0) + 5; O.cal("kir", 0.7, 1.3); O.parAt(b.position.x, b.position.y, 0, 14, 0xff6fa0, 5, 0.13); }
           const l = O.elmasListe();
-          for (let i = l.length - 1; i >= 0; i--) if (Math.hypot(l[i].x - bx, l[i].y - byy) < 1.0) { elmas++; O.cal("elmas", 0.6); O.parAt(l[i].x, l[i].y, 0, 5, 0x9defff, 3, 0.09); l[i] = l[l.length - 1]; l.pop(); }
+          for (let i = l.length - 1; i >= 0; i--) if (Math.hypot(l[i].x - bx, l[i].y - byy) < 1.0) { elmas++; O.elmasAl(); O.cal("elmas", 0.6); O.parAt(l[i].x, l[i].y, 0, 5, 0x9defff, 3, 0.09); l[i] = l[l.length - 1]; l.pop(); }
           if (byy <= TOP_R + 0.01 && Math.abs(bvx) < 0.6) {
             const m = Math.round(bx); toplam += m; enUzak = Math.max(enUzak, m); atis++; durum_ = "bitti";
             O.durumYaz(m + " m!"); O.cal("elmas", 0.8, 1.2);
             setTimeout(() => {
               if (!grup.visible) return;
-              if (atis >= ATIS) { O.cal("kaybet", 0.6); O.bitir(toplam + elmas * 10, { baslik: "Vuruşlar bitti!", satir: T("En uzak") + ": " + enUzak + " m" }); }
+              if (atis >= ATIS) { O.cal("kaybet", 0.6); O.bitir(toplam + elmas * O.ELMAS_PUAN, { baslik: "Vuruşlar bitti!", satir: T("En uzak") + ": " + enUzak + " m" }); }
               else { yeniAtis(); O.sagYaz("⚽ " + (atis + 1) + "/" + ATIS); }
             }, 1500);
           }
-          O.solYaz(String(toplam + Math.round(Math.max(0, bx)) + elmas * 10));
+          O.solYaz(String(toplam + Math.round(Math.max(0, bx)) + elmas * O.ELMAS_PUAN));
         }
         sahne_(dt);
         return 0;
@@ -796,7 +796,7 @@ export default function oyunlar2Kur(O) {
         for (let k = 0; k < 5; k++) O.elmasEkle(bos, 0.9, z + k * 2.4);
       }
     }
-    const skor = () => Math.floor(mesafe / 2) + elmas * 10 + bayrak * 30;
+    const skor = () => Math.floor(mesafe / 2) + elmas * O.ELMAS_PUAN + bayrak * 30;
     function sahne_(dt) {
       const k = O.karakter();
       k.kok.position.set(x, py, 0); k.kok.rotation.set(0, -yon * 0.35, -yon * 0.35);
@@ -863,7 +863,7 @@ export default function oyunlar2Kur(O) {
           if (n.z > 14) { birak(n); nesneler[i] = nesneler[nesneler.length - 1]; nesneler.pop(); }
         }
         const l = O.elmasListe();
-        for (let i = l.length - 1; i >= 0; i--) { const e = l[i]; e.z += adim; if (Math.abs(e.z) < 1.0 && Math.abs(e.x - x) < 1.1) { elmas++; O.cal("elmas", 0.6); O.parAt(e.x, e.y, e.z, 5, 0x9defff, 3, 0.09); l[i] = l[l.length - 1]; l.pop(); } else if (e.z > 10) { l[i] = l[l.length - 1]; l.pop(); } }
+        for (let i = l.length - 1; i >= 0; i--) { const e = l[i]; e.z += adim; if (Math.abs(e.z) < 1.0 && Math.abs(e.x - x) < 1.1) { elmas++; O.elmasAl(); O.cal("elmas", 0.6); O.parAt(e.x, e.y, e.z, 5, 0x9defff, 3, 0.09); l[i] = l[l.length - 1]; l.pop(); } else if (e.z > 10) { l[i] = l[l.length - 1]; l.pop(); } }
         if (Math.random() < comel * 0.6) O.parAt(x + (Math.random() - 0.5) * 0.4, 0.1, 0.8, 1, 0xffffff, 1.5, 0.07);
         O.karakter().kok.visible = dokunulmaz <= 0 || Math.floor(O.zaman() * 12) % 2 === 0;
         sahne_(dt); O.solYaz(String(skor())); O.fov(60 + comel * 6 + zor * 6);
@@ -1229,7 +1229,7 @@ export default function oyunlar2Kur(O) {
       if (ikisi) donus *= 0.25; else donus += (taraf === "sol" ? 1 : -1) * 0.6;
       O.parAt(x + (taraf === "sol" ? -1.6 : 1.6), 0.15, 0.4, 6, 0xffffff, 3, 0.1); O.cal("adim" + (1 + rast(3)), 0.35, 0.8);
     }
-    const skor = () => Math.floor(mesafe / 2) + elmas * 10;
+    const skor = () => Math.floor(mesafe / 2) + elmas * O.ELMAS_PUAN;
     function sahne_(dt) {
       sandal.position.set(x, 0.1 + Math.sin(O.zaman() * 3) * 0.03, 0); sandal.rotation.set(0, -baslik, Math.sin(O.zaman() * 2) * 0.03);
       if (iki) {      // iki oyuncak yan yana oturur: solda Ponçik sol küreği, sağda Zıpır sağ küreği çeker
@@ -1333,7 +1333,7 @@ export default function oyunlar2Kur(O) {
           if (n.z > 14) { birak(n); nesneler[i] = nesneler[nesneler.length - 1]; nesneler.pop(); }
         }
         const l = O.elmasListe();
-        for (let i = l.length - 1; i >= 0; i--) { const e = l[i]; e.z += adim; if (Math.abs(e.z) < 1.2 && Math.abs(e.x - x) < (iki ? 1.8 : 1.3)) { elmas++; O.cal("elmas", 0.6); O.parAt(e.x, e.y, e.z, 5, 0x9defff, 3, 0.09); l[i] = l[l.length - 1]; l.pop(); } else if (e.z > 10) { l[i] = l[l.length - 1]; l.pop(); } }
+        for (let i = l.length - 1; i >= 0; i--) { const e = l[i]; e.z += adim; if (Math.abs(e.z) < 1.2 && Math.abs(e.x - x) < (iki ? 1.8 : 1.3)) { elmas++; O.elmasAl(); O.cal("elmas", 0.6); O.parAt(e.x, e.y, e.z, 5, 0x9defff, 3, 0.09); l[i] = l[l.length - 1]; l.pop(); } else if (e.z > 10) { l[i] = l[l.length - 1]; l.pop(); } }
         const gor = dokunulmaz <= 0 || Math.floor(O.zaman() * 12) % 2 === 0; sandal.visible = gor; (iki ? ks : [O.karakter()]).forEach(k => { k.kok.visible = gor; });
         sahne_(dt); O.solYaz(String(skor()));
         return 0;

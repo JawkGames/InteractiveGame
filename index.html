@@ -214,6 +214,10 @@
   .sm { display: inline-block; width: 1.3em; height: 1.3em; vertical-align: -0.3em; background: url(assets/simgeler.webp) 0 0 / 1000% 1000% no-repeat; font-style: normal; }
   button .sm, .rozet .sm { margin: 0 .05em; }
   .kart .sm.yuz { width: 1.7em; height: 1.7em; vertical-align: -0.55em; margin: -.2em .2em -.2em -.1em; }
+  #artiPuan { position: fixed; left: 14px; top: 54px; z-index: 31; pointer-events: none; opacity: 0; font-weight: 700; font-size: 24px; color: #ffe14a;
+    -webkit-text-stroke: 1px #0b5fc4; paint-order: stroke fill; text-shadow: 0 3px 0 #0b5fc4, 0 4px 10px rgba(0,40,110,.4); }
+  #artiPuan.acik { animation: artiPuan .9s ease-out forwards; }
+  @keyframes artiPuan { 0% { opacity: 0; transform: translateY(8px) scale(.7); } 15% { opacity: 1; transform: translateY(0) scale(1.15); } 30% { transform: scale(1); } 75% { opacity: 1; } 100% { opacity: 0; transform: translateY(-10px); } }
 </style>
 </head>
 <body>
@@ -243,7 +247,7 @@
 </script>
 <canvas id="oyun"></canvas>
 <video id="video" playsinline muted></video>
-<div class="rozet" id="skor">0</div>
+<div class="rozet" id="skor">0</div><div id="artiPuan"></div>
 <div id="sag"><div class="rozet" id="elmas">💎 0</div><button id="tamEkran" aria-label="Tam ekran">⛶</button><button id="ev" aria-label="Oyunlar">🏠</button><button id="ayar" aria-label="Hassasiyet">⚙️</button><button id="ogBtn" aria-label="Öğretici">❓</button></div>
 <div id="ayarCubuk"><span id="ayarYazi"></span><input id="ayarKaydir" type="range" min="0.4" max="2" step="0.1" value="1"></div>
 <div id="durum"></div>
@@ -301,6 +305,7 @@ const POZ_WASM = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/was
 const POZ_MODEL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task";
 
 const SERIT_X = [-2, 0, 2];
+const ELMAS_PUAN = 25;      // her elmas yol puanına ek olarak bu kadar puan (tüm oyunlarda ortak)
 const HIZ_BAS = 9, HIZ_MAX = 22;            // birim/sn
 const ZORLUK_SURE = 600;                    // sn: en zor hâle 10 dakikada ulaşır
 const ARALIK_BAS = 3.2, ARALIK_SON = 1.7;   // engeller arası süre (sn)
@@ -1042,7 +1047,7 @@ function oyunBitti(n) {
   cal("carp"); cal("vur", 0.8); setTimeout(() => cal("kaybet"), 250);
   parAt(ox, py + 1.2, -0.3, 22, 0xffe066, 6, 0.14); parAt(ox, py + 1.0, -0.3, 10, 0xffffff, 5, 0.1);
   yildizlar.visible = true;
-  bitisGoster(Math.floor(mesafe) + elmasSayi * 10, { baslik: "Çarptın!", satir: "💎 " + elmasSayi });
+  bitisGoster(Math.floor(mesafe) + elmasSayi * ELMAS_PUAN, { baslik: "Çarptın!", satir: "💎 " + elmasSayi });
 }
 
 // =====================================================================================================
@@ -1797,7 +1802,7 @@ function oyunGuncelle(dt) {
     const e = elmaslar[i];
     e.z += adim;
     if (Math.abs(e.z) < 0.9 && Math.abs(e.x - ox) < 1.0 && e.y > py - 0.3 && e.y < py + boy + 0.4) {
-      elmasSayi++; elmasSeri = Math.min(elmasSeri + 1, 12); elmasSeriT = 0.9;
+      elmasSayi++; elmasSeri = Math.min(elmasSeri + 1, 12); elmasSeriT = 0.9; elmasPuanGoster();
       cal("elmas", 0.6, 1 + elmasSeri * 0.045); parAt(e.x, e.y, e.z, 5, 0x9defff, 3.2, 0.09);
       elmaslar[i] = elmaslar[elmaslar.length - 1]; elmaslar.pop();
     } else if (e.z > 10) { elmaslar[i] = elmaslar[elmaslar.length - 1]; elmaslar.pop(); }
@@ -1822,7 +1827,7 @@ function oyunGuncelle(dt) {
   if (K.anahtar) K.anahtar.rotation.z += dtO * 9;
   for (let i = 0; i < K.orguler.length; i++) { const yon = i ? 1 : -1; K.orguler[i].rotation.x = 0.35 + 0.3 * Math.sin(kosuFaz * 2 + i) + wH * -0.8; K.orguler[i].rotation.z = yon * (0.12 + 0.12 * Math.abs(s)) - vxY * 0.06; }
 
-  const skor = Math.floor(mesafe) + elmasSayi * 10;
+  const skor = Math.floor(mesafe) + elmasSayi * ELMAS_PUAN;
   if (skor !== sonSkorYazi) { sonSkorYazi = skor; elSkor.textContent = skor; }
   if (elmasSayi !== sonElmasYazi) { sonElmasYazi = elmasSayi; elElmas.textContent = "💎 " + elmasSayi; }
 
@@ -1869,6 +1874,14 @@ const hub = $("hub");
 const yeniDurus = () => { const d = {}; for (const a in D) d[a] = 0; return d; };
 const durusSifir = d => { for (const a in d) d[a] = 0; };
 function solYaz(y) { if (y !== sonSol) { sonSol = y; elSkor.textContent = y; } }
+// Elmas alınınca skorun altında "+25 💎" belirir; peş peşe alınanlar toplanır
+let artiToplam = 0, artiZaman = 0;
+function elmasPuanGoster(n = 1) {
+  const e = $("artiPuan"); if (!e) return;
+  artiToplam += n * ELMAS_PUAN; e.textContent = "+" + artiToplam + " 💎";
+  e.classList.remove("acik"); void e.offsetWidth; e.classList.add("acik");
+  clearTimeout(artiZaman); artiZaman = setTimeout(() => { artiToplam = 0; e.classList.remove("acik"); }, 900);
+}
 function sagYaz(y) { if (y !== sonSag) { sonSag = y; elElmas.textContent = y; } }
 function flas() { const f = $("flas"); f.style.transition = "none"; f.style.opacity = "0.45"; requestAnimationFrame(() => { f.style.transition = "opacity .45s"; f.style.opacity = "0"; }); }
 function susGoster(b, liste) {      // liste verilirse kenar süsleri o oyunun kendi takımına döner (ör. yarışta ağaçlar)
@@ -2076,7 +2089,7 @@ const O = { t, Z, THREE, sahne, kamera, R, CANLI, PI, p, birlestir, kure, sil, k
   rast, sinirla, yaklas, cal, parAt, durumYaz, solYaz, sagYaz, hPoz, hBak, fov: v => { hFov = v; }, kamHiz: v => { kamHizD = v; }, kisiler: () => kisiListe, ikiP: () => [PL, PR],
   oyuncular: () => [KARAKTER.kiz, KARAKTER.erkek], kosuYol: b => kosuGoster(b), ucuncu: () => UCUNCU || (UCUNCU = karakterYap("erkek")), kameraKontrol, flas,
   D, yeniDurus, durusSifir, durusUygula, karakter: () => K, diger: () => KARAKTER[secili === "kiz" ? "erkek" : "kiz"], karakterTak,
-  elmasEkle, elmasListe: () => elmaslar, tus, isaretci, zaman: () => zaman, bitir: bitisGoster, sarsinti: v => { sarsinti = v; },
+  elmasEkle, elmasListe: () => elmaslar, ELMAS_PUAN, elmasAl: elmasPuanGoster, tus, isaretci, zaman: () => zaman, bitir: bitisGoster, sarsinti: v => { sarsinti = v; },
   ses: () => ({ ctx: sesCtx, ana: sesAna }), susGoster, zeminHarita, zeminGoster: b => { zemin.visible = b; }, has: () => hasDeger, ZEMIN_EN, ZEMIN_BOY, zeminZ: zemin.position.z };
 const TUM_OYUNLAR = [KOSU, ...oyunlariKur(O), ...oyunlar2Kur(O)];
 const IKI_SIRA = ["kosu2", "araba2", "motor2", "dans2", "kayak2", "yuzme2", "durkalk2", "kano2"];      // 2 Player sekmesindeki sıra
