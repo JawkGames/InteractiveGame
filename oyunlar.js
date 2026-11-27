@@ -55,6 +55,9 @@ export default function oyunlariKur(O) {
   const oyuncakKamyonGeo = () => birlestir([p(yKutu(1.5, 1.1, 1.3, 0.12), R.turuncu, 0, 0.95, -0.8), p(yKutu(1.35, 0.5, 0.9, 0.08), 0x9fdcff, 0, 1.15, -1.1),
     p(yKutu(1.6, 1.3, 2.0, 0.12), R.sari, 0, 1.05, 0.9), p(yKutu(1.62, 0.12, 2.02, 0.04), R.kirmizi, 0, 1.6, 0.9),
     ...[-1, 1].flatMap(sx => [-0.85, 1.25].map(z => p(sil(16), R.siyah, sx * 0.72, 0.34, z, 0, 0, PI / 2, 0.34, 0.26, 0.34)))]);
+  // Toplanabilir kalp (+1 can): iki yuvarlak + aşağı bakan koni
+  const kalpGeo = () => birlestir([p(kure(14), 0xff3b6b, -0.22, 0.1, 0, 0, 0, 0, 0.3, 0.3, 0.24), p(kure(14), 0xff3b6b, 0.22, 0.1, 0, 0, 0, 0, 0.3, 0.3, 0.24),
+    p(koni(16), 0xff3b6b, 0, -0.22, 0, PI, 0, 0, 0.5, 0.62, 0.24), p(kure(8), 0xffffff, -0.28, 0.2, 0.2, 0, 0, 0, 0.08, 0.1, 0.04)]);
   const trafikKoniGeo = () => birlestir([p(yKutu(0.8, 0.08, 0.8, 0.03), R.turuncu, 0, 0.04, 0), p(koni(14), R.turuncu, 0, 0.62, 0, 0, 0, 0, 0.3, 1.1, 0.3), p(sil(14), R.beyaz, 0, 0.55, 0, 0, 0, 0, 0.19, 0.16, 0.19)]);
 
   // Yarış ve motorun ortak dış mekânı: çizgili çim zemin + yol kenarı süsleri (ağaç, ev, lamba, lastik, tabela)
@@ -83,6 +86,8 @@ export default function oyunlariKur(O) {
     const SERIT = araba ? [-3.6, -1.2, 1.2, 3.6] : [-2.6, 0, 2.6], YARI = araba ? 4.8 : 3.9, H0 = araba ? 15 : 19, H1 = araba ? 32 : 38;
     const TRAFIK = 5;       // trafiğin kendi hızı: hepsi aynı, böylece arkadan gelen dalga öndekine yetişip üç şeridi kapatamaz
     let grup, aracG, yolDoku, geo, trafik = [], x, direksiyon, hedefDir, hiz, sure, mesafe, can, dokunulmaz, sonraki, elmasSay;
+    const KALP_ARALIK = 500, KALP_MAX = 5;      // araba: her 500 puanda yolda bir kalp çıkar (+1 can, en çok 5)
+    let sonrakiKalp = KALP_ARALIK, kalpBekle = false, kalpYaziT = 0;
     const havuz = {};
     const al = ad => { const h = havuz[ad] || (havuz[ad] = []); let m = h.pop(); if (!m) { m = new THREE.Mesh(geo[ad], mPlastik); m.castShadow = m.receiveShadow = true; grup.add(m); } m.visible = true; return m; };
     const birak = t => { t.ag.visible = false; havuz[t.ad].push(t.ag); };
@@ -96,6 +101,7 @@ export default function oyunlariKur(O) {
       while (dolu.size < n) { const s = rast(SERIT.length); if (s !== bos) dolu.add(s); }
       for (const s of dolu) ekle(!araba && Math.random() < 0.4 ? "koni" : "oto" + rast(4), SERIT[s], z, TRAFIK);
       for (let k = 0; k < 5; k++) O.elmasEkle(SERIT[bos], 0.9, z + 10 - k * 2.4);
+      if (kalpBekle) { kalpBekle = false; ekle("kalp", SERIT[bos], z - 3, TRAFIK); const k = trafik[trafik.length - 1]; k.ag.position.y = 1.0; k.kalp = true; }      // kalp boş şeritte, elmasların hemen ardında
     }
     const skor = () => Math.floor(mesafe / 2) + elmasSay * 10;
     function yerlestir() {
@@ -123,14 +129,14 @@ export default function oyunlariKur(O) {
         const yol = new THREE.Mesh(new THREE.PlaneGeometry(YARI * 2, O.ZEMIN_BOY), new THREE.MeshStandardMaterial({ map: yolDoku, roughness: 0.95, metalness: 0, envMapIntensity: 0.3 }));
         yol.rotation.x = -PI / 2; yol.position.set(0, 0.012, O.zeminZ); yol.receiveShadow = true; grup.add(yol);
         grup.add(ag([p(yKutu(0.24, 0.16, O.ZEMIN_BOY, 0.05), R.beyaz, -YARI - 0.1, 0.08, O.zeminZ), p(yKutu(0.24, 0.16, O.ZEMIN_BOY, 0.05), R.beyaz, YARI + 0.1, 0.08, O.zeminZ)], false));
-        geo = { oto0: arabaGeo(R.mavi, true), oto1: arabaGeo(R.yesil, true), oto2: arabaGeo(R.sari, true), oto3: arabaGeo(R.mor, true), koni: oyuncakKamyonGeo() };      // motor: koni yerine yavaş oyuncak kamyon
+        geo = { oto0: arabaGeo(R.mavi, true), oto1: arabaGeo(R.yesil, true), oto2: arabaGeo(R.sari, true), oto3: arabaGeo(R.mor, true), koni: oyuncakKamyonGeo(), kalp: kalpGeo() };      // motor: koni yerine yavaş oyuncak kamyon
         aracG = new THREE.Group(); grup.add(aracG);
         const govde = new THREE.Mesh(araba ? arabaGeo(R.kirmizi, false) : motorGeo(R.kirmizi), mPlastik); govde.castShadow = true; aracG.add(govde);
       },
       ac() {
         grup.visible = true; O.susGoster(true, yolOrtak.sus); O.zeminHarita(yolOrtak.cim, 0.95);
         for (const t of trafik) birak(t); trafik = []; O.elmasListe().length = 0;
-        x = 0; direksiyon = hedefDir = 0; hiz = H0 * Z().hiz; sure = 0; mesafe = 0; can = 3; dokunulmaz = 0; elmasSay = 0; sonraki = 0;
+        x = 0; direksiyon = hedefDir = 0; hiz = H0 * Z().hiz; sure = 0; mesafe = 0; can = 3; dokunulmaz = 0; elmasSay = 0; sonraki = 0; sonrakiKalp = KALP_ARALIK; kalpBekle = false; kalpYaziT = 0;
         O.karakterTak(O.karakter(), aracG, 0, araba ? -0.05 : 0.4, araba ? 0.25 : 0.3, araba ? 0.8 : 0.85);
         dalga(-50); dalga(-78);
         O.solYaz("0"); O.sagYaz(kalp(3)); O.fov(60); yerlestir();
@@ -144,11 +150,18 @@ export default function oyunlariKur(O) {
         direksiyon += (hedefDir - direksiyon) * us(dt, araba ? 9 : 6);
         x = sinirla(x + direksiyon * (araba ? 7.5 : 8.5) * dt, -YARI + 0.9, YARI - 0.9);
         if (dokunulmaz > 0) dokunulmaz -= dt;
+        if (araba && skor() >= sonrakiKalp) { sonrakiKalp += KALP_ARALIK; kalpBekle = true; }
+        if (kalpYaziT > 0 && (kalpYaziT -= dt) <= 0) O.durumYaz("");
         if (mesafe >= sonraki) { dalga(-94); sonraki = mesafe + hiz * (2.1 - zor * 0.9) / zr.yogun; }
         for (let i = trafik.length - 1; i >= 0; i--) {
           const t = trafik[i]; t.z += (hiz - t.hiz) * dt; t.ag.position.z = t.z;
           let sil_ = t.z > 14;
-          if (dokunulmaz <= 0 && Math.abs(t.z) < t.bz && Math.abs(t.x - x) < t.bx) {
+          if (t.kalp) {
+            t.ag.rotation.y += dt * 3; t.ag.position.y = 1.0 + Math.sin(O.zaman() * 4) * 0.15;
+            if (Math.abs(t.z) < 1.8 && Math.abs(t.x - x) < 1.4) {
+              sil_ = true; can = Math.min(KALP_MAX, can + 1); O.sagYaz(kalp(can)); O.cal("elmas", 0.9, 1.6); O.parAt(t.x, 1.0, 0, 16, 0xff5c8a, 4, 0.12); O.durumYaz("❤️ +1"); kalpYaziT = 1.2;
+            }
+          } else if (dokunulmaz <= 0 && Math.abs(t.z) < t.bz && Math.abs(t.x - x) < t.bx) {
             can--; dokunulmaz = 1.6; sil_ = true; O.cal("carp"); O.cal("vur", 0.7); O.sarsinti(0.4); O.flas(); O.parAt(x, 0.9, -1, 14, 0xffe066, 5, 0.13); O.sagYaz(kalp(can));
             if (can <= 0) { O.cal("kaybet"); O.bitir(skor(), { baslik: "Kaza!", satir: "💎 " + elmasSay }); return 0; }
           }

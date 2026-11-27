@@ -20,15 +20,21 @@
   #elmas { pointer-events: none; }
   #tamEkran, #ev, #ayar, #ogBtn { width: 46px; height: 46px; font-size: 24px; line-height: 1; color: #fff; background: rgba(60,36,90,.55);
     border: 2px solid rgba(255,255,255,.9); border-radius: 14px; padding: 0; display: none; }
-  #durum { position: fixed; left: 50%; top: 58px; transform: translateX(-50%); max-width: 86vw; padding: 8px 18px;
-    border-radius: 999px; background: rgba(60,36,90,.6); color: #fff; font-weight: 800; font-size: 18px;
+  #durum { position: fixed; left: 50%; top: 10px; transform: translateX(-50%); max-width: min(60vw, 560px); padding: 6px 14px; box-sizing: border-box;
+    border-radius: 18px; background: rgba(60,36,90,.62); color: #fff; font-weight: 800; font-size: 16px; line-height: 1.25; z-index: 11;
     text-align: center; pointer-events: none; display: none; }
-  #panel { position: fixed; left: 4vw; top: 50%; transform: translateY(-50%); width: min(42vw, 360px);
-    max-height: 92vh; overflow: auto; box-sizing: border-box; padding: 20px 22px; border-radius: 26px; text-align: center;
-    background: rgba(255,255,255,.93); color: #4a2a6b; box-shadow: 0 10px 0 rgba(74,42,107,.14); z-index: 10; }
-  #panel h1 { margin: 0 0 6px; font-size: 28px; color: #ff4f9a; line-height: 1.1; }
-  #panel p { margin: 6px 0; font-size: 15px; line-height: 1.4; }
-  #panel .buyuk { font-size: 40px; font-weight: 900; color: #ff8a00; margin: 0; line-height: 1.1; }
+  /* Oyun bitti / hazırlık paneli: orta üstte, kompakt (oyuncak ve sahne görünür kalır) */
+  #panel { position: fixed; left: 50%; top: 8px; transform: translateX(-50%); width: min(60vw, 540px);
+    max-height: 62vh; overflow: auto; box-sizing: border-box; padding: 8px 16px 10px; border-radius: 20px; text-align: center;
+    background: rgba(255,255,255,.93); color: #4a2a6b; box-shadow: 0 6px 0 rgba(74,42,107,.14); z-index: 10; }
+  #panel h1 { margin: 0 0 2px; font-size: 21px; color: #ff4f9a; line-height: 1.15; }
+  #panel p { margin: 3px 0; font-size: 14px; line-height: 1.3; }
+  #panel .buyuk { font-size: 30px; font-weight: 900; color: #ff8a00; margin: 0; line-height: 1.1; }
+  #panel .skorSatir { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 2px 0; }
+  #panel .skorSatir .yildizlar { margin: 0; }
+  #panel .jest { font-size: 12px; opacity: .8; }
+  #panel .ana { margin-top: 6px; padding: 9px 26px; font-size: 18px; box-shadow: 0 4px 0 #c92f73; }
+  #panel .ikinci { margin-top: 6px; padding: 8px 12px; font-size: 14px; }
   #panel .ipucu { font-size: 13px; opacity: .75; }
   #panel .surum { font-size: 11px; opacity: .45; margin-top: 8px; }
   .secim { display: flex; gap: 10px; margin: 12px 0 4px; }
@@ -97,13 +103,20 @@
   .oyunKart .kilitRozet { position: absolute; left: 8px; top: 8px; padding: 4px 10px; border-radius: 999px; background: rgba(60,36,90,.78);
     color: #fff; font-weight: 900; font-size: 14px; pointer-events: none; }
   .oyunKart.kilitli canvas { filter: saturate(.55) brightness(.92); }
-  #kilitPanel { position: fixed; inset: 0; z-index: 41; display: none; align-items: center; justify-content: center; background: rgba(74,42,107,.45); }
-  #kilitPanel .kutu { width: min(86vw, 380px); max-height: 92vh; overflow: auto; box-sizing: border-box; padding: 16px 20px; border-radius: 24px;
-    background: #fff; color: #4a2a6b; text-align: center; box-shadow: 0 10px 0 rgba(74,42,107,.18); }
-  #kilitPanel h2 { margin: 0 0 4px; color: #ff4f9a; font-size: 24px; }
-  #kilitPanel .ana, #kilitPanel .ikinci { display: block; width: 100%; margin: 10px 0 0; }
-  #kilitPanel .kucuk { font-size: 12px; opacity: .65; margin: 4px 0 0; }
-  #kilitPanel .baglanti { margin-top: 10px; background: none; border: 0; color: #4a2a6b; opacity: .6; font-weight: 800; text-decoration: underline; font-size: 13px; }
+  /* Kilit / reklam paneli: ekranı kaplamaz, altta yatay şerit; düğmeler hep görünür */
+  #kilitPanel { position: fixed; left: 0; right: 0; bottom: var(--alt); z-index: 41; display: none; justify-content: center; pointer-events: none; }
+  #kilitPanel .kutu { pointer-events: auto; width: 100%; max-width: 1100px; box-sizing: border-box; display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+    gap: 6px 12px; padding: 8px 14px 10px; border-radius: 20px 20px 0 0; background: #fff; color: #4a2a6b; box-shadow: 0 -5px 0 rgba(74,42,107,.16), 0 -2px 18px rgba(74,42,107,.25); }
+  #kilitPanel .bilgi { flex: 1 1 180px; min-width: 0; text-align: start; }
+  #kilitPanel h2 { margin: 0; color: #ff4f9a; font-size: 18px; line-height: 1.15; }
+  #kilitPanel p { margin: 1px 0 0; font-size: 13px; font-weight: 700; }
+  #kilitPanel .dugmeler { flex: 0 1 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 8px; }
+  #kilitPanel .ana, #kilitPanel .ikinci { margin: 0; padding: 9px 14px; font-size: 15px; white-space: nowrap; }
+  #kilitPanel .ana { box-shadow: 0 4px 0 #c92f73; }
+  #kilitPanel .satin { display: flex; flex-direction: column; align-items: center; }
+  #kilitPanel .kucuk { font-size: 11px; opacity: .65; margin: 2px 0 0; }
+  #kilitPanel .baglanti { background: none; border: 0; padding: 4px; color: #4a2a6b; opacity: .65; font-weight: 800; text-decoration: underline; font-size: 13px; }
+  #kilitPanel #kpKapat { opacity: 1; text-decoration: none; width: 38px; height: 38px; border-radius: 12px; background: #f3ecff; font-size: 18px; }
   #cikisPanel { position: fixed; inset: 0; z-index: 42; display: none; align-items: center; justify-content: center; background: rgba(74,42,107,.45); }
   #cikisPanel .kutu { width: min(86vw, 380px); box-sizing: border-box; padding: 16px 20px; border-radius: 24px; background: #fff; color: #4a2a6b; text-align: center; box-shadow: 0 10px 0 rgba(74,42,107,.18); }
   #cikisPanel h2 { margin: 0 0 8px; color: #ff4f9a; font-size: 24px; }
@@ -132,8 +145,18 @@
   .oyunKart .otur { position: absolute; right: 8px; top: 8px; padding: 3px 8px; border-radius: 999px; background: rgba(255,255,255,.9); font-size: 13px; }
   .oyunKart .yildiz { color: #ffb400; letter-spacing: 1px; font-size: 13px; }
   .oyunKart.gunluk { outline: 4px dashed #ffb400; outline-offset: -4px; }
-  #panel .yildizlar { font-size: 30px; color: #ffb400; letter-spacing: 4px; margin: 2px 0; }
-  #kilitMesaj { min-height: 18px; margin: 8px 0 0; font-weight: 800; font-size: 14px; color: #ff4f9a; }
+  #panel .yildizlar { font-size: 22px; color: #ffb400; letter-spacing: 3px; margin: 0; }
+  #kilitMesaj { margin: 2px 0 0; font-weight: 800; font-size: 13px; color: #ff4f9a; }
+  #kilitMesaj:empty { display: none; }
+  /* 2 kişilik oyunlarda ölçümden sonra 3-2-1 BAŞLA */
+  #geriSayi { position: fixed; left: 50%; top: 45%; transform: translate(-50%, -50%); z-index: 29; display: none; pointer-events: none; white-space: nowrap;
+    font: 900 clamp(64px, 20vw, 180px) system-ui, sans-serif; color: #fff; -webkit-text-stroke: 3px #ff4f9a; text-shadow: 0 6px 0 rgba(74,42,107,.35); }
+  #geriSayi.pop { animation: geriPop .9s ease-out; }
+  @keyframes geriPop { 0% { transform: translate(-50%, -50%) scale(1.7); opacity: 0; } 25% { opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+  /* Dil seçimi (16 dil) */
+  #ayarPanel .diller { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  #ayarPanel .diller .kart { padding: 8px 2px; font-size: 13px; border-width: 2px; }
+  body.rtl #panel, body.rtl #durum, body.rtl #uyari, body.rtl #kilitPanel .bilgi, body.rtl #bilgiPanel .kutu, body.rtl #cikisPanel .kutu, body.rtl #ogretici .kutu, body.rtl #jestIpucu { direction: rtl; }
   .oyunKart { position: relative; display: flex; flex-direction: column; min-height: 96px; padding: 0; border: 0; border-radius: 18px; overflow: hidden;
     background: #fff; box-shadow: 0 5px 0 rgba(74,42,107,.16); font-family: inherit; }
   .oyunKart canvas { display: block; width: 100%; flex: 1; min-height: 0; object-fit: cover; }
@@ -143,7 +166,8 @@
   @media (orientation: portrait) {
     #kartlar { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 30vw; flex: none; }
     #hubUst { flex-wrap: wrap; }
-    #panel { left: 50%; top: auto; bottom: 3vh; transform: translateX(-50%); width: min(88vw, 380px); max-height: 56vh; }
+    #panel { top: 62px; width: min(92vw, 420px); max-height: 56vh; }
+    #durum { top: 62px; max-width: 90vw; }
   }
 </style>
 </head>
@@ -156,19 +180,20 @@
 <div id="durum"></div>
 <div id="flas"></div>
 <div id="duraklatYazi">⏸ PAUSE</div>
+<div id="geriSayi"></div>
 <div id="uyari"></div>
 <div id="bilgiPanel"><div class="kutu" id="bilgiKutu"></div></div>
 <div id="cikisPanel"><div class="kutu"><h2 id="ckBaslik"></h2><p id="ckEvet"></p><p id="ckHayir"></p><button id="ckEvetB"></button><button class="ikinci" id="ckHayirB"></button></div></div>
-<div id="kilitPanel"><div class="kutu"><h2 id="kpBaslik"></h2><p id="kpYazi"></p><p class="kucuk" id="kpJest"></p>
-  <button class="ana" id="kpReklam"></button><button class="ikinci" id="kpSatin"></button><p class="kucuk" id="kpNot"></p>
-  <p id="kilitMesaj"></p><button class="baglanti" id="kpGeri"></button><br><button class="baglanti" id="kpKapat"></button></div></div>
+<div id="kilitPanel"><div class="kutu"><div class="bilgi"><h2 id="kpBaslik"></h2><p id="kpYazi"></p><p class="kucuk" id="kpJest"></p><p id="kilitMesaj"></p></div>
+  <div class="dugmeler"><button class="ana" id="kpReklam"></button><div class="satin"><button class="ikinci" id="kpSatin"></button><p class="kucuk" id="kpNot"></p></div>
+  <button class="baglanti" id="kpGeri"></button><button class="baglanti" id="kpKapat" aria-label="Kapat">✕</button></div></div></div>
 <div id="ogretici"><div class="kutu"><h2 id="ogBaslik"></h2><canvas id="ogTuval" width="560" height="250"></canvas>
   <p id="ogYazi"></p><p class="kucuk" id="ogSonuc"></p><div id="ogNokta"></div>
   <div class="dugmeler"><button class="ikinci" id="ogGeri">◀</button><button class="ana" id="ogTamam"></button><button class="ikinci" id="ogIleri">▶</button></div>
   <p class="kucuk" id="ogIpucu"></p></div></div>
 <div id="ayarPanel"><div class="kutu"><h2 id="ayBaslik"></h2>
   <p id="ayZorluk"></p><div class="secim"><button class="kart" data-z="kolay"></button><button class="kart" data-z="normal"></button><button class="kart" data-z="zor"></button></div>
-  <p id="ayDil"></p><div class="secim"><button class="kart" data-d="tr">Türkçe</button><button class="kart" data-d="en">English</button></div>
+  <p id="ayDil"></p><div class="secim diller" id="dilListe"></div>
   <div class="secim"><button class="kart" id="ayGeri"></button><button class="kart" id="ayGuvenlik"></button><button class="kart" id="ayHata"></button></div><p class="kucuk" id="ayMesaj"></p>
   <button class="ana" id="ayKapat"></button></div></div>
 <div id="cift"><div class="ayrac"></div><div class="etiket e0"></div><div class="etiket e1"></div><button id="ciftEv" aria-label="Menü">🏠</button>
@@ -201,7 +226,7 @@ const gorunur = o => oyuncuModu === 2 ? !!o.ikiKisi : !o.ikiKisi;      // 2 Play
 // =====================================================================================================
 //  AYARLAR
 // =====================================================================================================
-const SURUM = "5.1";
+const SURUM = "5.2";
 const POZ_KUTUPHANE = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/vision_bundle.mjs";
 const POZ_WASM = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm";
 const POZ_MODEL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task";
@@ -235,7 +260,7 @@ const EN = {
   "Beliren nesneye uzan ve yumrukla kır. Bombaya dokunma!": "Reach for each object and punch it. Don't touch the bombs!",
   "Seni göremiyorum, kadraja gir": "I can't see you, step into view", "Biraz geri çekil": "Step back a little", "Biraz yaklaş": "Come a little closer",
   "Ortaya gel": "Move to the center", "Zıplamaya yer kalsın: biraz geri çekil": "Leave room to jump: step back a little", "Ellerini indir, dik dur": "Lower your hands, stand straight",
-  "İki elini de göster": "Show both hands", "Dik dur, ölçüyorum… %": "Stand straight, measuring… ", "Ortada dik dur, ölçüyorum…": "Stand straight in the middle, measuring…",
+  "İki elini de göster": "Show both hands", "Dik dur, ölçüyorum… %": "Stand straight, measuring… %", "Ortada dik dur, ölçüyorum…": "Stand straight in the middle, measuring…",
   "Oyun tam ekranda oynanır": "The game is played in fullscreen", "Telefonu yan çevir": "Turn your phone sideways", "Tam ekran yap": "Go fullscreen",
   "Hazırlanıyor": "Getting ready", "Kamera açılıyor…": "Opening camera…", "Hareket algılama yükleniyor…": "Loading motion tracking…",
   "Kamera kullanılamıyor": "Camera unavailable", "Kaydırarak ya da ok tuşlarıyla oynayabilirsin.": "You can play by swiping or with the arrow keys.", "Devam": "Continue",
@@ -252,11 +277,36 @@ const EN = {
   "Kalıcı açılır, reklamlar da kalkar": "Unlocked forever, ads removed too", "Satın alımı geri yükle": "Restore purchase", "Kapat": "Close",
   "Reklam şu an yüklenemedi, biraz sonra dene": "The ad couldn't load, try again shortly", "Reklam yarıda kapandı": "The ad was closed early",
   "Satın alma sadece Play Store sürümünde çalışır": "Purchases only work in the Play Store version", "Teşekkürler! Tüm oyunlar açıldı": "Thank you! All games unlocked",
-  "Satın alma bulunamadı": "No purchase found", "Satın alma tamamlanamadı": "The purchase could not be completed", "Bekleniyor…": "Please wait…", "Sağ el yukarı": "Right hand up"
+  "Satın alma bulunamadı": "No purchase found", "Satın alma tamamlanamadı": "The purchase could not be completed", "Bekleniyor…": "Please wait…", "Sağ el yukarı": "Right hand up",
+  "sa": "h", "sn": "s", "Normal": "Normal", "Rekor": "Record"
 };
-let dil = "tr";
-try { dil = localStorage.getItem("igDil") || ((navigator.language || "tr").toLowerCase().startsWith("tr") ? "tr" : "en"); } catch (e) {}
-const t = s => dil === "en" && EN[s] !== undefined ? EN[s] : s;
+// Mağaza dilleri (16). Türkçe ve İngilizce burada; diğerleri dil/xx.json (anahtar = Türkçe metin). Eksik metin İngilizceye düşer.
+const DILLER = [["en", "English"], ["tr", "Türkçe"], ["es", "Español"], ["fr", "Français"], ["de", "Deutsch"], ["pt", "Português (BR)"], ["ru", "Русский"], ["id", "Indonesia"],
+  ["vi", "Tiếng Việt"], ["ja", "日本語"], ["zh", "中文"], ["ko", "한국어"], ["hi", "हिन्दी"], ["ar", "العربية"], ["bn", "বাংলা"], ["ur", "اردو"]];
+const RTL = ["ar", "ur"];
+const dilVar = d => DILLER.some(x => x[0] === d);
+function telefonDili() {      // telefonun dil listesinden ilk desteklenen (pt-BR -> pt, zh-CN -> zh, in -> id)
+  for (const l of (navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || "en"])) {
+    let k = String(l || "").toLowerCase().split(/[-_]/)[0]; if (k === "in") k = "id";
+    if (dilVar(k)) return k;
+  }
+  return "en";
+}
+let dil = "en";
+try { dil = localStorage.getItem("igDil") || telefonDili(); } catch (e) { dil = telefonDili(); }
+if (!dilVar(dil)) dil = "en";
+async function sozYukle(d) {
+  if (d === "tr" || d === "en") return {};
+  try { const r = await fetch("./dil/" + d + ".json"); return r.ok ? await r.json() : {}; } catch (e) { return {}; }
+}
+let SOZ = await sozYukle(dil);
+const t = s => dil === "tr" ? s : SOZ[s] !== undefined ? SOZ[s] : EN[s] !== undefined ? EN[s] : s;
+async function dilSec(d) {
+  if (!dilVar(d)) return;
+  const s = await sozYukle(d); dil = d; SOZ = s;
+  try { localStorage.setItem("igDil", d); } catch (e) {}
+  menuGoster();
+}
 
 // --- Zorluk: tüm oyunlar okur. hiz = hız çarpanı, rampa = zorlaşma hızı, yogun = engel sıklığı, hasar = alınan hasar ---
 const ZORLUKLAR = {
@@ -875,6 +925,22 @@ function oyunuBaslat(devam) {
   panel.style.display = "none"; durum = "oyun"; duraklat = false;
   durumYaz(aktif.ipucu || ""); ipucuT = zaman + 4.5;      // ilk saniyelerde nasıl oynandığını yaz
 }
+// 2 kişilik oyunlar: ölçüm bitince 3-2-1 BAŞLA, sonra oyun
+let geriT = 0, geriSon = null;
+function geriSayimBaslat() { durum = "geri"; geriT = 3; geriSon = null; durumYaz(""); }
+function geriSayimKapat() { geriSon = null; $("geriSayi").style.display = "none"; }
+function geriSayimGuncelle(dt) {
+  if (durum !== "geri" && geriSon === null) return;
+  if (durum !== "geri" && durum !== "oyun") { geriSayimKapat(); return; }
+  geriT -= dt;
+  const y = geriT > 0 ? String(Math.ceil(geriT)) : "🏁 " + t("BAŞLA!"), e = $("geriSayi");
+  if (y !== geriSon) {
+    geriSon = y; e.textContent = y; e.style.display = "block"; e.classList.remove("pop"); void e.offsetWidth; e.classList.add("pop");
+    cal("adim1", 0.8, geriT > 0 ? 1 : 1.5);
+    if (geriT <= 0 && durum === "geri") oyunuBaslat(olcumDevam);
+  }
+  if (geriT < -0.9) geriSayimKapat();
+}
 function oyunBitti(n) {
   durum = "bitti"; bittiSure = 0; zamanOlcek = 1; sarsinti = 0.45;
   cal("carp"); cal("vur", 0.8); setTimeout(() => cal("kaybet"), 250);
@@ -1134,7 +1200,7 @@ function pozIsle(v, tSn) {
       [PL, PR].forEach((H, i) => { const o = olcum2[i]; H.tx = o.x / o.n; H.ty = o.y / o.n; H.tgen = Math.max(o.gen / o.n, 0.03); H.tgovde = Math.max(o.govde / o.n, 0.05); olcum2[i] = {}; });
       temel.x = omuzX; temel.y = omuzY; temel.gen = Math.max(gen, 0.04); temel.govde = Math.max(govdeBoy, 0.06);
       P.tx = 1 - temel.x; P.ty = temel.y; P.tgen = temel.gen; P.tgovde = temel.govde;
-      oyunuBaslat(olcumDevam);
+      geriSayimBaslat();      // önce ölçüm, sonra 3-2-1 BAŞLA
     }
     return;
   }
@@ -1482,7 +1548,7 @@ $("kameraAc").addEventListener("click", async () => {      // menüyü kamerayla
 // =====================================================================================================
 function menuGoster() {
   $("cikisPanel").style.display = "none"; $("duraklatYazi").style.display = "none"; $("ayarCubuk").style.display = "none";
-  modGec(KOSU); durum = "menu"; durumYaz(""); basladi = false; engel = false; elKilit.style.display = "none";
+  modGec(KOSU); durum = "menu"; durumYaz(""); geriSayimKapat(); basladi = false; engel = false; elKilit.style.display = "none";
   panel.style.display = "none"; hub.style.display = "flex";
   elSkor.style.display = elElmas.style.display = "none"; $("ev").style.display = $("ayar").style.display = $("ayarCubuk").style.display = "none";
   for (const o of OYUNLAR) { const en = rekorAl(o); o.kartRekor.innerHTML = o.ikiKisi ? "👥" : (en ? "🏆 " + en + " " : "") + "<span class='yildiz'>" + yildizYaz(yildizSay(o, en)) + "</span>"; o.kartAd.textContent = t(o.ad); kartKilitYaz(o); }
@@ -1879,8 +1945,8 @@ function bitisGoster(skor, ek) {
   }
   durum = "bitti"; bittiSure = 0; durumYaz("");
   if (aktif.ikiKisi) {      // 2 kişilik: kazanan ekranı, rekor / yıldız yok
-    panel.innerHTML = "<h1>" + t((ek && ek.baslik) || "Oyun bitti") + "</h1>" + (ek && ek.satir ? "<p class='buyuk' style='font-size:30px'>" + ek.satir + "</p>" : "") +
-      (kameraKontrol() ? "<p>" + t("🙌 Kollarını tam yukarı uzat: tekrar oyna") + "<br>" + t("🙆 Taç pozu: ana menü") + "</p>" : "") +
+    panel.innerHTML = "<h1>" + t((ek && ek.baslik) || "Oyun bitti") + "</h1>" + (ek && ek.satir ? "<p class='buyuk' style='font-size:24px'>" + ek.satir + "</p>" : "") +
+      (kameraKontrol() ? "<p class='jest'>" + t("🙌 Kollarını tam yukarı uzat: tekrar oyna") + " • " + t("🙆 Taç pozu: ana menü") + "</p>" : "") +
       "<button class='ana' id='tekrar'>" + t("Tekrar") + "</button><button class='ikinci' id='oyunlarD'>" + t("Oyunlar") + "</button>";
     panel.style.display = "block"; $("tekrar").addEventListener("click", () => olcumeGec()); $("oyunlarD").addEventListener("click", menuGoster); return;
   }
@@ -1890,10 +1956,11 @@ function bitisGoster(skor, ek) {
   if (rekor) { en = skor; try { localStorage.setItem(anahtar, String(skor)); } catch (e) {} }
   const g = gunlukGorev(); let gorevYazi = "";
   if (g.o === aktif && !g.tamam && skor >= g.hedef) { const seri = gunlukTamamla(); gorevYazi = "<p><b>📅 " + t("Günün görevi tamam!") + " 🔥 " + seri + " " + t("gün seri") + "</b></p>"; cal("elmas", 0.9, 1.5); }
-  const yildizHtml = "<p class='yildizlar'>" + yildizYaz(yeniY) + "</p>" + (yeniY > eskiY ? "<p><b>⭐ " + t("Yeni yıldız!") + "</b></p>" : "") + gorevYazi;
-  panel.innerHTML = "<h1>" + t(rekor ? "Yeni rekor!" : (ek && ek.baslik) || "Oyun bitti") + "</h1><p>" + t("Skor") + " " + Z().ikon + "</p><p class='buyuk'>" + skor + "</p>" + yildizHtml +
+  panel.innerHTML = "<h1>" + t(rekor ? "Yeni rekor!" : (ek && ek.baslik) || "Oyun bitti") + "</h1>" +
+    "<div class='skorSatir'><span>" + t("Skor") + " " + Z().ikon + "</span><span class='buyuk'>" + skor + "</span><span class='yildizlar'>" + yildizYaz(yeniY) + "</span></div>" +
+    (yeniY > eskiY ? "<p><b>⭐ " + t("Yeni yıldız!") + "</b></p>" : "") + gorevYazi +
     "<p>" + (ek && ek.satir ? ek.satir + " &nbsp;•&nbsp; " : "") + t("En yüksek") + ": <b>" + en + "</b></p>" +
-    (kameraKontrol() ? "<p>" + t("🙌 Kollarını tam yukarı uzat: tekrar oyna") + "<br>" + t("🙆 Taç pozu: ana menü") + "</p>" : "") +
+    (kameraKontrol() ? "<p class='jest'>" + t("🙌 Kollarını tam yukarı uzat: tekrar oyna") + " • " + t("🙆 Taç pozu: ana menü") + "</p>" : "") +
     "<button class='ana' id='tekrar'>" + t("Tekrar") + "</button><button class='ikinci' id='oyunlarD'>" + t("Oyunlar") + "</button><button class='ikinci' id='paylasD'>📤 " + t("Paylaş") + "</button>";
   panel.style.display = "block";
   $("paylasD").addEventListener("click", () => skorPaylas(skor));
@@ -1954,11 +2021,11 @@ function onizlemeleriCiz() {      // her oyunun kart resmi: oyunun kendi sahnesi
 }
 function hasYaz() { $("ayarKaydir").value = hasDeger; $("ayarYazi").textContent = t("Hassasiyet") + " " + hasDeger.toFixed(1); }
 function dilUygula() {
-  document.documentElement.lang = dil;
+  document.documentElement.lang = dil; document.body.classList.toggle("rtl", RTL.includes(dil));
   $("kilitDugme").textContent = t("Tam ekran yap"); $("ayBaslik").textContent = t("Ayarlar"); $("ayZorluk").textContent = t("Zorluk");
-  $("ayDil").textContent = dil === "en" ? "Language / Dil" : "Dil / Language"; $("ayKapat").textContent = t("Tamam");
+  $("ayDil").textContent = dil === "en" ? "🌐 Language" : "🌐 " + t("Dil") + " / Language"; $("ayKapat").textContent = t("Tamam");
   $("ayGeri").textContent = "🔄 " + t("Satın alımı geri yükle"); $("ayGuvenlik").textContent = "🛡️ " + t("Güvenli oyun"); $("ayHata").textContent = "🐞 " + t("Sorun bildir"); $("ayarAc").textContent = "⚙️ " + Z().ikon;
-  for (const b of document.querySelectorAll("#ayarPanel [data-z]")) { const z = ZORLUKLAR[b.dataset.z]; b.textContent = z.ikon + " " + (z.ad === "normal" ? "Normal" : t(z.ad === "kolay" ? "Kolay" : "Zor")); b.classList.toggle("secili", z.ad === zorlukAd); }
+  for (const b of document.querySelectorAll("#ayarPanel [data-z]")) { const z = ZORLUKLAR[b.dataset.z]; b.textContent = z.ikon + " " + t(z.ad === "normal" ? "Normal" : z.ad === "kolay" ? "Kolay" : "Zor"); b.classList.toggle("secili", z.ad === zorlukAd); }
   for (const b of document.querySelectorAll("#ayarPanel [data-d]")) b.classList.toggle("secili", b.dataset.d === dil);
   hasYaz();
 }
@@ -1967,7 +2034,7 @@ function hubKur() {
   $("ayKapat").addEventListener("click", () => { $("ayarPanel").style.display = "none"; menuGoster(); });
   $("ayGeri").addEventListener("click", () => geriYukle(false)); $("ayGuvenlik").addEventListener("click", () => { $("ayarPanel").style.display = "none"; guvenlikGoster(); }); $("ayHata").addEventListener("click", sorunBildir);
   for (const b of document.querySelectorAll("#ayarPanel [data-z]")) b.addEventListener("click", () => { zorlukAd = b.dataset.z; try { localStorage.setItem("igZorluk", zorlukAd); } catch (e) {} dilUygula(); });
-  for (const b of document.querySelectorAll("#ayarPanel [data-d]")) b.addEventListener("click", () => { dil = b.dataset.d; try { localStorage.setItem("igDil", dil); } catch (e) {} dilUygula(); });
+  for (const [kod, ad] of DILLER) { const b = document.createElement("button"); b.className = "kart"; b.dataset.d = kod; b.lang = kod; b.textContent = ad; b.addEventListener("click", () => dilSec(kod)); $("dilListe").appendChild(b); }
   $("ayar").addEventListener("click", () => { const c = $("ayarCubuk"); c.style.display = c.style.display !== "flex" ? "flex" : "none"; duraklatYaz(); });
   $("ciftEv").addEventListener("click", menuGoster); $("csTekrar").addEventListener("click", ciftTekrar); $("csMenu").addEventListener("click", menuGoster);
   $("ckEvetB").addEventListener("click", () => cikisKapat(true)); $("ckHayirB").addEventListener("click", () => cikisKapat(false));
@@ -2006,6 +2073,7 @@ function dongu(damga) {
     else { if (duraklat) { duraklat = false; durumYaz(""); } adim = aktif.guncelle(dt) || 0; }
   } else if (durum !== "oyun") aktif.bekle(dt);
   if (durum === "bitti") bittiSure += dt;
+  geriSayimGuncelle(dt);
   uyariKontrol(dt);
   if (ipucuT && zaman > ipucuT) { ipucuT = 0; if (sonDurumYazi === t(aktif.ipucu)) durumYaz(""); }
   durusUygula();
@@ -2081,7 +2149,7 @@ function kartKilitYaz(o) {
   const kalan = acikSure(o) - Date.now(), kilitli = !acikMi(o);
   o.kart.classList.toggle("kilitli", kilitli);
   o.kartKilit.style.display = o.yerlesik || o.esi === "kosu" || tumAcik ? "none" : "block";
-  o.kartKilit.textContent = kilitli ? "🔒" : "⏳ " + Math.max(1, Math.ceil(kalan / 3600000)) + (dil === "en" ? " h" : " sa");
+  o.kartKilit.textContent = kilitli ? "🔒" : "⏳ " + Math.max(1, Math.ceil(kalan / 3600000)) + " " + t("sa");
 }
 function kilitMesaj(y) { $("kilitMesaj").textContent = $("ayMesaj").textContent = y ? t(y) : ""; }
 let kilitOyun = null;
@@ -2093,7 +2161,7 @@ function kilitGoster(o) {
   $("kpReklam").textContent = t("🎬 Reklam izle, 24 saat aç");
   $("kpSatin").textContent = t("⭐ Tüm oyunları aç") + (fiyat ? " — " + fiyat : "");
   $("kpNot").textContent = t("Kalıcı açılır, reklamlar da kalkar");
-  $("kpGeri").textContent = t("Satın alımı geri yükle"); $("kpKapat").textContent = t("Kapat");
+  $("kpGeri").textContent = t("Satın alımı geri yükle"); $("kpKapat").title = t("Kapat");
   $("kilitPanel").style.display = "flex";
 }
 function kilitKapat() { $("kilitPanel").style.display = "none"; kilitOnay = false; menuGoster(); }

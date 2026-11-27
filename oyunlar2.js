@@ -970,13 +970,13 @@ export default function oyunlar2Kur(O) {
         for (const r of rakipler) { r.z += r.v * (1 + Math.sin(sure * 0.7 + r.faz) * 0.12) * dt; }
         if (!bitti_ && iki && yuzucu.some(y => y.z >= BOY)) {
           bitti_ = true; const k = yuzucu[0].z >= yuzucu[1].z ? 0 : 1; O.cal("elmas", 0.9, 1.3);
-          O.bitir(Math.max(0, Math.round(2000 - sure * 20)), { baslik: "🏆 " + AD[k] + " " + T("kazandı!"), satir: sure.toFixed(1) + " sn" }); return 0;
+          O.bitir(Math.max(0, Math.round(2000 - sure * 20)), { baslik: "🏆 " + AD[k] + " " + T("kazandı!"), satir: sure.toFixed(1) + " " + T("sn") }); return 0;
         }
         if (!bitti_ && !iki && (yuzucu[0].z >= BOY || rakipler.some(r => r.z >= BOY))) {
           const z = yuzucu[0].z; bitti_ = true; const sira = 1 + rakipler.filter(r => r.z > z).length;
           const puan = Math.max(0, Math.round(1500 - sure * 20)) + (sira === 1 ? 500 : sira === 2 ? 200 : 0);
           O.cal(sira === 1 ? "elmas" : "kaybet", 0.8);
-          O.bitir(puan, { baslik: sira === 1 ? "🥇 Birinci oldun!" : sira === 2 ? "🥈 İkinci oldun" : "🥉 Üçüncü oldun", satir: sure.toFixed(1) + " sn" });
+          O.bitir(puan, { baslik: sira === 1 ? "🥇 Birinci oldun!" : sira === 2 ? "🥈 İkinci oldun" : "🥉 Üçüncü oldun", satir: sure.toFixed(1) + " " + T("sn") });
           return 0;
         }
         if (iki) { O.solYaz(AD[0] + " " + Math.floor(yuzucu[0].z) + " m"); O.sagYaz(AD[1] + " " + Math.floor(yuzucu[1].z) + " m"); } else O.solYaz(Math.floor(yuzucu[0].z) + " m");
@@ -1092,7 +1092,7 @@ export default function oyunlar2Kur(O) {
         if (kutlamaT > 0) {         // seviye bitti: oyuncak zıplayıp sevinir, sonra yol %5 uzar, park yenilenir
           kutlamaT -= dt; if (Math.random() < 0.4) O.parAt((Math.random() - 0.5) * 3, 2 + Math.random(), -z[Math.max(0, kazanan)], 3, CANLI[rast(8)], 5, 0.12);
           if (kutlamaT <= 0) {
-            if (iki) { O.bitir(Math.max(100, Math.round(3000 - sure * 30)), { baslik: "🏆 " + AD[kazanan] + " " + T("kazandı!"), satir: sure.toFixed(1) + " sn" }); return 0; }
+            if (iki) { O.bitir(Math.max(100, Math.round(3000 - sure * 30)), { baslik: "🏆 " + AD[kazanan] + " " + T("kazandı!"), satir: sure.toFixed(1) + " " + T("sn") }); return 0; }
             seviye++; seviyeKur(); isikDegis("yesil"); O.sagYaz(kalp(can));
           }
           sahne_(dt); return 0;
@@ -1401,7 +1401,7 @@ export default function oyunlar2Kur(O) {
       ac() {
         grup.visible = true; O.kosuYol(true); O.zeminHarita(null);
         ks = O.oyuncular(); O.karakterTak(ks[0], grup, -1.1, 0, 0, 1, 0); O.karakterTak(ks[1], grup, 1.1, 0, 0, 1, 0);
-        d = [0, 0]; e = [0, 0]; dRef = 0; sure = 0; kutlaT = 0; kazanan = -1; basladiT = 3; onc[0] = onc[1] = null;
+        d = [0, 0]; e = [0, 0]; dRef = 0; sure = 0; kutlaT = 0; kazanan = -1; basladiT = 0;      // 3-2-1 artık ortak (ölçümden sonra index.html sayar) onc[0] = onc[1] = null;
         O.solYaz(AD[0] + " 0 m"); O.sagYaz(AD[1] + " 0 m"); O.fov(60); sahne_();
       },
       kapat() { grup.visible = false; O.kosuYol(false); },
@@ -1422,7 +1422,7 @@ export default function oyunlar2Kur(O) {
         O.solYaz(AD[0] + " " + Math.floor(d[0]) + " m"); O.sagYaz(AD[1] + " " + Math.floor(d[1]) + " m");
         if (d[0] >= BITIS || d[1] >= BITIS) {
           kazanan = d[0] >= d[1] ? 0 : 1; O.cal("elmas", 0.9, 1.3); O.parAt(0, 2, -(BITIS - dRef), 40, 0xffe066, 8, 0.15); O.durumYaz("🏆 " + AD[kazanan] + " " + T("kazandı!"));
-          setTimeout(() => { if (grup.visible && kazanan >= 0) O.bitir(Math.max(100, Math.round(3000 - sure * 40)), { baslik: "🏆 " + AD[kazanan] + " " + T("kazandı!"), satir: sure.toFixed(1) + " sn" }); }, 2400);
+          setTimeout(() => { if (grup.visible && kazanan >= 0) O.bitir(Math.max(100, Math.round(3000 - sure * 40)), { baslik: "🏆 " + AD[kazanan] + " " + T("kazandı!"), satir: sure.toFixed(1) + " " + T("sn") }); }, 2400);
         }
         sahne_();
         return dRef - eski;      // pist, zemin ve oyuncak süsleri akar
