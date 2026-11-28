@@ -225,6 +225,14 @@
   @keyframes ilkEl { 0%, 100% { transform: translateY(0) rotate(-8deg); } 50% { transform: translateY(10px) rotate(4deg) scale(.92); } }
   #cikisPanel p:empty { display: none; }
   #hubUst #sesAc.kapali { background: #ffd9d9; box-shadow: 0 3px 0 #c94a4a; }
+  /* Duraklatma: ortada büyük "oynat" düğmesi — dokununca oyun devam eder */
+  #duraklatYazi { display: none; flex-direction: column; align-items: center; gap: 4px; }
+  #duraklatYazi span { pointer-events: none; }
+  #devamBtn { pointer-events: auto; width: clamp(84px, 16vw, 140px); height: clamp(84px, 16vw, 140px); border: 0; border-radius: 50%; padding: 0; cursor: pointer;
+    background: radial-gradient(circle at 35% 30%, #7fe07a, #2fb24a 70%); box-shadow: 0 6px 0 #1d7a31, 0 10px 22px rgba(0,40,20,.35); color: #fff; font-size: clamp(40px, 8vw, 68px); line-height: 1;
+    animation: devamNabiz 1.4s ease-in-out infinite; }
+  #devamBtn:active { transform: scale(.94); }
+  @keyframes devamNabiz { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.07); } }
 </style>
 </head>
 <body>
@@ -259,7 +267,7 @@
 <div id="ayarCubuk"><span id="ayarYazi"></span><input id="ayarKaydir" type="range" min="0.4" max="2" step="0.1" value="1"></div>
 <div id="durum"></div>
 <div id="flas"></div>
-<div id="duraklatYazi">⏸ PAUSE</div>
+<div id="duraklatYazi"><button id="devamBtn" aria-label="Devam">▶️</button><span>PAUSE</span></div>
 <div id="uyari"></div>
 <div id="bilgiPanel"><div class="kutu" id="bilgiKutu"></div></div>
 <div id="cikisPanel"><div class="kutu"><h2 id="ckBaslik"></h2><p id="ckEvet"></p><p id="ckHayir"></p><button id="ckEvetB"></button><button class="ikinci" id="ckHayirB"></button></div></div>
@@ -2142,7 +2150,8 @@ for (const o of OYUNLAR) if (o.ikiKisi && o.esi) { const e = OYUNLAR.find(x => x
 let kamHizD = 4;
 function durdu() { return disDur || ogAcik() || $("ayarCubuk").style.display === "flex" || cikisAcik(); }
 const cikisAcik = () => $("cikisPanel").style.display === "flex";
-function duraklatYaz() { $("duraklatYazi").style.display = durum !== "menu" && ($("ayarCubuk").style.display === "flex") ? "block" : "none"; }
+function duraklatYaz() { $("duraklatYazi").style.display = durum !== "menu" && ($("ayarCubuk").style.display === "flex") ? "flex" : "none"; }
+$("devamBtn").addEventListener("click", () => { $("ayarCubuk").style.display = "none"; duraklatYaz(); cal("adim1", 0.5, 1.3); });      // oynat: duraklatma biter
 function cikisGoster() {      // kollar çarpı: "oyundan çık?" sorusu; oyun durur
   cikisUygulama = false; $("ckBaslik").textContent = t("Oyundan çıkılsın mı?"); $("ckEvet").textContent = t("🙆 Taç pozu: evet, ana menü"); $("ckHayir").textContent = t("🙌 İki kol yukarı: hayır, oyuna dön");
   $("ckEvetB").textContent = t("Evet"); $("ckHayirB").textContent = t("Hayır"); $("cikisPanel").style.display = "flex"; cal("blok", 0.4, 1.3);
