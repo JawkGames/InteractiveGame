@@ -224,6 +224,7 @@
   .ilkIpucu span { max-width: 92%; padding: 4px 10px; border-radius: 999px; background: #fff; color: #0b4fa8; font-weight: 700; font-size: 13px; text-align: center; box-shadow: 0 3px 0 #0b5fc4; }
   @keyframes ilkEl { 0%, 100% { transform: translateY(0) rotate(-8deg); } 50% { transform: translateY(10px) rotate(4deg) scale(.92); } }
   #cikisPanel p:empty { display: none; }
+  #hubUst #sesAc.kapali { background: #ffd9d9; box-shadow: 0 3px 0 #c94a4a; }
 </style>
 </head>
 <body>
@@ -278,7 +279,7 @@
 <div id="cift"><div class="ayrac"></div><div class="etiket e0"></div><div class="etiket e1"></div><button id="ciftEv" aria-label="Menü">🏠</button>
   <div id="ciftSonuc"><div class="kutu"><h2 id="csBaslik"></h2><p id="csSkor"></p><p id="csIpucu"></p><button id="csTekrar"></button><button class="ikinci" id="csMenu"></button></div></div></div>
 <div id="hub"><div id="hubUst"><h1>Interactive Game <small id="surumYazi"></small></h1><div id="modSec"><button data-m="1">👤 1 Player</button><button data-m="2">👥 2 Player</button></div>
-  <button class="kart" id="kameraAc">📷</button><button class="kart" id="ogMenu">❓</button><button class="kart" id="ayarAc">⚙️</button>
+  <button class="kart" id="sesAc" aria-label="Ses">🔊</button><button class="kart" id="kameraAc">📷</button><button class="kart" id="ogMenu">❓</button><button class="kart" id="ayarAc">⚙️</button>
   <button class="kart" data-k="kiz">Ponçik</button><button class="kart" data-k="erkek">Zıpır</button></div><div id="hubBilgi"></div><div id="kartlar"></div><div id="jestIpucu"></div></div>
 <div id="kilit"><div class="ikon" id="kilitIkon"></div><div id="kilitYazi"></div>
   <button class="ana" id="kilitDugme">Tam ekran yap</button></div>
@@ -445,13 +446,15 @@ const SES_YOL = {
   adim1: "assets/ses/popeye/adim1.mp3", adim2: "assets/ses/popeye/adim2.mp3", adim3: "assets/ses/popeye/adim3.mp3",
   blok: "assets/ses/cevre/tahtaVur.mp3", kir: "assets/ses/cevre/tasKir.mp3"
 };
-let sesCtx = null, sesAna = null;
+let sesCtx = null, sesAna = null, sesAcik = true;      // sesAcik: tüm sesler (efekt + müzik), ana sayfadaki 🔊 düğmesi
+try { sesAcik = localStorage.getItem("ig_ses") !== "0"; } catch (e) {}
+const SES_ANA = 0.9;
 const sesTampon = {};
 function sesleriYukle() {
   if (sesCtx) { sesCtx.resume && sesCtx.resume(); return; }
   try {
     sesCtx = new (window.AudioContext || window.webkitAudioContext)();
-    sesAna = sesCtx.createGain(); sesAna.gain.value = 0.9; sesAna.connect(sesCtx.destination);
+    sesAna = sesCtx.createGain(); sesAna.gain.value = sesAcik ? SES_ANA : 0; sesAna.connect(sesCtx.destination);
     for (const ad in SES_YOL) {
       fetch(SES_YOL[ad]).then(r => r.arrayBuffer())
         .then(b => new Promise((tamam, hata) => sesCtx.decodeAudioData(b, tamam, hata)))
@@ -476,6 +479,12 @@ function muzikGuncelle() {
   const z = sesCtx.currentTime; muzikKazanc.gain.cancelScheduledValues(z); muzikKazanc.gain.setTargetAtTime(muzikAcik ? MUZIK_SES : 0, z, 0.25);      // yumuşak aç/kapa
 }
 addEventListener("pointerdown", () => { sesleriYukle(); muzikGuncelle(); }, true);
+function sesDugmesiYaz() { const b = document.getElementById("sesAc"); if (b) { b.textContent = sesAcik ? "🔊" : "🔇"; b.classList.toggle("kapali", !sesAcik); } }
+function sesAcKapa() {
+  sesAcik = !sesAcik; try { localStorage.setItem("ig_ses", sesAcik ? "1" : "0"); } catch (e) {}
+  sesleriYukle(); if (sesAna) { const z = sesCtx.currentTime; sesAna.gain.cancelScheduledValues(z); sesAna.gain.setTargetAtTime(sesAcik ? SES_ANA : 0, z, 0.08); }
+  sesDugmesiYaz(); if (sesAcik) cal("elmas", 0.6);
+}
 function cal(ad, siddet = 1, perde = 1) {
   if (DIS) { parent.postMessage({ tip: "ses", a: [ad, siddet, perde] }, "*"); return; }      // sesleri ana sayfa çalar
   const t = sesTampon[ad];
@@ -2186,6 +2195,7 @@ function dilUygula() {
 function hubKur() {
   $("ayarAc").addEventListener("click", () => { $("ayarPanel").style.display = "flex"; });
   $("ayKapat").addEventListener("click", () => { $("ayarPanel").style.display = "none"; menuGoster(); });
+  $("sesAc").addEventListener("click", sesAcKapa); sesDugmesiYaz();
   $("ayMuzik").addEventListener("click", () => { muzikAcik = !muzikAcik; try { localStorage.setItem("ig_muzik", muzikAcik ? "1" : "0"); } catch (e) {} sesleriYukle(); muzikGuncelle(); dilUygula(); });
   $("ayGeri").addEventListener("click", () => geriYukle(false)); $("ayGuvenlik").addEventListener("click", () => { $("ayarPanel").style.display = "none"; guvenlikGoster(); }); $("ayHata").addEventListener("click", sorunBildir);
   for (const b of document.querySelectorAll("#ayarPanel [data-z]")) b.addEventListener("click", () => { zorlukAd = b.dataset.z; try { localStorage.setItem("igZorluk", zorlukAd); } catch (e) {} dilUygula(); });
