@@ -228,10 +228,11 @@
   /* Duraklatma: ortada büyük "oynat" düğmesi — dokununca oyun devam eder */
   #duraklatYazi { display: none; flex-direction: column; align-items: center; gap: 4px; }
   #duraklatYazi span { pointer-events: none; }
-  #devamBtn { pointer-events: auto; width: clamp(84px, 16vw, 140px); height: clamp(84px, 16vw, 140px); border: 0; border-radius: 50%; padding: 0; cursor: pointer;
-    background: radial-gradient(circle at 35% 30%, #7fe07a, #2fb24a 70%); box-shadow: 0 6px 0 #1d7a31, 0 10px 22px rgba(0,40,20,.35); color: #fff; font-size: clamp(40px, 8vw, 68px); line-height: 1;
-    animation: devamNabiz 1.4s ease-in-out infinite; }
-  #devamBtn:active { transform: scale(.94); }
+  #duraklatYazi .ikili { display: flex; align-items: center; gap: clamp(10px, 3vw, 28px); font-size: clamp(64px, 13vw, 120px); line-height: 1; }
+  #duraklatYazi .dur { font-style: normal; pointer-events: none; opacity: .9; }
+  #devamBtn { pointer-events: auto; border: 0; padding: 0; background: none; cursor: pointer; font-size: inherit; line-height: 1;
+    filter: drop-shadow(0 6px 10px rgba(0,40,110,.35)); animation: devamNabiz 1.4s ease-in-out infinite; }
+  #devamBtn:active { transform: scale(.92); }
   @keyframes devamNabiz { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.07); } }
 </style>
 </head>
@@ -267,7 +268,7 @@
 <div id="ayarCubuk"><span id="ayarYazi"></span><input id="ayarKaydir" type="range" min="0.4" max="2" step="0.1" value="1"></div>
 <div id="durum"></div>
 <div id="flas"></div>
-<div id="duraklatYazi"><button id="devamBtn" aria-label="Devam">▶️</button><span>PAUSE</span></div>
+<div id="duraklatYazi"><div class="ikili"><i class="dur">⏸</i><button id="devamBtn" aria-label="Devam">▶️</button></div><span>PAUSE</span></div>
 <div id="uyari"></div>
 <div id="bilgiPanel"><div class="kutu" id="bilgiKutu"></div></div>
 <div id="cikisPanel"><div class="kutu"><h2 id="ckBaslik"></h2><p id="ckEvet"></p><p id="ckHayir"></p><button id="ckEvetB"></button><button class="ikinci" id="ckHayirB"></button></div></div>
