@@ -451,7 +451,6 @@ const dokunmatik = matchMedia("(pointer: coarse)").matches;
 const SES_YOL = {
   elmas: "assets/ses/elmaslar/elmas.mp3", zipla: "assets/ses/popeye/sekme1.mp3",
   carp: "assets/ses/popeye/bastonVur.mp3", vur: "assets/ses/popeye/ayakVur.mp3",
-  kaybet: "assets/ses/popeye/tamKaybet.mp3",
   adim1: "assets/ses/popeye/adim1.mp3", adim2: "assets/ses/popeye/adim2.mp3", adim3: "assets/ses/popeye/adim3.mp3",
   blok: "assets/ses/cevre/tahtaVur.mp3", kir: "assets/ses/cevre/tasKir.mp3"
 };
@@ -476,7 +475,9 @@ function sesleriYukle() {
 const MUZIK = { menu: "assets/ses/muzik-menu.ogg", oyun: "assets/ses/muzik-oyun.ogg" }, MUZIK_SES = 0.22;      // "Party and Gameover loop" — gilzoide, CC0
 let muzikAcik = true; const muzikParca = {};      // ad → { tampon, kaynak, kazanc, yukleniyor }
 try { muzikAcik = localStorage.getItem("ig_muzik") !== "0"; } catch (e) {}
-const muzikIstenen = () => durum === "menu" ? "menu" : "oyun";
+// Ana sayfada ve oyun bitince (kaybedince) sakin parça; oyun başlayınca / yeniden başlayınca hızlı parça
+let muzikSon = "";
+const muzikIstenen = () => durum === "menu" || durum === "bitti" || (durum === "cift" && $("ciftSonuc").style.display === "flex") ? "menu" : "oyun";
 function muzikGuncelle() {
   if (DIS || !sesCtx) return;
   const istenen = muzikAcik ? muzikIstenen() : null, z = sesCtx.currentTime;
@@ -493,7 +494,9 @@ function muzikGuncelle() {
     if (ad !== istenen && m.kaynak) { const k = m.kaynak; m.kaynak = null; setTimeout(() => { try { k.stop(); } catch (e) {} }, 1500); }      // susan parça baştan başlar
   }
 }
-addEventListener("pointerdown", () => { sesleriYukle(); muzikGuncelle(); }, true);
+for (const olay of ["pointerdown", "pointerup", "touchend", "click", "keydown"]) addEventListener(olay, () => {
+  sesleriYukle(); if (sesCtx && sesCtx.state !== "running") sesCtx.resume().then(muzikGuncelle).catch(() => {}); else muzikGuncelle();
+}, true);
 function sesDugmesiYaz() { for (const id of ["sesAc", "sesBtn"]) { const b = document.getElementById(id); if (b) { b.textContent = sesAcik ? "🔊" : "🔇"; b.classList.toggle("kapali", !sesAcik); } } }
 function sesAcKapa() {
   sesAcik = !sesAcik; try { localStorage.setItem("ig_ses", sesAcik ? "1" : "0"); } catch (e) {}
@@ -2245,6 +2248,7 @@ function dongu(damga) {
   const dt = Math.min((damga - sonZamanDamga) / 1000 || 0.016, 0.05);
   sonZamanDamga = damga;
   if (rafPompa && video.currentTime !== sonVideoZaman) { sonVideoZaman = video.currentTime; kareIsle(); }
+  if (sesCtx && !DIS) { const m = muzikIstenen(); if (m !== muzikSon) { muzikSon = m; muzikGuncelle(); } }
   if (engel || document.hidden || durum === "menu" || durum === "cift") return;      // ana ekranda / 2 Player'da ana sahne çizilmez (pil)
   zaman += dt;
 
@@ -2457,6 +2461,7 @@ $("kpKapat").addEventListener("click", kilitKapat);
 setInterval(() => { if (durum === "menu") for (const o of OYUNLAR) kartKilitYaz(o); }, 60000);      // kalan süre güncellensin
 if (DIS) disBaslat();
 else { reklamBaslat(); webBannerGoster(); satisBaslat(); menuGoster(); if (!lsAl("ig_guvenlik")) guvenlikGoster(); }
+if (!DIS) { sesleriYukle(); muzikGuncelle(); }      // açılışta dene: telefon uygulaması izin veriyorsa müzik dokunmadan başlar; değilse ilk dokunuşta
 if (!DIS) {      // ana sayfa hazır: kart resimleri de inince (en çok 3 sn) yükleme ekranı dolup kapanır
   const bekle = OYUNLAR.filter(gorunur).map(o => o.kartResim.decode ? o.kartResim.decode().catch(() => {}) : null);
   Promise.race([Promise.all(bekle), new Promise(r => setTimeout(r, 3000))]).then(() => window.yuklemeBitir && yuklemeBitir());
