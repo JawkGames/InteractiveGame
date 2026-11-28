@@ -25,7 +25,7 @@
   #skor { position: fixed; left: 12px; top: 10px; pointer-events: none; }
   #sag { position: fixed; right: 12px; top: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; z-index: 30; }
   #elmas { pointer-events: none; }
-  #tamEkran, #ev, #ayar, #ogBtn { width: 46px; height: 46px; font-size: 24px; line-height: 1; color: #fff; background: rgba(60,36,90,.55);
+  #tamEkran, #ev, #ayar, #ogBtn, #sesBtn { width: 46px; height: 46px; font-size: 24px; line-height: 1; color: #fff; background: rgba(60,36,90,.55);
     border: 2px solid rgba(255,255,255,.9); border-radius: 14px; padding: 0; display: none; }
   #durum { position: fixed; left: 50%; top: 58px; transform: translateX(-50%); max-width: 86vw; padding: 8px 18px;
     border-radius: 999px; background: rgba(60,36,90,.6); color: #fff; font-weight: 800; font-size: 18px;
@@ -263,7 +263,7 @@
 <canvas id="oyun"></canvas>
 <video id="video" playsinline muted></video>
 <div class="rozet" id="skor">0</div><div id="artiPuan"></div>
-<div id="sag"><div class="rozet" id="elmas">💎 0</div><button id="tamEkran" aria-label="Tam ekran">⛶</button><button id="ev" aria-label="Oyunlar">🏠</button><button id="ayar" aria-label="Hassasiyet">⚙️</button><button id="ogBtn" aria-label="Öğretici">❓</button></div>
+<div id="sag"><div class="rozet" id="elmas">💎 0</div><button id="tamEkran" aria-label="Tam ekran">⛶</button><button id="ev" aria-label="Oyunlar">🏠</button><button id="ayar" aria-label="Hassasiyet">⚙️</button><button id="ogBtn" aria-label="Öğretici">❓</button><button id="sesBtn" aria-label="Ses">🔊</button></div>
 <div id="ayarCubuk"><span id="ayarYazi"></span><input id="ayarKaydir" type="range" min="0.4" max="2" step="0.1" value="1"></div>
 <div id="durum"></div>
 <div id="flas"></div>
@@ -391,8 +391,8 @@ async function dilYukle(k) {
 //  SİMGELER — ekrandaki emojiler oyunun kendi çizim simgeleriyle (assets/simgeler.webp, tek resim) değiştirilir.
 //  Tek tablo: emoji → simge adı. Sayfadaki her yazı (düğme, mesaj, panel) otomatik çevrilir; tuvale de aynı simge çizilir.
 // =====================================================================================================
-const SIMGE_KOL = 10, SIMGE_SAT = 10, SIMGE_BOY = 128, SIMGE_YER = {"ayar":0,"soru":1,"kamera":2,"ev":3,"tamekran":4,"dunya":5,"paylas":6,"geriyukle":7,"bocek":8,"kalkan":9,"kilit":10,"kumsaati":11,"reklam":12,"yildiz":13,"onay":14,"takvim":15,"sandalye":16,"duraklat":17,"telefon":18,"bebek":19,"gulen":20,"alev":21,"tek":22,"iki":23,"kupa":24,"elmas":25,"kalp":26,"tac":27,"zafer":28,"el":29,"altin":30,"gumus":31,"bronz":32,"bosyildiz":33,"bitis":34,"begen":35,"carpi":36,"tokalasma":37,"isikyesil":38,"isiksari":39,"isikkirmizi":40,"sasik":41,"pano":42,"ampul":43,"ciftok":44,"geri":45,"patlama":46,"agac":47,"ayakta":48,"kosan":49,"kumanda":50,"yukari":51,"asagi":52,"sag":53,"sol":54,"kivrikyukari":55,"kivrikasagi":56,"sagadonus":57,"soladonus":58,"dongu":59,"top":60,"ruzgar":61,"eldiven":62,"kale":63,"boks":64,"nota":65,"davul":66,"kronometre":67,"bomba":68,"vazo":69,"kus":70,"halka":71,"firtina":72,"araba":73,"motor":74,"ayi":75,"ip":76,"duvar":77,"kayakci":78,"kayik":79,"yuzucu":80,"dans":81,"kaya":82,"kutuk":83,"girdap":84,"kopru":85,"kalem":86,"bayrak":87,"cam":88,"simsek":89,"bacak":90,"kiz":91,"erkek":92};
-const EMOJI_SIMGE = { "📱↻": "telefon", "💃🕺": "dans", "⚙": "ayar", "❓": "soru", "📷": "kamera", "🏠": "ev", "⛶": "tamekran", "🌐": "dunya", "📤": "paylas", "🔄": "geriyukle", "🐞": "bocek", "🛡": "kalkan", "🔒": "kilit", "⏳": "kumsaati", "🎬": "reklam", "⭐": "yildiz", "★": "yildiz", "☆": "bosyildiz", "✅": "onay", "📅": "takvim", "🪑": "sandalye", "⏸": "duraklat", "📱": "telefon", "👶": "bebek", "🙂": "gulen", "🔥": "alev", "👤": "tek", "👥": "iki", "🏆": "kupa", "💎": "elmas", "❤": "kalp", "🙆": "tac", "🙌": "zafer", "✋": "el", "🥇": "altin", "🥈": "gumus", "🥉": "bronz", "🏁": "bitis", "👍": "begen", "❌": "carpi", "✗": "carpi", "🤝": "tokalasma", "🟢": "isikyesil", "🟡": "isiksari", "🔴": "isikkirmizi", "😮": "sasik", "📋": "pano", "💡": "ampul", "↔": "ciftok", "⏪": "geri", "💥": "patlama", "🌳": "agac", "🧍": "ayakta", "🏃": "kosan", "🎮": "kumanda", "⬆": "yukari", "⬇": "asagi", "➡": "sag", "⬅": "sol", "⤴": "kivrikyukari", "⤵": "kivrikasagi", "↪": "sagadonus", "↩": "soladonus", "🔁": "dongu", "⚽": "top", "💨": "ruzgar", "🧤": "eldiven", "🥅": "kale", "🥊": "boks", "🎵": "nota", "🥁": "davul", "⏱": "kronometre", "💣": "bomba", "🏺": "vazo", "🐦": "kus", "⭕": "halka", "⛈": "firtina", "🚗": "araba", "🏍": "motor", "🧸": "ayi", "🪢": "ip", "🧱": "duvar", "⛷": "kayakci", "🚣": "kayik", "🏊": "yuzucu", "💃": "dans", "🕺": "dans", "🪨": "kaya", "🪵": "kutuk", "🌀": "girdap", "🌉": "kopru", "✏": "kalem", "🚩": "bayrak", "🌲": "cam", "⚡": "simsek", "🦵": "bacak" };
+const SIMGE_KOL = 10, SIMGE_SAT = 10, SIMGE_BOY = 128, SIMGE_YER = {"ayar":0,"soru":1,"kamera":2,"ev":3,"tamekran":4,"dunya":5,"paylas":6,"geriyukle":7,"bocek":8,"kalkan":9,"kilit":10,"kumsaati":11,"reklam":12,"yildiz":13,"onay":14,"takvim":15,"sandalye":16,"duraklat":17,"telefon":18,"bebek":19,"gulen":20,"alev":21,"tek":22,"iki":23,"kupa":24,"elmas":25,"kalp":26,"tac":27,"zafer":28,"el":29,"altin":30,"gumus":31,"bronz":32,"bosyildiz":33,"bitis":34,"begen":35,"carpi":36,"tokalasma":37,"isikyesil":38,"isiksari":39,"isikkirmizi":40,"sasik":41,"pano":42,"ampul":43,"ciftok":44,"geri":45,"patlama":46,"agac":47,"ayakta":48,"kosan":49,"kumanda":50,"yukari":51,"asagi":52,"sag":53,"sol":54,"kivrikyukari":55,"kivrikasagi":56,"sagadonus":57,"soladonus":58,"dongu":59,"top":60,"ruzgar":61,"eldiven":62,"kale":63,"boks":64,"nota":65,"davul":66,"kronometre":67,"bomba":68,"vazo":69,"kus":70,"halka":71,"firtina":72,"araba":73,"motor":74,"ayi":75,"ip":76,"duvar":77,"kayakci":78,"kayik":79,"yuzucu":80,"dans":81,"kaya":82,"kutuk":83,"girdap":84,"kopru":85,"kalem":86,"bayrak":87,"cam":88,"simsek":89,"bacak":90,"kiz":91,"erkek":92,"oynat":93,"sesacik":94,"seskapali":95};
+const EMOJI_SIMGE = { "📱↻": "telefon", "💃🕺": "dans", "⚙": "ayar", "❓": "soru", "📷": "kamera", "🏠": "ev", "⛶": "tamekran", "🌐": "dunya", "📤": "paylas", "🔄": "geriyukle", "🐞": "bocek", "🛡": "kalkan", "🔒": "kilit", "⏳": "kumsaati", "🎬": "reklam", "⭐": "yildiz", "★": "yildiz", "☆": "bosyildiz", "✅": "onay", "📅": "takvim", "🪑": "sandalye", "⏸": "duraklat", "📱": "telefon", "👶": "bebek", "🙂": "gulen", "🔥": "alev", "👤": "tek", "👥": "iki", "🏆": "kupa", "💎": "elmas", "❤": "kalp", "🙆": "tac", "🙌": "zafer", "✋": "el", "🥇": "altin", "🥈": "gumus", "🥉": "bronz", "🏁": "bitis", "👍": "begen", "❌": "carpi", "✗": "carpi", "🤝": "tokalasma", "🟢": "isikyesil", "🟡": "isiksari", "🔴": "isikkirmizi", "😮": "sasik", "📋": "pano", "💡": "ampul", "↔": "ciftok", "⏪": "geri", "💥": "patlama", "🌳": "agac", "🧍": "ayakta", "🏃": "kosan", "🎮": "kumanda", "⬆": "yukari", "⬇": "asagi", "➡": "sag", "⬅": "sol", "⤴": "kivrikyukari", "⤵": "kivrikasagi", "↪": "sagadonus", "↩": "soladonus", "🔁": "dongu", "⚽": "top", "💨": "ruzgar", "🧤": "eldiven", "🥅": "kale", "🥊": "boks", "🎵": "nota", "🥁": "davul", "⏱": "kronometre", "💣": "bomba", "🏺": "vazo", "🐦": "kus", "⭕": "halka", "⛈": "firtina", "🚗": "araba", "🏍": "motor", "🧸": "ayi", "🪢": "ip", "🧱": "duvar", "⛷": "kayakci", "🚣": "kayik", "🏊": "yuzucu", "💃": "dans", "🕺": "dans", "🪨": "kaya", "🪵": "kutuk", "🌀": "girdap", "🌉": "kopru", "✏": "kalem", "🚩": "bayrak", "🌲": "cam", "⚡": "simsek", "🦵": "bacak", "▶": "oynat", "🔊": "sesacik", "🔇": "seskapali" };
 const simgeDesen = new RegExp("(" + Object.keys(EMOJI_SIMGE).sort((a, b) => b.length - a.length).map(e => e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")\uFE0F?", "gu");
 const simgeResim = new Image(); simgeResim.src = "assets/simgeler.webp";
 function simgeKonum(ad) { const i = SIMGE_YER[ad]; return [i % SIMGE_KOL, Math.floor(i / SIMGE_KOL)]; }
@@ -470,24 +470,30 @@ function sesleriYukle() {
     }
   } catch (e) { sesCtx = null; }
 }
-// Arka plan müziği: neşeli döngü (Catsong — Dan Knoflicek, CC0). İlk dokunuşta başlar; ayarlardan kapatılabilir.
-const MUZIK_YOL = "assets/ses/muzik.ogg", MUZIK_SES = 0.22;
-let muzikAcik = true, muzikKaynak = null, muzikKazanc = null, muzikTampon = null, muzikYukleniyor = false;
+// Arka plan müziği: ana sayfada sakin parça, oyunda hızlı parça; aralarında yumuşak geçiş. Ayarlardan kapatılabilir.
+// MUZIK tablosu: parça adı → dosya. Dosyayı değiştirmek için sadece burası değişir.
+const MUZIK = { menu: "assets/ses/muzik.ogg", oyun: "assets/ses/muzik.ogg" }, MUZIK_SES = 0.22;
+let muzikAcik = true; const muzikParca = {};      // ad → { tampon, kaynak, kazanc, yukleniyor }
 try { muzikAcik = localStorage.getItem("ig_muzik") !== "0"; } catch (e) {}
+const muzikIstenen = () => durum === "menu" ? "menu" : "oyun";
 function muzikGuncelle() {
   if (DIS || !sesCtx) return;
-  if (!muzikKazanc) { muzikKazanc = sesCtx.createGain(); muzikKazanc.gain.value = 0; muzikKazanc.connect(sesAna); }
-  if (muzikAcik && !muzikTampon && !muzikYukleniyor) {
-    muzikYukleniyor = true;
-    fetch(MUZIK_YOL).then(r => r.arrayBuffer()).then(b => new Promise((tamam, hata) => sesCtx.decodeAudioData(b, tamam, hata)))
-      .then(t => { muzikTampon = t; muzikGuncelle(); }).catch(() => {}).finally(() => { muzikYukleniyor = false; });
-    return;
+  const istenen = muzikAcik ? muzikIstenen() : null, z = sesCtx.currentTime;
+  for (const ad in MUZIK) {
+    const m = muzikParca[ad] || (muzikParca[ad] = {});
+    if (!m.kazanc) { m.kazanc = sesCtx.createGain(); m.kazanc.gain.value = 0; m.kazanc.connect(sesAna); }
+    if (ad === istenen && !m.tampon && !m.yukleniyor) {
+      m.yukleniyor = true;
+      fetch(MUZIK[ad]).then(r => r.arrayBuffer()).then(b => new Promise((tamam, hata) => sesCtx.decodeAudioData(b, tamam, hata)))
+        .then(t => { m.tampon = t; muzikGuncelle(); }).catch(() => {}).finally(() => { m.yukleniyor = false; });
+    }
+    if (ad === istenen && m.tampon && !m.kaynak) { m.kaynak = sesCtx.createBufferSource(); m.kaynak.buffer = m.tampon; m.kaynak.loop = true; m.kaynak.connect(m.kazanc); m.kaynak.start(); }
+    m.kazanc.gain.cancelScheduledValues(z); m.kazanc.gain.setTargetAtTime(ad === istenen ? MUZIK_SES : 0, z, 0.35);
+    if (ad !== istenen && m.kaynak) { const k = m.kaynak; m.kaynak = null; setTimeout(() => { try { k.stop(); } catch (e) {} }, 1500); }      // susan parça baştan başlar
   }
-  if (muzikAcik && muzikTampon && !muzikKaynak) { muzikKaynak = sesCtx.createBufferSource(); muzikKaynak.buffer = muzikTampon; muzikKaynak.loop = true; muzikKaynak.connect(muzikKazanc); muzikKaynak.start(); }
-  const z = sesCtx.currentTime; muzikKazanc.gain.cancelScheduledValues(z); muzikKazanc.gain.setTargetAtTime(muzikAcik ? MUZIK_SES : 0, z, 0.25);      // yumuşak aç/kapa
 }
 addEventListener("pointerdown", () => { sesleriYukle(); muzikGuncelle(); }, true);
-function sesDugmesiYaz() { const b = document.getElementById("sesAc"); if (b) { b.textContent = sesAcik ? "🔊" : "🔇"; b.classList.toggle("kapali", !sesAcik); } }
+function sesDugmesiYaz() { for (const id of ["sesAc", "sesBtn"]) { const b = document.getElementById(id); if (b) { b.textContent = sesAcik ? "🔊" : "🔇"; b.classList.toggle("kapali", !sesAcik); } } }
 function sesAcKapa() {
   sesAcik = !sesAcik; try { localStorage.setItem("ig_ses", sesAcik ? "1" : "0"); } catch (e) {}
   sesleriYukle(); if (sesAna) { const z = sesCtx.currentTime; sesAna.gain.cancelScheduledValues(z); sesAna.gain.setTargetAtTime(sesAcik ? SES_ANA : 0, z, 0.08); }
@@ -1705,15 +1711,15 @@ function menuGoster() {
   hubBilgiYaz(); $("bilgiPanel").style.display = "none"; ciftKapat();
   dilUygula();
   hub.querySelectorAll(".kart[data-k]").forEach(k => k.classList.toggle("secili", k.dataset.k === secili));
-  secIdx = Math.max(0, OYUNLAR.indexOf(sonSecilen)); secimYaz(false); jestIpucuYaz(); $("ogBtn").style.display = "none"; modUygula(); ilkIpucuYaz();
+  secIdx = Math.max(0, OYUNLAR.indexOf(sonSecilen)); secimYaz(false); jestIpucuYaz(); $("ogBtn").style.display = $("sesBtn").style.display = "none"; modUygula(); ilkIpucuYaz(); muzikGuncelle();
 }
 async function baslaTiklandi() {
-  sonSecilen = aktif; $("ogBtn").style.display = "block";
+  sonSecilen = aktif; $("ogBtn").style.display = $("sesBtn").style.display = "block";
   hub.style.display = "none"; panel.style.display = "block"; elSkor.style.display = elElmas.style.display = ""; $("ev").style.display = $("ayar").style.display = "block";
   if (dokunmatik) tamEkranAc();                 // dokunma anında çağrılmalı
   basladi = true; engel = dokunmatik;           // telefonda yatay + tam ekran olana kadar ölçüm başlamaz
   sesleriYukle();
-  durum = "hazirlik";
+  durum = "hazirlik"; muzikGuncelle();
   panel.innerHTML = "<h1>" + t("Hazırlanıyor") + "</h1><p id='hazirYazi'>" + t("Kamera açılıyor…") + "</p>";
   try {
     await kamerayiAc();
@@ -2054,7 +2060,7 @@ async function ciftBaslat(o) {
   panel.innerHTML = "<h1>" + t("Hazırlanıyor") + "</h1><p>" + t("Kamera açılıyor…") + "</p>"; panel.style.display = "block";
   try { await kamerayiAc(); await pozKur(); }
   catch (h) { panel.innerHTML = "<h1>" + t("Kamera kullanılamıyor") + "</h1><p>" + t("2 Player kamerayla oynanır.") + "</p><button class='ana' id='devam'>" + t("Oyunlar") + "</button>"; $("devam").addEventListener("click", menuGoster); return; }
-  panel.style.display = "none"; durum = "cift";
+  panel.style.display = "none"; durum = "cift"; muzikGuncelle();
   const c = $("cift"), kar = [secili, secili === "kiz" ? "erkek" : "kiz"];
   c.querySelectorAll("iframe").forEach(f => f.remove());
   kar.forEach((k, i) => { const f = document.createElement("iframe"); f.src = "index.html?dis=1&taraf=" + i + "&oyun=" + o.id + "&k=" + k; f.style.left = i ? "50%" : "0"; f.setAttribute("allow", "autoplay"); c.prepend(f); });
@@ -2204,7 +2210,7 @@ function dilUygula() {
 function hubKur() {
   $("ayarAc").addEventListener("click", () => { $("ayarPanel").style.display = "flex"; });
   $("ayKapat").addEventListener("click", () => { $("ayarPanel").style.display = "none"; menuGoster(); });
-  $("sesAc").addEventListener("click", sesAcKapa); sesDugmesiYaz();
+  $("sesAc").addEventListener("click", sesAcKapa); $("sesBtn").addEventListener("click", sesAcKapa); sesDugmesiYaz();
   $("ayMuzik").addEventListener("click", () => { muzikAcik = !muzikAcik; try { localStorage.setItem("ig_muzik", muzikAcik ? "1" : "0"); } catch (e) {} sesleriYukle(); muzikGuncelle(); dilUygula(); });
   $("ayGeri").addEventListener("click", () => geriYukle(false)); $("ayGuvenlik").addEventListener("click", () => { $("ayarPanel").style.display = "none"; guvenlikGoster(); }); $("ayHata").addEventListener("click", sorunBildir);
   for (const b of document.querySelectorAll("#ayarPanel [data-z]")) b.addEventListener("click", () => { zorlukAd = b.dataset.z; try { localStorage.setItem("igZorluk", zorlukAd); } catch (e) {} dilUygula(); });
