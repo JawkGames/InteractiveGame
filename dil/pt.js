@@ -64,5 +64,6 @@ export default [
 "Ele cai na cabeça do adversário", "Cubra o rosto com os dois punhos", "Defesa: você não sofre dano", "Copie a pose do brinquedo da direita",
 /*310*/ "Estenda a mão e acerte o objeto", "O objeto quebra", "Não toque nas bombas!", "Este jogo está bloqueado", "🎬 Assista a um anúncio, desbloqueie por 24 h", "⭐ Desbloquear todos os jogos", "Desbloqueado para sempre, e os anúncios também saem",
 "Restaurar compra", "Fechar", "Não foi possível carregar o anúncio, tente de novo em instantes",
-/*320*/ "O anúncio foi fechado antes do fim", "As compras só funcionam na versão da Play Store", "Obrigado! Todos os jogos desbloqueados", "Nenhuma compra encontrada", "Não foi possível concluir a compra", "Aguarde…", "Mão direita para cima", "h"
+/*320*/ "O anúncio foi fechado antes do fim", "As compras só funcionam na versão da Play Store", "Obrigado! Todos os jogos desbloqueados", "Nenhuma compra encontrada", "Não foi possível concluir a compra", "Aguarde…", "Mão direita para cima", "h", "Música", "Sair do aplicativo?",
+/*330*/ "Toque em um jogo para começar!"
 ];

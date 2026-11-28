@@ -64,5 +64,6 @@ export default [
 "Cae sobre la cabeza del rival", "Cúbrete la cara con los dos puños", "Defensa: no recibes daño", "Copia la pose del juguete de la derecha",
 /*310*/ "Alcanza el objeto y golpéalo", "El objeto se rompe", "¡No toques las bombas!", "Este juego está bloqueado", "🎬 Mira un anuncio, desbloquea por 24 h", "⭐ Desbloquear todos los juegos", "Se desbloquea para siempre y también se quitan los anuncios",
 "Restaurar compra", "Cerrar", "No se pudo cargar el anuncio, inténtalo en un momento",
-/*320*/ "El anuncio se cerró antes de tiempo", "Las compras solo funcionan en la versión de Play Store", "¡Gracias! Todos los juegos desbloqueados", "No se encontró ninguna compra", "No se pudo completar la compra", "Espera…", "Mano derecha arriba", "h"
+/*320*/ "El anuncio se cerró antes de tiempo", "Las compras solo funcionan en la versión de Play Store", "¡Gracias! Todos los juegos desbloqueados", "No se encontró ninguna compra", "No se pudo completar la compra", "Espera…", "Mano derecha arriba", "h", "Música", "¿Salir de la aplicación?",
+/*330*/ "¡Toca un juego para empezar!"
 ];

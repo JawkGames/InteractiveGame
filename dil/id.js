@@ -64,5 +64,6 @@ export default [
 "Mendarat di kepala lawan", "Tutup wajah dengan kedua kepalan", "Tangkisan: kamu tidak terkena kerusakan", "Tiru pose mainan di kanan",
 /*310*/ "Raih dan pukul bendanya", "Bendanya pecah", "Jangan sentuh bom!", "Game ini terkunci", "🎬 Tonton iklan, buka selama 24 jam", "⭐ Buka semua game", "Terbuka selamanya, iklan juga hilang",
 "Pulihkan pembelian", "Tutup", "Iklan gagal dimuat, coba lagi sebentar lagi",
-/*320*/ "Iklan ditutup sebelum selesai", "Pembelian hanya berfungsi di versi Play Store", "Terima kasih! Semua game terbuka", "Pembelian tidak ditemukan", "Pembelian tidak dapat diselesaikan", "Mohon tunggu…", "Tangan kanan ke atas", "j"
+/*320*/ "Iklan ditutup sebelum selesai", "Pembelian hanya berfungsi di versi Play Store", "Terima kasih! Semua game terbuka", "Pembelian tidak ditemukan", "Pembelian tidak dapat diselesaikan", "Mohon tunggu…", "Tangan kanan ke atas", "j", "Musik", "Keluar dari aplikasi?",
+/*330*/ "Ketuk sebuah game untuk mulai!"
 ];

@@ -64,5 +64,6 @@ export default [
 "Sie landet am Kopf des Gegners", "Bedecke dein Gesicht mit beiden Fäusten", "Deckung: du nimmst keinen Schaden", "Ahme die Pose des Spielzeugs rechts nach",
 /*310*/ "Greif nach dem Objekt und schlag zu", "Das Objekt zerbricht", "Berühre die Bomben nicht!", "Dieses Spiel ist gesperrt", "🎬 Werbung ansehen, 24 Std. freischalten", "⭐ Alle Spiele freischalten", "Für immer freigeschaltet, Werbung entfällt auch",
 "Kauf wiederherstellen", "Schließen", "Die Werbung konnte nicht geladen werden, versuch es gleich nochmal",
-/*320*/ "Die Werbung wurde vorzeitig geschlossen", "Käufe funktionieren nur in der Play-Store-Version", "Danke! Alle Spiele freigeschaltet", "Kein Kauf gefunden", "Der Kauf konnte nicht abgeschlossen werden", "Bitte warten…", "Rechte Hand hoch", "Std"
+/*320*/ "Die Werbung wurde vorzeitig geschlossen", "Käufe funktionieren nur in der Play-Store-Version", "Danke! Alle Spiele freigeschaltet", "Kein Kauf gefunden", "Der Kauf konnte nicht abgeschlossen werden", "Bitte warten…", "Rechte Hand hoch", "Std", "Musik", "App beenden?",
+/*330*/ "Tippe auf ein Spiel, um zu starten!"
 ];

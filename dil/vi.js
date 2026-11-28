@@ -64,5 +64,6 @@ export default [
 "Đáp xuống đầu đối thủ", "Che mặt bằng hai nắm đấm", "Đỡ đòn: bạn không bị thương", "Làm theo dáng của món đồ chơi bên phải",
 /*310*/ "Với tới và đập vật", "Vật vỡ tan", "Đừng chạm vào bom!", "Game này đang bị khóa", "🎬 Xem quảng cáo, mở khóa trong 24 giờ", "⭐ Mở khóa tất cả game", "Mở khóa vĩnh viễn, cũng không còn quảng cáo",
 "Khôi phục giao dịch mua", "Đóng", "Không tải được quảng cáo, hãy thử lại sau ít phút",
-/*320*/ "Quảng cáo bị đóng trước khi hoàn tất", "Giao dịch mua chỉ hoạt động ở phiên bản Play Store", "Cảm ơn bạn! Tất cả game đã được mở khóa", "Không tìm thấy giao dịch mua", "Không thể hoàn tất giao dịch mua", "Vui lòng đợi…", "Giơ tay phải lên", "giờ"
+/*320*/ "Quảng cáo bị đóng trước khi hoàn tất", "Giao dịch mua chỉ hoạt động ở phiên bản Play Store", "Cảm ơn bạn! Tất cả game đã được mở khóa", "Không tìm thấy giao dịch mua", "Không thể hoàn tất giao dịch mua", "Vui lòng đợi…", "Giơ tay phải lên", "giờ", "Âm nhạc", "Thoát ứng dụng?",
+/*330*/ "Chạm vào một trò chơi để bắt đầu!"
 ];

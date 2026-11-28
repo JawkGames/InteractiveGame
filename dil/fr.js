@@ -64,5 +64,6 @@ export default [
 "Il atterrit sur la tête de l'adversaire", "Couvre ton visage avec les deux poings", "Garde : tu ne subis aucun dégât", "Copie la pose du jouet de droite",
 /*310*/ "Tends la main et frappe l'objet", "L'objet se brise", "Ne touche pas les bombes !", "Ce jeu est verrouillé", "🎬 Regarde une pub, débloque 24 h", "⭐ Débloquer tous les jeux", "Débloqué pour toujours, les pubs disparaissent aussi",
 "Restaurer l'achat", "Fermer", "La pub n'a pas pu se charger, réessaie dans un instant",
-/*320*/ "La pub a été fermée trop tôt", "Les achats ne fonctionnent que dans la version Play Store", "Merci ! Tous les jeux sont débloqués", "Aucun achat trouvé", "L'achat n'a pas pu être terminé", "Patiente…", "Main droite en haut", "h"
+/*320*/ "La pub a été fermée trop tôt", "Les achats ne fonctionnent que dans la version Play Store", "Merci ! Tous les jeux sont débloqués", "Aucun achat trouvé", "L'achat n'a pas pu être terminé", "Patiente…", "Main droite en haut", "h", "Musique", "Quitter l'application ?",
+/*330*/ "Touche un jeu pour commencer !"
 ];

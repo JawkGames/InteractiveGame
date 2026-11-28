@@ -24,6 +24,7 @@ if (adim === "www") {
   fs.copyFileSync(path.join(nm, "@capacitor-community/admob/dist/plugin.js"), path.join(lib, "admob.js"));
   fs.copyFileSync(path.join(nm, "@capgo/native-purchases/dist/plugin.js"), path.join(lib, "satin.js"));
   fs.copyFileSync(path.join(nm, "@capacitor/share/dist/plugin.js"), path.join(lib, "paylas.js"));
+  fs.copyFileSync(path.join(nm, "@capacitor/app/dist/plugin.js"), path.join(lib, "uygulama.js"));      // Android geri tuşu
   // İnternetsiz çalışsın: 3B motor, hareket algılama kütüphanesi ve modeli uygulamanın içine gömülür (CDN'e gerek kalmaz)
   fs.copyFileSync(path.join(nm, "three/build/three.module.min.js"), path.join(lib, "three.module.min.js"));
   const mp = path.join(lib, "mp"), mpw = path.join(mp, "wasm"); fs.mkdirSync(mpw, { recursive: true });
@@ -41,7 +42,7 @@ if (adim === "www") {
   degis('"https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm"', 'new URL("lib/mp/wasm", location.href).href');
   degis('"https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task"', 'new URL("lib/mp/pose_landmarker_lite.task", location.href).href');
   h = h.replace("<script type=\"module\">",
-    '<script src="lib/capacitor.js"></script>\n<script src="lib/admob.js"></script>\n<script src="lib/satin.js"></script>\n<script src="lib/paylas.js"></script>\n<script type="module">');
+    '<script src="lib/capacitor.js"></script>\n<script src="lib/admob.js"></script>\n<script src="lib/satin.js"></script>\n<script src="lib/paylas.js"></script>\n<script src="lib/uygulama.js"></script>\n<script type="module">');
   fs.writeFileSync(ix, h);
   console.log("www hazır");
 }

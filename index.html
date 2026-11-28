@@ -218,6 +218,12 @@
     -webkit-text-stroke: 1px #0b5fc4; paint-order: stroke fill; text-shadow: 0 3px 0 #0b5fc4, 0 4px 10px rgba(0,40,110,.4); }
   #artiPuan.acik { animation: artiPuan .9s ease-out forwards; }
   @keyframes artiPuan { 0% { opacity: 0; transform: translateY(8px) scale(.7); } 15% { opacity: 1; transform: translateY(0) scale(1.15); } 30% { transform: scale(1); } 75% { opacity: 1; } 100% { opacity: 0; transform: translateY(-10px); } }
+  /* İlk açılış ipucu (ilk kartta) */
+  .ilkIpucu { position: absolute; inset: 0 0 32% 0; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; pointer-events: none; }
+  .ilkIpucu b { font-size: 2.6em; line-height: 1; animation: ilkEl 1s ease-in-out infinite; filter: drop-shadow(0 4px 6px rgba(0,40,110,.4)); }
+  .ilkIpucu span { max-width: 92%; padding: 4px 10px; border-radius: 999px; background: #fff; color: #0b4fa8; font-weight: 700; font-size: 13px; text-align: center; box-shadow: 0 3px 0 #0b5fc4; }
+  @keyframes ilkEl { 0%, 100% { transform: translateY(0) rotate(-8deg); } 50% { transform: translateY(10px) rotate(4deg) scale(.92); } }
+  #cikisPanel p:empty { display: none; }
 </style>
 </head>
 <body>
@@ -266,6 +272,7 @@
 <div id="ayarPanel"><div class="kutu"><h2 id="ayBaslik"></h2>
   <p id="ayZorluk"></p><div class="secim"><button class="kart" data-z="kolay"></button><button class="kart" data-z="normal"></button><button class="kart" data-z="zor"></button></div>
   <p id="ayDil"></p><div class="secim" id="dilSecim"></div>
+  <div class="secim"><button class="kart" id="ayMuzik"></button></div>
   <div class="secim"><button class="kart" id="ayGeri"></button><button class="kart" id="ayGuvenlik"></button><button class="kart" id="ayHata"></button></div><p class="kucuk" id="ayMesaj"></p>
   <button class="ana" id="ayKapat"></button></div></div>
 <div id="cift"><div class="ayrac"></div><div class="etiket e0"></div><div class="etiket e1"></div><button id="ciftEv" aria-label="Menü">🏠</button>
@@ -352,9 +359,10 @@ const EN = {
   "Reklam şu an yüklenemedi, biraz sonra dene": "The ad couldn't load, try again shortly", "Reklam yarıda kapandı": "The ad was closed early",
   "Satın alma sadece Play Store sürümünde çalışır": "Purchases only work in the Play Store version", "Teşekkürler! Tüm oyunlar açıldı": "Thank you! All games unlocked",
   "Satın alma bulunamadı": "No purchase found", "Satın alma tamamlanamadı": "The purchase could not be completed", "Bekleniyor…": "Please wait…", "Sağ el yukarı": "Right hand up",
-  "sa": "h"
+  "sa": "h",
+  "Müzik": "Music", "Uygulamadan çıkılsın mı?": "Exit the app?", "Başlamak için bir oyuna dokun!": "Tap a game to start!"
 };
-// UYARI: "sa" (saat birimi) EN'in SON girdisi olmalı; yeni metin eklenecekse dil/*.js dizilerinin de aynı sıraya eklenmesi gerekir (scripts/dil-kontrol.js denetler)
+// UYARI: yeni metinler EN'in SONUNA eklenir ve dil/*.js dizilerinin sonuna da aynı sırayla eklenmelidir (scripts/dil-kontrol.js denetler)
 // 16 dil (Play Store listesiyle aynı). Metin anahtarı Türkçedir; "en" yukarıdaki EN sözlüğünden, diğerleri dil/<kod>.js dosyasından yüklenir.
 // dil/<kod>.js: EN sözlüğüyle AYNI SIRADA çeviri dizisi (scripts/dil-kontrol.js sırayı ve sayıyı denetler). Eksik/boş çeviri İngilizceye düşer.
 const DILLER = [["tr", "Türkçe"], ["en", "English"], ["es", "Español"], ["fr", "Français"], ["de", "Deutsch"], ["pt", "Português"], ["ru", "Русский"], ["id", "Bahasa Indonesia"],
@@ -451,6 +459,23 @@ function sesleriYukle() {
     }
   } catch (e) { sesCtx = null; }
 }
+// Arka plan müziği: neşeli döngü (Catsong — Dan Knoflicek, CC0). İlk dokunuşta başlar; ayarlardan kapatılabilir.
+const MUZIK_YOL = "assets/ses/muzik.ogg", MUZIK_SES = 0.22;
+let muzikAcik = true, muzikKaynak = null, muzikKazanc = null, muzikTampon = null, muzikYukleniyor = false;
+try { muzikAcik = localStorage.getItem("ig_muzik") !== "0"; } catch (e) {}
+function muzikGuncelle() {
+  if (DIS || !sesCtx) return;
+  if (!muzikKazanc) { muzikKazanc = sesCtx.createGain(); muzikKazanc.gain.value = 0; muzikKazanc.connect(sesAna); }
+  if (muzikAcik && !muzikTampon && !muzikYukleniyor) {
+    muzikYukleniyor = true;
+    fetch(MUZIK_YOL).then(r => r.arrayBuffer()).then(b => new Promise((tamam, hata) => sesCtx.decodeAudioData(b, tamam, hata)))
+      .then(t => { muzikTampon = t; muzikGuncelle(); }).catch(() => {}).finally(() => { muzikYukleniyor = false; });
+    return;
+  }
+  if (muzikAcik && muzikTampon && !muzikKaynak) { muzikKaynak = sesCtx.createBufferSource(); muzikKaynak.buffer = muzikTampon; muzikKaynak.loop = true; muzikKaynak.connect(muzikKazanc); muzikKaynak.start(); }
+  const z = sesCtx.currentTime; muzikKazanc.gain.cancelScheduledValues(z); muzikKazanc.gain.setTargetAtTime(muzikAcik ? MUZIK_SES : 0, z, 0.25);      // yumuşak aç/kapa
+}
+addEventListener("pointerdown", () => { sesleriYukle(); muzikGuncelle(); }, true);
 function cal(ad, siddet = 1, perde = 1) {
   if (DIS) { parent.postMessage({ tip: "ses", a: [ad, siddet, perde] }, "*"); return; }      // sesleri ana sayfa çalar
   const t = sesTampon[ad];
@@ -1186,6 +1211,7 @@ function uyariKontrol(dt) {
 let kameraGeriAc = false;
 document.addEventListener("visibilitychange", () => {
   if (DIS) return;
+  if (sesCtx) { try { document.hidden ? sesCtx.suspend() : sesCtx.resume(); } catch (e) {} }      // uygulama arka planda: müzik ve sesler susar
   if (document.hidden && kameraVar) {
     try { video.srcObject && video.srcObject.getTracks().forEach(tr => tr.stop()); } catch (e) {}
     video.srcObject = null; kameraVar = false; kameraGeriAc = true;
@@ -1521,7 +1547,13 @@ function satirKaydir(d) {      // bir üst / alt satır, aynı sütun; uçta di�
   secIdx = OYUNLAR.indexOf(L[Math.min(n - 1, r * s + sut)]); secimYaz(true); cal("adim1", 0.5, d < 0 ? 1.5 : 1.1);
 }
 function secimBaslat() { const o = OYUNLAR[secIdx]; cal("elmas", 0.6, 1.2); oyunAc(o); }
-function oyunAc(o) { if (!acikMi(o)) { kilitGoster(o); return; } modGec(o); baslaTiklandi(); }
+function oyunAc(o) { if (!acikMi(o)) { kilitGoster(o); return; } lsYaz("ig_ilk", "1"); ilkIpucuYaz(); modGec(o); baslaTiklandi(); }
+function ilkIpucuYaz() {      // yeni oyuncu ne yapacağını bilsin: ilk (ücretsiz) kartta el işareti, ilk oyun açılınca bir daha çıkmaz
+  document.querySelectorAll(".ilkIpucu").forEach(e => e.remove());
+  if (lsAl("ig_ilk") || oyuncuModu !== 1) return;
+  const d = document.createElement("div"); d.className = "ilkIpucu"; d.innerHTML = "<b>✋</b><span></span>"; d.lastChild.textContent = t("Başlamak için bir oyuna dokun!");
+  KOSU.kart.append(d);
+}
 function modUygula() {
   document.querySelectorAll("#modSec [data-m]").forEach(b => b.classList.toggle("secili", +b.dataset.m === oyuncuModu));
   for (const o of OYUNLAR) if (o.kart) o.kart.style.display = gorunur(o) ? "" : "none";
@@ -1656,7 +1688,7 @@ function menuGoster() {
   hubBilgiYaz(); $("bilgiPanel").style.display = "none"; ciftKapat();
   dilUygula();
   hub.querySelectorAll(".kart[data-k]").forEach(k => k.classList.toggle("secili", k.dataset.k === secili));
-  secIdx = Math.max(0, OYUNLAR.indexOf(sonSecilen)); secimYaz(false); jestIpucuYaz(); $("ogBtn").style.display = "none"; modUygula();
+  secIdx = Math.max(0, OYUNLAR.indexOf(sonSecilen)); secimYaz(false); jestIpucuYaz(); $("ogBtn").style.display = "none"; modUygula(); ilkIpucuYaz();
 }
 async function baslaTiklandi() {
   sonSecilen = aktif; $("ogBtn").style.display = "block";
@@ -2103,10 +2135,29 @@ function durdu() { return disDur || ogAcik() || $("ayarCubuk").style.display ===
 const cikisAcik = () => $("cikisPanel").style.display === "flex";
 function duraklatYaz() { $("duraklatYazi").style.display = durum !== "menu" && ($("ayarCubuk").style.display === "flex") ? "block" : "none"; }
 function cikisGoster() {      // kollar çarpı: "oyundan çık?" sorusu; oyun durur
-  $("ckBaslik").textContent = t("Oyundan çıkılsın mı?"); $("ckEvet").textContent = t("🙆 Taç pozu: evet, ana menü"); $("ckHayir").textContent = t("🙌 İki kol yukarı: hayır, oyuna dön");
+  cikisUygulama = false; $("ckBaslik").textContent = t("Oyundan çıkılsın mı?"); $("ckEvet").textContent = t("🙆 Taç pozu: evet, ana menü"); $("ckHayir").textContent = t("🙌 İki kol yukarı: hayır, oyuna dön");
   $("ckEvetB").textContent = t("Evet"); $("ckHayirB").textContent = t("Hayır"); $("cikisPanel").style.display = "flex"; cal("blok", 0.4, 1.3);
 }
-function cikisKapat(evet) { $("cikisPanel").style.display = "none"; ciftYolla({ tip: "dur", b: false }); if (evet) menuGoster(); else cal("adim1", 0.5, 1.2); }
+let cikisUygulama = false;      // true: soru "uygulamadan çık" (menüde geri tuşu), false: "oyundan çık"
+function cikisKapat(evet) {
+  $("cikisPanel").style.display = "none";
+  if (cikisUygulama) { cikisUygulama = false; if (evet && UygulamaEk) UygulamaEk.exitApp(); return; }
+  ciftYolla({ tip: "dur", b: false }); if (evet) menuGoster(); else cal("adim1", 0.5, 1.2);
+}
+const UygulamaEk = !DIS && window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform() && window.capacitorApp ? window.capacitorApp.App : null;
+function geriTusu() {
+  const acik = id => { const e = $(id); return e && e.style.display && e.style.display !== "none"; };
+  if (acik("cikisPanel")) { cikisKapat(false); return; }
+  if (ogAcik()) { ogKapat(); return; }
+  if (acik("ayarPanel")) { $("ayKapat").click(); return; }
+  if (acik("bilgiPanel")) { $("bilgiPanel").style.display = "none"; return; }
+  if (acik("kilitPanel")) { kilitKapat(); return; }
+  if (durum !== "menu" || acik("cift")) { menuGoster(); return; }
+  cikisUygulama = true;
+  $("ckBaslik").textContent = t("Uygulamadan çıkılsın mı?"); $("ckEvet").textContent = ""; $("ckHayir").textContent = "";
+  $("ckEvetB").textContent = t("Evet"); $("ckHayirB").textContent = t("Hayır"); $("cikisPanel").style.display = "flex";
+}
+if (UygulamaEk) UygulamaEk.addListener("backButton", geriTusu);
 function modGec(o) {      // bir oyundan diğerine geç: öncekini gizle, yenisini kur ve göster
   if (aktif && aktif !== o) { if (aktif.yerlesik) { sifirla(); kosuGoster(false); } else aktif.kapat(); }
   K = KARAKTER[o.ikiKisi ? "kiz" : secili];      // 2 kişilikte her zaman kız solda, erkek sağda
@@ -2126,6 +2177,7 @@ function dilUygula() {
   $("kilitDugme").textContent = t("Tam ekran yap"); $("ayBaslik").textContent = t("Ayarlar"); $("ayZorluk").textContent = t("Zorluk");
   document.documentElement.dir = SAGDAN_SOLA.has(dil) ? "rtl" : "ltr";
   $("ayDil").textContent = "🌐 " + (dil === "tr" ? "Dil / Language" : "Language / Dil"); $("ayKapat").textContent = t("Tamam");
+  $("ayMuzik").textContent = "🎵 " + t("Müzik") + ": " + (muzikAcik ? t("Evet") : t("Hayır")); $("ayMuzik").classList.toggle("secili", muzikAcik);
   $("ayGeri").textContent = "🔄 " + t("Satın alımı geri yükle"); $("ayGuvenlik").textContent = "🛡️ " + t("Güvenli oyun"); $("ayHata").textContent = "🐞 " + t("Sorun bildir"); $("ayarAc").textContent = "⚙️ " + Z().ikon;
   for (const b of document.querySelectorAll("#ayarPanel [data-z]")) { const z = ZORLUKLAR[b.dataset.z]; b.textContent = z.ikon + " " + (z.ad === "normal" ? "Normal" : t(z.ad === "kolay" ? "Kolay" : "Zor")); b.classList.toggle("secili", z.ad === zorlukAd); }
   for (const b of document.querySelectorAll("#ayarPanel [data-d]")) b.classList.toggle("secili", b.dataset.d === dil);
@@ -2134,6 +2186,7 @@ function dilUygula() {
 function hubKur() {
   $("ayarAc").addEventListener("click", () => { $("ayarPanel").style.display = "flex"; });
   $("ayKapat").addEventListener("click", () => { $("ayarPanel").style.display = "none"; menuGoster(); });
+  $("ayMuzik").addEventListener("click", () => { muzikAcik = !muzikAcik; try { localStorage.setItem("ig_muzik", muzikAcik ? "1" : "0"); } catch (e) {} sesleriYukle(); muzikGuncelle(); dilUygula(); });
   $("ayGeri").addEventListener("click", () => geriYukle(false)); $("ayGuvenlik").addEventListener("click", () => { $("ayarPanel").style.display = "none"; guvenlikGoster(); }); $("ayHata").addEventListener("click", sorunBildir);
   for (const b of document.querySelectorAll("#ayarPanel [data-z]")) b.addEventListener("click", () => { zorlukAd = b.dataset.z; try { localStorage.setItem("igZorluk", zorlukAd); } catch (e) {} dilUygula(); });
   for (const [k, ad] of DILLER) {
