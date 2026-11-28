@@ -471,9 +471,9 @@ function sesleriYukle() {
     }
   } catch (e) { sesCtx = null; }
 }
-// Arka plan müziği: ana sayfada sakin parça, oyunda hızlı parça; aralarında yumuşak geçiş. Ayarlardan kapatılabilir.
+// Arka plan müziği (gilzoide, CC0, opengameart.org/content/party-and-gameover-loop): ana sayfada sakin parça, oyunda hızlı parça; aralarında yumuşak geçiş. Ayarlardan kapatılabilir.
 // MUZIK tablosu: parça adı → dosya. Dosyayı değiştirmek için sadece burası değişir.
-const MUZIK = { menu: "assets/ses/muzik.ogg", oyun: "assets/ses/muzik.ogg" }, MUZIK_SES = 0.22;
+const MUZIK = { menu: "assets/ses/muzik-menu.ogg", oyun: "assets/ses/muzik-oyun.ogg" }, MUZIK_SES = 0.22;      // "Party and Gameover loop" — gilzoide, CC0
 let muzikAcik = true; const muzikParca = {};      // ad → { tampon, kaynak, kazanc, yukleniyor }
 try { muzikAcik = localStorage.getItem("ig_muzik") !== "0"; } catch (e) {}
 const muzikIstenen = () => durum === "menu" ? "menu" : "oyun";
